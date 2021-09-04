@@ -10,5 +10,4 @@ edition = "2018"
 calendar = { path = "../../calendar" }
 weather = {path = "../../weather"}
 building_model = {path = "../../building_model"}
-simulation_state = { path = "../../simulation_state" }
 communication_protocols = { path = "../../communication_protocols" }

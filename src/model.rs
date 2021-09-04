@@ -3,9 +3,8 @@ use building_model::building::Building;
 use calendar::date::Date;
 use communication_protocols::error_handling::ErrorHandling;
 use communication_protocols::simulation_model::SimulationModel;
-use simulation_state::simulation_state::SimulationState;
-use simulation_state::simulation_state_element::SimulationStateElement;
-use building_model::object_trait::ObjectTrait;
+use building_model::simulation_state::SimulationState;
+use building_model::simulation_state_element::SimulationStateElement;
 
 pub struct SolarModel ();
 
@@ -20,10 +19,10 @@ impl SimulationModel for SolarModel {
 
     fn new(building : &Building, state: &mut SimulationState, _n: usize)->Result<Self::Type,String>{
 
-        for space in building.get_spaces(){
+        for space in &building.spaces{
             // Initialize at night.... this will change right away because
             // light is quasi-static (does not depend on the apast)
-            state.push( SimulationStateElement::SpaceBrightness(space.index(), 0.0));
+            state.push( SimulationStateElement::SpaceBrightness(space.index().unwrap(), 0.0));
         }
 
         // We could do the same thing with SolarRadiation over walls, but the 
@@ -38,23 +37,12 @@ impl SimulationModel for SolarModel {
         let direct_normal_radiation = current_weather.direct_normal_radiation.unwrap();
         let global_horizontal_radiation = current_weather.global_horizontal_radiation.unwrap();
 
-        for space in building.get_spaces(){
-            let i = space.get_brightness_state_index().unwrap();
+        for (space_index,space) in building.spaces.iter().enumerate(){
+            let i = space.brightness_index().unwrap();
 
-            if let SimulationStateElement::SpaceBrightness(space_index, _) = state[i]
-            {
-                if space_index != space.index() {
-                    panic!(
-                        "Incorrect index allocated for Brightness of Space '{}'",
-                        space.index()
-                    );
-                }
-                
-                // all Good here
-                state[i] = SimulationStateElement::SpaceBrightness(space_index, 0.3*global_horizontal_radiation + 0.7 * direct_normal_radiation);
-            } else {
-                panic!("Incorrect StateElement kind allocated for Brightness of Space '{}'", space.index());
-            }
+            state.update_value(i, 
+                SimulationStateElement::SpaceBrightness(space_index, 0.4*global_horizontal_radiation + 0.5 * direct_normal_radiation)
+            )      
         }
 
         Ok(())

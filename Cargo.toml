@@ -7,7 +7,11 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-calendar = { path = "../../calendar" }
-weather = {path = "../../weather"}
-building_model = {path = "../../building_model"}
-communication_protocols = { path = "../../communication_protocols" }
+calendar = { git = "https://github.com/SIMPLE-BuildingSimulation/calendar.git" }
+weather = { git = "https://github.com/SIMPLE-BuildingSimulation/weather.git" }
+simple_model = {git = "https://github.com/SIMPLE-BuildingSimulation/simple_model.git"}
+communication_protocols = { git = "https://github.com/SIMPLE-BuildingSimulation/communication_protocols.git" }
+
+[features]
+default = []
+float = ["calendar/float", "weather/float", "simple_model/float"]

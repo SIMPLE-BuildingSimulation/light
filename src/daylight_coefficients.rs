@@ -30,11 +30,14 @@ use solar::ReinhartSky;
 use matrix::Matrix;
 use rand::prelude::*;
 
-pub fn calc_dc(rays: &Vec<Ray3D>, scene: &Scene, mf: usize)-> Matrix {
+use rayon::prelude::*;
+use std::sync::{Mutex, Arc};
+
+pub fn calc_dc(rays: &[Ray3D], scene: &Scene, mf: usize)-> Matrix {
     // Initialize DC Factory
     let mut factory = DCFactory::new(mf);
-    factory.max_depth = 1;
-    factory.n_ambient_samples = 1000;
+    factory.max_depth = 2;
+    factory.n_ambient_samples = 500;
     factory.limit_weight=0.0;
 
     // Initialize matrix
@@ -42,16 +45,16 @@ pub fn calc_dc(rays: &Vec<Ray3D>, scene: &Scene, mf: usize)-> Matrix {
     let mut ret = Matrix::new(0.0, rays.len(), n_bins);
 
     // Process.
-    for (sensor_index, ray) in rays.iter().enumerate(){
-        let mut rng = rand::thread_rng();
+    let dcs : Vec<Arc<Mutex<Vec<Float>>>> = rays.par_iter().map(|ray|-> Arc<Mutex<Vec<Float>>> {
         let normal = ray.direction;
         let e2 = normal.get_perpendicular().unwrap();
         let e1 = e2.cross(normal);
         let origin = ray.origin;
-
-        let mut spectrum : Vec<Float> = vec![0.0; n_bins];
-
-        for _ in 0..factory.n_ambient_samples {
+        
+        let spectrum  = Arc::new(Mutex::new(vec![0.0; n_bins]));
+        
+        let _ = (0..factory.n_ambient_samples).into_par_iter().map(|_|{
+            let mut rng = rand::thread_rng();
             // Choose a direction.            
             let new_ray_dir = rendering::samplers::cosine_weighted_sample_hemisphere(&mut rng, e1, e2, normal);
             debug_assert!((1.-new_ray_dir.length()).abs() < 0.0000001);
@@ -66,14 +69,20 @@ pub fn calc_dc(rays: &Vec<Ray3D>, scene: &Scene, mf: usize)-> Matrix {
             let cos_theta = (normal * new_ray_dir).abs();
             let current_prob = cos_theta;
             let current_weight = cos_theta;
-            factory.trace_ray(&mut rng, scene, &new_ray, 0, current_weight, current_prob, &mut spectrum);                        
+            factory.trace_ray(&mut rng, scene, &new_ray, 0, current_weight, current_prob, Arc::clone(&spectrum));                                                
+        }).collect::<()>();
+        spectrum
+    }).collect();
+    
 
-            
-            // // add contribution                                      
-            let one_over_samples = 1./ factory.n_ambient_samples as Float;
-            for (patch_index, v) in spectrum.iter().enumerate(){
-                ret.set(sensor_index, patch_index, *v / one_over_samples).unwrap();
-            }
+    // Write down the results
+    let one_over_samples = 1./ factory.n_ambient_samples as Float;
+    for (sensor_index, spectrum) in dcs.iter().enumerate(){
+        // add contribution    
+        // PI * one_over_samples *
+        let s = &*spectrum.lock().unwrap();                                  
+        for (patch_index, v) in s.iter().enumerate(){
+            ret.set(sensor_index, patch_index, *v * PI * one_over_samples ).unwrap();
         }
     }
 
@@ -96,7 +105,7 @@ impl Default for DCFactory{
     fn default()->Self{
         Self{
             reinhart: ReinhartSky::new(1),
-            max_depth: 2,
+            max_depth: 0,
             n_shadow_samples: 900,
             n_ambient_samples: 10,
 
@@ -124,11 +133,8 @@ impl DCFactory {
      /// Recursively traces a ray until it excedes the `max_depth` of the 
      /// `DCFactory` or the ray does not hit anything (i.e., it reaches either
      /// the sky or the ground)
-     fn trace_ray(&self, rng: &mut ThreadRng, scene: &Scene, ray: &Ray, current_depth: usize, current_value: Float, current_prob: Float, spectrum: &mut Vec<Float>){
-        
-        let n_samples = self.n_ambient_samples as Float;
-        let one_over_samples_sq = 1./n_samples/n_samples;
-
+     fn trace_ray(&self, rng: &mut ThreadRng, scene: &Scene, ray: &Ray, current_depth: usize, current_value: Float, _current_prob: Float, spectrum: Arc<Mutex<Vec<Float>>>){
+                        
         // Limit bounces        
         if current_depth > self.max_depth {
             return 
@@ -196,9 +202,9 @@ impl DCFactory {
                             }
                         }
 
-                        let new_prob = current_prob * material_pdf;
+                        let new_prob = _current_prob * material_pdf;
 
-                        self.trace_ray(rng, scene, &new_ray, current_depth + 1, new_value, new_prob, spectrum);                            
+                        self.trace_ray(rng, scene, &new_ray, current_depth + 1, new_value, new_prob, Arc::clone(&spectrum));                            
                     }                        
                 }
             }else{
@@ -209,8 +215,11 @@ impl DCFactory {
 
             
             let bin_n = self.reinhart.dir_to_bin(ray.geometry.direction);
-            
-            spectrum[bin_n] += PI * one_over_samples_sq * current_value /current_prob ;
+            let mut s = spectrum.lock().unwrap();
+            let omega = self.reinhart.bin_solid_angle(bin_n);
+            // eprintln!("Adding {} to bin {}", PI * one_over_samples * current_value /current_prob , bin_n);
+            s[bin_n] +=  1.;//current_value ;//* omega;// /_current_prob;//*omega ;            
+
         }
     }
 

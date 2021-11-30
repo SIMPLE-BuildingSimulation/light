@@ -1,10 +1,12 @@
 use weather::Weather;
-use simple_model::model::SimpleModel;
-use calendar::date::Date;
+use simple_model::{
+    SimpleModel,
+    SimulationState,SimulationStateHeader
+};
+use calendar::Date;
 use communication_protocols::error_handling::ErrorHandling;
 use communication_protocols::simulation_model::SimulationModel;
-use simple_model::simulation_state::{SimulationState,SimulationStateHeader};
-use simple_model::simulation_state_element::SimulationStateElement;
+
 
 pub struct SolarModel ();
 
@@ -17,17 +19,9 @@ impl ErrorHandling for SolarModel {
 impl SimulationModel for SolarModel {
     type Type = Self;
 
-    fn new(model : &SimpleModel, state: &mut SimulationStateHeader, _n: usize)->Result<Self::Type,String>{
+    fn new(_model : &SimpleModel, _state: &mut SimulationStateHeader, _n: usize)->Result<Self::Type,String>{
 
-        for (i,space) in model.spaces.iter().enumerate(){
-            // Initialize at night.... this will change right away because
-            // light is quasi-static (does not depend on the apast)
-            let index = state.push( SimulationStateElement::SpaceBrightness(i), 0.0);
-            space.set_brightness_index(index);
-        }
-
-        // We could do the same thing with SolarRadiation over walls, but the 
-        // current THermalModule does not support that.
+        
 
         Ok(Self())
     }

@@ -1,0 +1,12 @@
+warning: unused import: `crate::material::Material`
+  --> /Users/german/Documents/simple/rendering/src/ray_tracer.rs:29:5
+   |
+29 | use crate::material::Material;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` on by default
+
+warning: `rendering` (lib) generated 1 warning
+    Finished release [optimized + debuginfo] target(s) in 0.15s
+     Running `target/release/simple_light ./test_data/one_surface.rad asd`
+Ready to calc!... # Surface = 2

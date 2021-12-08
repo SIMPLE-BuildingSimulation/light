@@ -16,10 +16,11 @@ solar = { path = "../solar" }
 # rendering = { git = "https://github.com/SIMPLE-BuildingSimulation/rendering.git" }
 rendering = {path="../rendering", features=["parallel"]}
 matrix = { git = "https://github.com/SIMPLE-BuildingSimulation/matrix.git" }
-geometry3d = {git = "https://github.com/SIMPLE-BuildingSimulation/geometry3d.git", features=["parallel"]}
+# geometry3d = {git = "https://github.com/SIMPLE-BuildingSimulation/geometry3d.git", features=["parallel"]}
+geometry3d = {path="../geometry3d"}
 clap = "2.33.3"
 rand = "0.8.4"
-rayon = "1.5.1"
+rayon = {version = "1.5.1", optional = true}
 
 [lib]
 name = "solar_model"
@@ -32,7 +33,10 @@ path = "src/bin.rs"
 
 [profile.release]
 debug = true
+lto = true
+codegen-units = 1
 
 [features]
 default = []
+parallel = [ "rayon" ]
 float = ["calendar/float", "weather/float", "simple_model/float", "solar/float", "rendering/float", "geometry3d/float"]

@@ -28,35 +28,56 @@ use rendering::ray::Ray;
 use rendering::interaction::Interaction;
 use solar::ReinhartSky;
 use matrix::Matrix;
-use rand::prelude::*;
-
-use rayon::prelude::*;
 use std::sync::{Mutex, Arc};
+use rendering::rand::*;
+
+#[cfg(feature = "parallel")]
+use rayon::prelude::*;
+
+// const ONE_OVER_PI : Float = 1./PI;
 
 pub fn calc_dc(rays: &[Ray3D], scene: &Scene, mf: usize)-> Matrix {
     // Initialize DC Factory
     let mut factory = DCFactory::new(mf);
-    factory.max_depth = 2;
-    factory.n_ambient_samples = 500;
-    factory.limit_weight=0.0;
+    factory.max_depth = 3;
+    factory.n_ambient_samples = 600;
+    factory.limit_weight= 1e-32; // down to about 1e-40?
 
+    let one_over_samples = 1./ factory.n_ambient_samples as Float;
+    
     // Initialize matrix
     let n_bins = factory.reinhart.n_bins;
     let mut ret = Matrix::new(0.0, rays.len(), n_bins);
 
-    // Process.
-    let dcs : Vec<Arc<Mutex<Vec<Float>>>> = rays.par_iter().map(|ray|-> Arc<Mutex<Vec<Float>>> {
-        let normal = ray.direction;
-        let e2 = normal.get_perpendicular().unwrap();
-        let e1 = e2.cross(normal);
+    // Process... This can be in parallel, or not.
+    #[cfg(not(feature = "parallel"))]
+    let aux_iter = rays.iter();
+    #[cfg(feature = "parallel")]
+    let aux_iter = rays.par_iter();
+
+    let dcs : Vec<Arc<Mutex<Vec<Float>>>> = aux_iter.map(|ray|-> Arc<Mutex<Vec<Float>>> {
+        
+        // let normal = ray.direction;        
         let origin = ray.origin;
         
         let spectrum  = Arc::new(Mutex::new(vec![0.0; n_bins]));
         
-        let _ = (0..factory.n_ambient_samples).into_par_iter().map(|_|{
-            let mut rng = rand::thread_rng();
+        // Run each spawned ray in parallel
+        #[cfg(not(feature = "parallel"))]
+        let aux_iter = 0..factory.n_ambient_samples;
+        #[cfg(feature = "parallel")]
+        let aux_iter = (0..factory.n_ambient_samples).into_par_iter();
+        // let rng_src = get_rng();
+
+        let counter = Arc::new(Mutex::new(0));
+        let _ = aux_iter.map(|_|{
+                        
+            let mut rng = get_rng();//clone_rng(&rng_src);
             // Choose a direction.            
-            let new_ray_dir = rendering::samplers::cosine_weighted_sample_hemisphere(&mut rng, e1, e2, normal);
+            let new_ray_dir = rendering::samplers::sample_cosine_weighted_horizontal_hemisphere(&mut rng);
+            // let cos_theta = (normal * new_ray_dir).abs();
+            // let _current_prob = cos_theta*ONE_OVER_PI;
+
             debug_assert!((1.-new_ray_dir.length()).abs() < 0.0000001);
             let new_ray = Ray{
                 time: 0.,
@@ -66,23 +87,34 @@ pub fn calc_dc(rays: &[Ray3D], scene: &Scene, mf: usize)-> Matrix {
                 }
             };
 
-            let cos_theta = (normal * new_ray_dir).abs();
-            let current_prob = cos_theta;
-            let current_weight = cos_theta;
-            factory.trace_ray(&mut rng, scene, &new_ray, 0, current_weight, current_prob, Arc::clone(&spectrum));                                                
+            
+            // let current_weight = cos_theta;
+            factory.trace_ray(scene, &new_ray, 0, PI*one_over_samples/*current_weight*/,  Arc::clone(&spectrum));                                                
+            
+            // Divide by the probability of the first ray
+            // let mut s = spectrum.lock().unwrap();
+            // for v in s.iter_mut(){
+            //     *v *= one_over_samples;//current_prob;
+            // }
+            let mut c = counter.lock().unwrap();
+            *c += 1;
+            
+            let perc = (100. *  *c as Float/ factory.n_ambient_samples as Float).round() as usize;            
+            eprintln!("Ray {} of {} ({}%) done...", c, factory.n_ambient_samples, perc);
+            
+            
         }).collect::<()>();
         spectrum
-    }).collect();
+}).collect();
     
 
     // Write down the results
-    let one_over_samples = 1./ factory.n_ambient_samples as Float;
+    
     for (sensor_index, spectrum) in dcs.iter().enumerate(){
-        // add contribution    
-        // PI * one_over_samples *
+        // add contribution            
         let s = &*spectrum.lock().unwrap();                                  
         for (patch_index, v) in s.iter().enumerate(){
-            ret.set(sensor_index, patch_index, *v * PI * one_over_samples ).unwrap();
+            ret.set(sensor_index, patch_index, *v  ).unwrap();
         }
     }
 
@@ -98,7 +130,7 @@ pub struct DCFactory {
     pub n_ambient_samples: usize,
 
     pub limit_weight: Float,
-    pub limit_reflections: usize,
+    // pub limit_reflections: usize,
 }
 
 impl Default for DCFactory{
@@ -110,7 +142,7 @@ impl Default for DCFactory{
             n_ambient_samples: 10,
 
             limit_weight: 1e-5,
-            limit_reflections: 0,
+            // limit_reflections: 0,
         }
     }
 }
@@ -133,49 +165,59 @@ impl DCFactory {
      /// Recursively traces a ray until it excedes the `max_depth` of the 
      /// `DCFactory` or the ray does not hit anything (i.e., it reaches either
      /// the sky or the ground)
-     fn trace_ray(&self, rng: &mut ThreadRng, scene: &Scene, ray: &Ray, current_depth: usize, current_value: Float, _current_prob: Float, spectrum: Arc<Mutex<Vec<Float>>>){
-                        
+     fn trace_ray(&self, scene: &Scene, ray: &Ray, current_depth: usize, current_value: Float,  spectrum: Arc<Mutex<Vec<Float>>>){
+        // eprintln!("A;");
         // Limit bounces        
-        if current_depth > self.max_depth {
+        if current_depth > self.max_depth {            
             return 
         }
-
+        // eprintln!("B;");
         
-        
-        
+        let one_over_samples = 1./ self.n_ambient_samples as Float;
+        // eprintln!("C;");
         // If hits an object
         if let Some((t, interaction)) = scene.cast_ray(ray) {
-
+            // eprintln!("D;");
             let object = interaction.object();
+            // eprintln!("E;");
             if let Interaction::Surface(data) = &interaction{
+                // eprintln!("F;");
                 // get the normal... can be textured.           
                 let normal = data.normal();
-
+                // eprintln!("G;");
                 debug_assert!((1.0 - normal.length()).abs() < 0.000001);
-
                 // let object = interaction.object();
-
+                
                 let material = match data.geometry_shading.side {
                     SurfaceSide::Front => {
                         &scene.materials[object.front_material_index]
                     },
                     SurfaceSide::Back =>{
                         &scene.materials[object.back_material_index]
-                    }                        
+                    },
+                    SurfaceSide::NonApplicable => {
+                        return;
+                    }                   
                 };
+                // eprintln!("H;");
                 
                 let intersection_pt = ray.geometry.project(t);
-                
+                // eprintln!("I;");
                 let ray_dir = ray.geometry.direction;
             
                 
                 // for now, emmiting materials don't reflect
                 if !material.emits_direct_light() {
+                    // eprintln!("J;");
                     
-                    
-                    for _ in 0..self.n_ambient_samples {
-                        // Choose a direction.
-                        let new_ray_dir = material.sample_bsdf(rng, ray_dir, data.geometry_shading);
+                    let bsdf_sampler = material.bsdf_sampler(data.geometry_shading);
+
+                    // Run each spawned ray                    
+                    // let rng_src = get_rng();
+                    let _ = (0..self.n_ambient_samples).map(|_| {
+                        let mut rng = get_rng();//clone_rng(&rng_src);
+                        let (new_ray_dir, _material_pdf) = bsdf_sampler(ray_dir, &mut rng);                            
+
                         debug_assert!((1.-new_ray_dir.length()).abs() < 0.0000001);
                         let new_ray = Ray{
                             time: ray.time,
@@ -188,24 +230,23 @@ impl DCFactory {
                         // WE ARE USING ONLY THE RED COLOR FOR NOW.
                         let refl = material.colour().red;
                         
-                        let material_pdf = material.bsdf(ray_dir, normal, new_ray_dir);
-                        let new_value = current_value * cos_theta * refl * material_pdf;
+                        let new_value = current_value * cos_theta * refl */*material_pdf **/ one_over_samples * 1.5;
 
                         // Check reflection limits... as described in RTRACE's man
-                        if new_value < self.limit_weight && self.limit_reflections > 0 {
-                            return;
-                        } else {
+                        // if  self.limit_reflections > 0 && new_value < self.limit_weight {
+                        //     return;
+                        // } else 
+                        if self.limit_weight > 0. && new_value < self.limit_weight {
+                            
                             // russian roulette
                             let q : Float = rng.gen();
-                            if q > new_value/self.limit_weight {
+                            if q > new_value/self.limit_weight {                                
                                 return;
                             }
+                        }else{
+                            self.trace_ray(scene, &new_ray, current_depth + 1, new_value,  Arc::clone(&spectrum));                            
                         }
-
-                        let new_prob = _current_prob * material_pdf;
-
-                        self.trace_ray(rng, scene, &new_ray, current_depth + 1, new_value, new_prob, Arc::clone(&spectrum));                            
-                    }                        
+                    }).collect::<()>();                        
                 }
             }else{
                 unreachable!();
@@ -213,12 +254,20 @@ impl DCFactory {
                         
         } else {        
 
-            
+            // eprintln!("BEFORE FINISH 1;");
             let bin_n = self.reinhart.dir_to_bin(ray.geometry.direction);
+            // if bin_n == 0 {
+            //     eprintln!("Adding {} to bin {}", current_value, bin_n);
+            // }
+            // eprintln!("BEFORE FINISH 2;");
+            let li = 1.;
             let mut s = spectrum.lock().unwrap();
-            let omega = self.reinhart.bin_solid_angle(bin_n);
-            // eprintln!("Adding {} to bin {}", PI * one_over_samples * current_value /current_prob , bin_n);
-            s[bin_n] +=  1.;//current_value ;//* omega;// /_current_prob;//*omega ;            
+            // eprintln!("BEFORE FINISH 3;");
+            // let omega = 2. * PI * one_over_samples;
+            // let omega = self.reinhart.bin_solid_angle(bin_n);
+            // println!("Oomega = {} | other_omega = {}", omega, self.reinhart.bin_solid_angle(bin_n));
+            s[bin_n] +=  li * current_value;// /_current_prob;//*omega ;            
+            // eprintln!("BEFORE FINISH 4;");
 
         }
     }

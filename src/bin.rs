@@ -66,8 +66,8 @@ fn main() {
     let up = Vector3D::new(0., 0., 1.);
     let rays = vec![
         Ray3D{origin: Point3D::new(2., 0.5, 0.8), direction: up },
-        Ray3D{origin: Point3D::new(2., 2.5, 0.8), direction: up },
-        Ray3D{origin: Point3D::new(2., 5.5, 0.8), direction: up },            
+        // Ray3D{origin: Point3D::new(2., 2.5, 0.8), direction: up },
+        // Ray3D{origin: Point3D::new(2., 5.5, 0.8), direction: up },            
     ];
     
     eprintln!("Ready to calc!... # Surface = {}", scene.objects.len());

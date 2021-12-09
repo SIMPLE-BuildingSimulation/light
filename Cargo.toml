@@ -11,10 +11,10 @@ calendar = { git = "https://github.com/SIMPLE-BuildingSimulation/calendar.git" }
 weather = { git = "https://github.com/SIMPLE-BuildingSimulation/weather.git" }
 simple_model = {git = "https://github.com/SIMPLE-BuildingSimulation/simple_model.git"}
 communication_protocols = { git = "https://github.com/SIMPLE-BuildingSimulation/communication_protocols.git" }
-# solar = { git = "https://github.com/SIMPLE-BuildingSimulation/solar.git" }
-solar = { path = "../solar" }
-rendering = { git = "https://github.com/SIMPLE-BuildingSimulation/rendering.git" }
-# rendering = {path="../rendering", features=["parallel"]}
+solar = { git = "https://github.com/SIMPLE-BuildingSimulation/solar.git" }
+# solar = { path = "../solar" }
+# rendering = { git = "https://github.com/SIMPLE-BuildingSimulation/rendering.git" }
+rendering = {path="../rendering" }
 matrix = { git = "https://github.com/SIMPLE-BuildingSimulation/matrix.git" }
 geometry3d = {git = "https://github.com/SIMPLE-BuildingSimulation/geometry3d.git", features=["parallel"]}
 # geometry3d = {path="../geometry3d"}

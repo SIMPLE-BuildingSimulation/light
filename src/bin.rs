@@ -52,7 +52,7 @@ fn main() {
     let input_file = matches.value_of("input").unwrap();
     let _weather_file = "asd";//matches.value_of("weather").unwrap();
 
-    let scene = if input_file.ends_with(".rad") {        
+    let mut scene = if input_file.ends_with(".rad") {        
         Scene::from_radiance(input_file.to_string())
     }else if input_file.ends_with(".simple") || input_file.ends_with(".spl"){
         panic!("Reading SIMPLE models is still not suppoerted")
@@ -61,13 +61,14 @@ fn main() {
         std::process::exit(1); 
     };
 
+    scene.build_accelerator();
 
     // Setup sensors
     let up = Vector3D::new(0., 0., 1.);
     let rays = vec![
         Ray3D{origin: Point3D::new(2., 0.5, 0.8), direction: up },
-        // Ray3D{origin: Point3D::new(2., 2.5, 0.8), direction: up },
-        // Ray3D{origin: Point3D::new(2., 5.5, 0.8), direction: up },            
+        Ray3D{origin: Point3D::new(2., 2.5, 0.8), direction: up },
+        Ray3D{origin: Point3D::new(2., 5.5, 0.8), direction: up },            
     ];
     
     eprintln!("Ready to calc!... # Surface = {}", scene.objects.len());

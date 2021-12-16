@@ -23,6 +23,7 @@ use crate::PI;
 use crate::Float;
 use rendering::scene::{Scene};
 use geometry3d::Ray3D;
+use geometry3d::{Point3D, Vector3D};
 use geometry3d::intersect_trait::SurfaceSide;
 use rendering::ray::Ray;
 use rendering::interaction::Interaction;
@@ -32,8 +33,11 @@ use std::sync::{Mutex, Arc};
 use rendering::rand::*;
 use rendering::samplers::HorizontalCosineWeightedHemisphereSampler;
 
+
 #[cfg(feature = "parallel")]
 use rayon::prelude::*;
+// #[cfg(feature = "parallel")]
+// use geometry3d::Vector3D;
 
 // const ONE_OVER_PI : Float = 1./PI;
 
@@ -58,7 +62,6 @@ pub fn calc_dc(rays: &[Ray3D], scene: &Scene, mf: usize)-> Matrix {
         
         // let normal = ray.direction;        
         let origin = ray.origin;
-        
         let spectrum  = Arc::new(Mutex::new(vec![0.0; n_bins]));
         
         // Run each spawned ray in parallel or series, depending on 
@@ -72,7 +75,7 @@ pub fn calc_dc(rays: &[Ray3D], scene: &Scene, mf: usize)-> Matrix {
         };
         
         
-        let counter = Arc::new(Mutex::new(0));
+        // let counter = Arc::new(Mutex::new(0));
         aux_iter.for_each(|new_ray_dir|{
                         
 
@@ -86,19 +89,16 @@ pub fn calc_dc(rays: &[Ray3D], scene: &Scene, mf: usize)-> Matrix {
             };
 
             
+            let mut rng = get_rng();
             // let current_weight = cos_theta;
-            factory.trace_ray(scene, &new_ray, 0, PI/* *one_over_samples *current_weight*/, factory.n_ambient_samples, Arc::clone(&spectrum));                                                
+            factory.trace_ray(scene, &new_ray, 0, PI/* *one_over_samples *current_weight*/, factory.n_ambient_samples, Arc::clone(&spectrum), &mut rng);                                                
             
-            // Divide by the probability of the first ray
-            // let mut s = spectrum.lock().unwrap();
-            // for v in s.iter_mut(){
-            //     *v *= one_over_samples;//current_prob;
-            // }
-            let mut c = counter.lock().unwrap();
-            *c += 1;
             
-            let perc = (100. *  *c as Float/ factory.n_ambient_samples as Float).round() as usize;            
-            eprintln!("Ray {} of {} ({}%) done...", c, factory.n_ambient_samples, perc);
+            // let mut c = counter.lock().unwrap();
+            // *c += 1;
+            
+            // let perc = (100. *  *c as Float/ factory.n_ambient_samples as Float).round() as usize;            
+            // eprintln!("Ray {} of {} ({}%) done...", c, factory.n_ambient_samples, perc);
             
             
         });
@@ -163,7 +163,7 @@ impl DCFactory {
      /// Recursively traces a ray until it excedes the `max_depth` of the 
      /// `DCFactory` or the ray does not hit anything (i.e., it reaches either
      /// the sky or the ground)
-     fn trace_ray(&self, scene: &Scene, ray: &Ray, current_depth: usize, current_value: Float,  denom_samples: usize, spectrum: Arc<Mutex<Vec<Float>>>){
+     fn trace_ray(&self, scene: &Scene, ray: &Ray, current_depth: usize, current_value: Float,  denom_samples: usize, spectrum: Arc<Mutex<Vec<Float>>>, rng: &mut RandGen){
         // Limit bounces        
         if current_depth > self.max_depth {            
             return 
@@ -175,8 +175,13 @@ impl DCFactory {
             let object = interaction.object();            
             if let Interaction::Surface(data) = &interaction{
                 // get the normal... can be textured.           
+                /*
                 let normal = data.normal();
                 debug_assert!((1.0 - normal.length()).abs() < 0.000001);
+                */
+                let normal = data.geometry_shading.normal.get_normalized();
+                let e1 = data.geometry_shading.dpdu.get_normalized();
+                let e2 = e1.cross(normal).get_normalized();
                 
                 let material = match data.geometry_shading.side {
                     SurfaceSide::Front => {
@@ -191,14 +196,14 @@ impl DCFactory {
                 };
                 
                 let intersection_pt = ray.geometry.project(t);
-                let ray_dir = ray.geometry.direction;
+                // let ray_dir = ray.geometry.direction;
             
                 // for now, emmiting materials don't reflect
                 if !material.emits_direct_light() {
-                    let bsdf_sampler = material.bsdf_sampler(data.geometry_shading);
+                    // let bsdf_sampler = material.bsdf_sampler(data.geometry_shading);
 
                     // Run each spawned ray                    
-                    let mut rng = get_rng();
+                    // let mut rng = get_rng();
                     
                     /* Adapted From Radiance's samp_hemi() at src/rt/ambcomp.c */
                     let mut wt = current_value;
@@ -213,7 +218,26 @@ impl DCFactory {
                     }
                     /* End of Adapted Radiance's code*/
                     (0..n).for_each(|_| {
-                        let (new_ray_dir, _material_pdf) = bsdf_sampler(ray_dir, &mut rng);                            
+                        /*
+                        // let (new_ray_dir, _material_pdf) = bsdf_sampler(ray_dir, &mut rng);                            
+
+                        */
+                        // Probability
+                        let (new_ray_dir, _material_pdf) = {
+                            const ONE_OVER_PI: Float = 1. / PI;
+                            let prob = ONE_OVER_PI;
+
+                            let local_dir = rendering::samplers::sample_cosine_weighted_horizontal_hemisphere(rng);            
+                            debug_assert!( (local_dir.length() - 1.).abs() < 1e-5);
+                            debug_assert!( (e1*e2).abs() < 1e-8);
+                            debug_assert!( (e1*normal).abs() < 1e-8);
+                            debug_assert!( (e2*normal).abs() < 1e-8);
+
+                            let (x,y,z) = rendering::samplers::local_to_world(e1, e2, normal, Point3D::new(0., 0., 0.), local_dir.x, local_dir.y, local_dir.z);
+                            let dir = Vector3D::new(x,y,z);
+                            // debug_assert!( (dir.length() - 1.).abs() < 1e-4);
+                            (dir, prob)
+                        };
 
                         debug_assert!((1.-new_ray_dir.length()).abs() < 0.0000001);
                         let new_ray = Ray{
@@ -240,10 +264,10 @@ impl DCFactory {
                             if q > new_value/self.limit_weight {                                
                                 return;
                             }
-                        }else{
-                            self.trace_ray(scene, &new_ray, current_depth + 1, new_value, denom_samples * n, Arc::clone(&spectrum));                            
                         }
-                    });
+                        self.trace_ray(scene, &new_ray, current_depth + 1, new_value, denom_samples * n, Arc::clone(&spectrum), rng);                            
+                        
+                    });// End the foreach spawned ray
                 }
             } else {
                 unreachable!();

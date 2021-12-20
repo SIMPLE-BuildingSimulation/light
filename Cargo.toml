@@ -19,7 +19,7 @@ matrix = { git = "https://github.com/SIMPLE-BuildingSimulation/matrix.git" }
 geometry3d = {git = "https://github.com/SIMPLE-BuildingSimulation/geometry3d.git", features=["parallel"]}
 # geometry3d = {path="../geometry3d"}
 clap = "2.33.3"
-rand = "0.8.4"
+rand = { version = "0.8.4", features=["small_rng"]}
 rayon = {version = "1.5.1", optional = true}
 
 [lib]

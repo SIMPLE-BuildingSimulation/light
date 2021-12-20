@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["calc_dc",""]],"struct":[["DCFactory","A structure meant to calculate DC matrices for Climate Daylight Simulations."]]});

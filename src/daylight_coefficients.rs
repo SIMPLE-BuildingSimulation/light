@@ -295,7 +295,8 @@ mod tests {
 
         // Read scene
         let rad_file = "./test_data/one_surface.rad";
-        let scene = Scene::from_radiance(rad_file.to_string());
+        let mut scene = Scene::from_radiance(rad_file.to_string());
+        scene.build_accelerator();
         eprintln!("Ready to calc!... # Surface = {}", scene.objects.len());
         
 

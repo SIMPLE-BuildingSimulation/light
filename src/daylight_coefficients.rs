@@ -28,7 +28,8 @@ use geometry3d::intersection::SurfaceSide;
 use rendering::ray::Ray;
 use rendering::interaction::Interaction;
 use solar::ReinhartSky;
-use matrix::Matrix;
+// use matrix::Matrix;
+use rendering::colour::{Spectrum,ColourMatrix};
 use rendering::rand::*;
 use rendering::samplers::HorizontalCosineWeightedHemisphereSampler;
 use geometry3d::Vector3D;
@@ -38,14 +39,14 @@ use geometry3d::Vector3D;
 use rayon::prelude::*;
 
 
-pub fn calc_dc(rays: &[Ray3D], scene: &Scene, mf: usize)-> Matrix {
+pub fn calc_dc(rays: &[Ray3D], scene: &Scene, mf: usize)-> ColourMatrix {
     
     // let counter = std::sync::Arc::new(std::sync::Mutex::new(0));
 
     // Initialize DC Factory
     let mut factory = DCFactory::new(mf);
     factory.max_depth = 3;
-    factory.n_ambient_samples = 3000;
+    factory.n_ambient_samples = 900;
     
     
     // Initialize matrix
@@ -57,7 +58,7 @@ pub fn calc_dc(rays: &[Ray3D], scene: &Scene, mf: usize)-> Matrix {
     #[cfg(feature = "parallel")]
     let aux_iter = rays.par_iter();
     // Iterate the rays
-    let dcs : Vec<Matrix> = aux_iter.map(|ray|-> Matrix {
+    let dcs : Vec<ColourMatrix> = aux_iter.map(|ray|-> ColourMatrix {
         
         // let normal = ray.direction;        
         let origin = ray.origin;        
@@ -75,22 +76,23 @@ pub fn calc_dc(rays: &[Ray3D], scene: &Scene, mf: usize)-> Matrix {
         
         
         // Iterate primary rays           
-        let ray_contributions : Vec<Matrix> = aux_iter.map(| new_ray_dir: Vector3D| -> Matrix {
-            let mut this_ret = Matrix::new(0.0, 1, n_bins);
+        let ray_contributions : Vec<ColourMatrix> = aux_iter.map(| new_ray_dir: Vector3D| -> ColourMatrix {
+            let mut this_ret = ColourMatrix::new(Spectrum::black(), 1, n_bins);
 
             debug_assert!((1.-new_ray_dir.length()).abs() < 0.0000001);
             let new_ray = Ray{
-                time: 0.,
+                // time: 0.,
                 geometry: Ray3D {
                     direction : new_ray_dir,
                     origin,
-                }
+                },
+                refraction_index: 1.
             };
 
             
             let mut rng = get_rng();
             // let current_weight = cos_theta;
-            factory.trace_ray(scene, &new_ray, 0, PI, factory.n_ambient_samples, &mut this_ret, &mut rng);                                                
+            factory.trace_ray(scene, &new_ray, 0, Spectrum::gray(PI), factory.n_ambient_samples, &mut this_ret, &mut rng);                                                
             
             
             // let mut c = counter.lock().unwrap();
@@ -102,16 +104,16 @@ pub fn calc_dc(rays: &[Ray3D], scene: &Scene, mf: usize)-> Matrix {
             this_ret
         }).collect();// End of iterating primary rays
 
-        let mut ret = Matrix::new(0.0, 1, n_bins);     
+        let mut ret = ColourMatrix::new(Spectrum::black(), 1, n_bins);     
         ray_contributions.iter().for_each(|v| {
-            ret.add_to_this(&v).unwrap();
+            ret.add_to_this(v).unwrap();
         });
         ret
     }).collect(); // End of iterating rays
     
 
     // Write down the results
-    let mut ret = Matrix::new(0.0, rays.len(), n_bins);    
+    let mut ret = ColourMatrix::new(Spectrum::black(), rays.len(), n_bins);    
     for (sensor_index, contribution) in dcs.iter().enumerate(){
         // add contribution                 
         for patch_index in 0..n_bins{
@@ -140,7 +142,7 @@ impl Default for DCFactory{
             max_depth: 0,            
             n_ambient_samples: 10,
 
-            limit_weight: 1e-5,
+            limit_weight: 1e-4,
             // limit_reflections: 0,
         }
     }
@@ -164,7 +166,7 @@ impl DCFactory {
      /// Recursively traces a ray until it excedes the `max_depth` of the 
      /// `DCFactory` or the ray does not hit anything (i.e., it reaches either
      /// the sky or the ground)
-     fn trace_ray(&self, scene: &Scene, ray: &Ray, current_depth: usize, current_value: Float,  denom_samples: usize, contribution: &mut Matrix, rng: &mut RandGen){
+     fn trace_ray(&self, scene: &Scene, ray: &Ray, current_depth: usize, current_value: Spectrum,  denom_samples: usize, contribution: &mut ColourMatrix, rng: &mut RandGen){
         // Limit bounces        
         if current_depth > self.max_depth {            
             return 
@@ -180,7 +182,7 @@ impl DCFactory {
                 
                 let normal = data.geometry_shading.normal.get_normalized();
                 let e1 = data.geometry_shading.dpdu.get_normalized();
-                let e2 = e1.cross(normal).get_normalized();
+                let e2 = normal.cross(e1).get_normalized();
                 debug_assert!((1.0 - normal.length()).abs() < 0.000001);
                 
                 let material = match data.geometry_shading.side {
@@ -196,7 +198,7 @@ impl DCFactory {
                 };
                 
                 let intersection_pt = ray.geometry.project(t);
-                let ray_dir = ray.geometry.direction;
+                // let ray_dir = ray.geometry.direction;
             
                 // for now, emmiting materials don't reflect
                 if !material.emits_direct_light() {
@@ -204,9 +206,16 @@ impl DCFactory {
                     // Run each spawned ray                    
                     
                     /* Adapted From Radiance's samp_hemi() at src/rt/ambcomp.c */
-                    let mut wt = current_value;
-                    
-                    let d = 0.8* current_value * current_value * one_over_samples / self.limit_weight;
+                    let mut intens = current_value.red;
+                    if current_value.green > intens {
+                        intens = current_value.green;
+                    }
+                    if current_value.blue > intens {
+                        intens = current_value.blue;
+                    }
+                    let mut wt = intens;
+
+                    let d =  intens * intens * 0.8 * one_over_samples / self.limit_weight;
                     if wt > d {
                         wt = d;
                     }
@@ -218,32 +227,34 @@ impl DCFactory {
                     
                     (0..n).for_each(|_| {
                     
-                        let (new_ray_dir, _material_pdf, _is_specular) = material.sample_bsdf(normal, e1, e2, ray_dir, rng);                            
+                
+                        let (new_ray, _material_pdf, _is_specular) = material.sample_bsdf(normal, e1, e2, intersection_pt, *ray, rng);                            
                         
-
+                        let new_ray_dir = new_ray.geometry.direction;
                         debug_assert!((1. as Float-new_ray_dir.length()).abs() < 1e-5, "Length is {}", new_ray_dir.length());
-                        let new_ray = Ray{
-                            time: ray.time,
-                            geometry: Ray3D {
-                                direction : new_ray_dir,
-                                origin: intersection_pt,// + normal * 0.0001, // avoid self shading
-                            }
-                        };
+                        
                         let cos_theta = (normal * new_ray_dir).abs();
                         // WE ARE USING ONLY THE RED COLOR FOR NOW.
-                        let refl = material.colour().red;
+                        let refl = material.colour();
                         
-                        let new_value = current_value * cos_theta * refl */*material_pdf * one_over_samples * */ 1.5;
+                        let new_value = current_value * refl * cos_theta  */*material_pdf * one_over_samples * */ 1.5;
 
                         // Check reflection limits... as described in RTRACE's man
                         // if  self.limit_reflections > 0 && new_value < self.limit_weight {
                         //     return;
                         // } else 
-                        if self.limit_weight > 0. && new_value < self.limit_weight {
+                        intens = new_value.red;
+                        if new_value.green > intens {
+                            intens = new_value.green;
+                        }
+                        if new_value.blue > intens {
+                            intens = new_value.blue;
+                        }
+                        if self.limit_weight > 0. && intens < self.limit_weight {
                             
                             // russian roulette
                             let q : Float = rng.gen();
-                            if q > new_value/self.limit_weight {                                
+                            if q > intens/self.limit_weight {                                
                                 return;
                             }
                         }
@@ -258,7 +269,7 @@ impl DCFactory {
         } else {        
 
             let bin_n = self.reinhart.dir_to_bin(ray.geometry.direction);
-            let li = 1.;
+            let li = Spectrum::gray(1.);
             let old_value = contribution.get(0, bin_n).unwrap();
             contribution.set(0,bin_n, old_value + li * current_value / denom_samples as Float).unwrap();
             
@@ -285,6 +296,8 @@ mod tests {
     use geometry3d::{Point3D, Vector3D};
     #[test]
     fn test_calc_dc(){
+        assert!(true);
+        // return;
         // Setup sensors
         let up = Vector3D::new(0., 0., 1.);
         let rays = vec![
@@ -294,13 +307,23 @@ mod tests {
         ];
 
         // Read scene
-        let rad_file = "./test_data/one_surface.rad";
+        let rad_file = "./test_data/room.rad";
         let mut scene = Scene::from_radiance(rad_file.to_string());
         scene.build_accelerator();
         eprintln!("Ready to calc!... # Surface = {}", scene.objects.len());
         
 
         let dc_matrix = calc_dc(&rays, &scene, 1);
-        println!("Matrix = {}", dc_matrix);
+        println!("Matrix = [");
+        let (nrows,ncols) = dc_matrix.size();
+        for row in 0..nrows {
+            for col in 0..ncols{
+                let color = dc_matrix.get(row,col).unwrap();
+                print!("{}\t", color.red*47.9+color.green*119.9 + 11.6* color.blue)
+            }
+            print!("\n")
+        }
+
+        println!("]");
     }
 }

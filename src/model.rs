@@ -8,11 +8,13 @@ use communication_protocols::error_handling::ErrorHandling;
 use communication_protocols::simulation_model::SimulationModel;
 
 
+
+
 pub struct SolarModel ();
 
 impl ErrorHandling for SolarModel {
     fn module_name() -> &'static str {
-        "Placeholder Solar Model"
+        "Solar Model"
     }
 }
 

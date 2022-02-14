@@ -12,13 +12,10 @@ weather = { git = "https://github.com/SIMPLE-BuildingSimulation/weather.git" }
 simple_model = {git = "https://github.com/SIMPLE-BuildingSimulation/simple_model.git"}
 communication_protocols = { git = "https://github.com/SIMPLE-BuildingSimulation/communication_protocols.git" }
 solar = { git = "https://github.com/SIMPLE-BuildingSimulation/solar.git" }
-# solar = { path = "../solar" }
 rendering = { git = "https://github.com/SIMPLE-BuildingSimulation/rendering.git" }
-# rendering = {path="../rendering" }
 matrix = { git = "https://github.com/SIMPLE-BuildingSimulation/matrix.git" }
 geometry3d = {git = "https://github.com/SIMPLE-BuildingSimulation/geometry3d.git", features=["parallel"]}
-# geometry3d = {path="../geometry3d"}
-clap = "2.33.3"
+clap = "3.0.10"
 rand = { version = "0.8.4", features=["small_rng"]}
 rayon = {version = "1.5.1", optional = true}
 
@@ -38,5 +35,5 @@ codegen-units = 1
 
 [features]
 default = []
-parallel = [ "rayon", "rendering/parallel" ]
+parallel = [ "rayon", "rendering/parallel"]
 float = ["calendar/float", "weather/float", "simple_model/float", "solar/float", "rendering/float", "geometry3d/float"]

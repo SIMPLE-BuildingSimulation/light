@@ -269,27 +269,35 @@ impl SimulationModel for SolarModel {
         .unwrap();
 
         // Process Solar Irradiance in Surfaces
-        let solar_irradiance = &self.front_surfaces_dc * &vec;
-        for (i, s) in model.surfaces.iter().enumerate() {
-            let v = solar_irradiance.get(i, 0).unwrap();
-            s.set_front_incident_solar_irradiance(state, v);
+        if !self.front_surfaces_dc.is_empty(){
+            let solar_irradiance = &self.front_surfaces_dc * &vec;
+            for (i, s) in model.surfaces.iter().enumerate() {
+                let v = solar_irradiance.get(i, 0).unwrap();
+                s.set_front_incident_solar_irradiance(state, v);
+            }
         }
-        let solar_irradiance = &self.back_surfaces_dc * &vec;
-        for (i, s) in model.surfaces.iter().enumerate() {
-            let v = solar_irradiance.get(i, 0).unwrap();
-            s.set_back_incident_solar_irradiance(state, v);
+        if !self.back_surfaces_dc.is_empty(){
+            let solar_irradiance = &self.back_surfaces_dc * &vec;
+            for (i, s) in model.surfaces.iter().enumerate() {
+                let v = solar_irradiance.get(i, 0).unwrap();
+                s.set_back_incident_solar_irradiance(state, v);
+            }
         }
 
         // Process Solar Irradiance in Fenestration
-        let solar_irradiance = &self.front_fenestrations_dc * &vec;
-        for (i, s) in model.fenestrations.iter().enumerate() {
-            let v = solar_irradiance.get(i, 0).unwrap();
-            s.set_front_incident_solar_irradiance(state, v);
+        if !self.front_fenestrations_dc.is_empty(){
+            let solar_irradiance = &self.front_fenestrations_dc * &vec;
+            for (i, s) in model.fenestrations.iter().enumerate() {
+                let v = solar_irradiance.get(i, 0).unwrap();
+                s.set_front_incident_solar_irradiance(state, v);
+            }
         }
-        let solar_irradiance = &self.back_fenestrations_dc * &vec;
-        for (i, s) in model.fenestrations.iter().enumerate() {
-            let v = solar_irradiance.get(i, 0).unwrap();
-            s.set_back_incident_solar_irradiance(state, v);
+        if !self.back_fenestrations_dc.is_empty(){
+            let solar_irradiance = &self.back_fenestrations_dc * &vec;
+            for (i, s) in model.fenestrations.iter().enumerate() {
+                let v = solar_irradiance.get(i, 0).unwrap();
+                s.set_back_incident_solar_irradiance(state, v);
+            }
         }
 
         // return

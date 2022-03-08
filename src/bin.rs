@@ -17,48 +17,53 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 use rendering::scene::Scene;
+use solar::ReinhartSky;
 // use rendering::from_radiance::from
-use clap::{Arg, App};
-use solar_model::daylight_coefficients::calc_dc;
-use geometry3d::{Point3D,Vector3D, Ray3D};
+use clap::{Arg, Command};
+use geometry3d::{Point3D, Ray3D, Vector3D};
+use solar_model::daylight_coefficients::DCFactory;
 
 fn main() {
-    let matches = App::new("SIMPLE Solar Simulation")
-                    .version("0.1 (but it is still awesome!)")
-                    .author("(c) German Molina")
-                    .about("A Climate Based Daylight Simulation tool")
-                    .arg(Arg::new("input")
-                        .short('i')
-                        .long("input")
-                        .value_name("SIMPLE or Radiance file")
-                        .help("This is the SIMPLE Model or a Radiance file")
-                        .takes_value(true)
-                        .required(true)
-                        .index(1)
-                    )
-                    .arg(Arg::new("weather")
-                        .short('w')
-                        .long("weather_file")
-                        .value_name("EPW File")
-                        .help("This is an EPW weather file")
-                        .takes_value(true)
-                        .required(true)
-                        .index(2)
-                    )   
-                    .get_matches();
+    let matches = Command::new("SIMPLE Solar Simulation")
+        .version("0.1 (but it is still awesome!)")
+        .author("(c) German Molina")
+        .about("A Climate Based Daylight Simulation tool")
+        .arg(
+            Arg::new("input")
+                .short('i')
+                .long("input")
+                .value_name("SIMPLE or Radiance file")
+                .help("This is the SIMPLE Model or a Radiance file")
+                .takes_value(true)
+                .required(true)
+                .index(1),
+        )
+        .arg(
+            Arg::new("weather")
+                .short('w')
+                .long("weather_file")
+                .value_name("EPW File")
+                .help("This is an EPW weather file")
+                .takes_value(true)
+                .required(true)
+                .index(2),
+        )
+        .get_matches();
 
     let input_file = matches.value_of("input").unwrap();
-    let _weather_file = "asd";//matches.value_of("weather").unwrap();
+    let _weather_file = "asd"; //matches.value_of("weather").unwrap();
 
-    let mut scene = if input_file.ends_with(".rad") {        
+    let mut scene = if input_file.ends_with(".rad") {
         Scene::from_radiance(input_file.to_string())
-    }else if input_file.ends_with(".simple") || input_file.ends_with(".spl"){
+    } else if input_file.ends_with(".simple") || input_file.ends_with(".spl") {
         panic!("Reading SIMPLE models is still not suppoerted")
-    }else{
-        eprintln!("Don't know how to read file '{}'... only .rad is supported for now", input_file);
-        std::process::exit(1); 
+    } else {
+        eprintln!(
+            "Don't know how to read file '{}'... only .rad is supported for now",
+            input_file
+        );
+        std::process::exit(1);
     };
 
     scene.build_accelerator();
@@ -66,15 +71,29 @@ fn main() {
     // Setup sensors
     let up = Vector3D::new(0., 0., 1.);
     let rays = vec![
-        Ray3D{origin: Point3D::new(2., 0.5, 0.8), direction: up },
-        Ray3D{origin: Point3D::new(2., 2.5, 0.8), direction: up },
-        Ray3D{origin: Point3D::new(2., 5.5, 0.8), direction: up },            
+        Ray3D {
+            origin: Point3D::new(2., 0.5, 0.8),
+            direction: up,
+        },
+        Ray3D {
+            origin: Point3D::new(2., 2.5, 0.8),
+            direction: up,
+        },
+        Ray3D {
+            origin: Point3D::new(2., 5.5, 0.8),
+            direction: up,
+        },
     ];
-    
-    eprintln!("Ready to calc!... # Surface = {}", scene.objects.len());
-    
 
-    let dc_matrix = calc_dc(&rays, &scene, 1);
+    eprintln!("Ready to calc!... # Surface = {}", scene.objects.len());
+
+    let mf = 1;
+    let factory = DCFactory {
+        max_depth: 3,
+        n_ambient_samples: 10000,
+        reinhart: ReinhartSky::new(mf),
+        ..DCFactory::default()
+    };
+    let dc_matrix = factory.calc_dc(&rays, &scene);
     println!("Matrix = {}", dc_matrix);
-    
 }

@@ -12,12 +12,17 @@ weather = { git = "https://github.com/SIMPLE-BuildingSimulation/weather.git" }
 simple_model = {git = "https://github.com/SIMPLE-BuildingSimulation/simple_model.git"}
 communication_protocols = { git = "https://github.com/SIMPLE-BuildingSimulation/communication_protocols.git" }
 solar = { git = "https://github.com/SIMPLE-BuildingSimulation/solar.git" }
+# solar = {path="../solar"}
 rendering = { git = "https://github.com/SIMPLE-BuildingSimulation/rendering.git" }
+# rendering = {path = "../rendering"}
 matrix = { git = "https://github.com/SIMPLE-BuildingSimulation/matrix.git" }
 geometry3d = {git = "https://github.com/SIMPLE-BuildingSimulation/geometry3d.git", features=["parallel"]}
 clap = "3.0.10"
-rand = { version = "0.8.4", features=["small_rng"]}
 rayon = {version = "1.5.1", optional = true}
+
+[dev-dependencies]
+schedule = { git = "https://github.com/SIMPLE-BuildingSimulation/schedule.git" }
+simple_test_models = {git="https://github.com/SIMPLE-BuildingSimulation/simple_test_models.git"}
 
 [lib]
 name = "solar_model"

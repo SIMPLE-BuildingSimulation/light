@@ -31,9 +31,9 @@ type Float = f64;
 #[cfg(not(feature = "float"))]
 const PI: Float = std::f64::consts::PI;
 
-
+pub mod colour_matrix;
 pub mod daylight_coefficients;
 // mod climate_based;
 
-
 pub mod model;
+mod solar_surface;

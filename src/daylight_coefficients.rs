@@ -180,7 +180,7 @@ impl DCFactory {
 
         // let one_over_samples = 1./ self.n_ambient_samples as Float;
         // If hits an object
-        if let Some((_t, interaction)) = scene.cast_ray(ray) {
+        if let Some(interaction) = scene.cast_ray(ray) {
             if let Interaction::Surface(data) = &interaction {
                 let object = &scene.objects[data.prim_index];
                 // get the normal... can be textured.
@@ -289,6 +289,7 @@ mod tests {
     use super::*;
     use geometry3d::{Point3D, Vector3D};
     #[test]
+    #[ignore]
     fn test_calc_dc() {
         assert!(true);
         // return;

@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["SolarModel",""]]});
+initSidebarItems({"struct":[["SolarModel",""],["SolarModelOptions",""]]});

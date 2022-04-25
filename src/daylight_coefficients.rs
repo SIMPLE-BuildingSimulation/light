@@ -160,6 +160,35 @@ impl DCFactory {
         ret
     }
 
+    fn calc_new_n(&self, intens: Float, denom_samples: usize) -> usize{
+
+        /* Adapted From Radiance's samp_hemi() at src/rt/ambcomp.c */
+        
+        let mut wt = intens;
+
+        let d = intens * intens * 0.8 /* *one_over_samples*/ / self.limit_weight / denom_samples as Float;
+        if wt > d {
+            wt = d;
+        }
+        let mut n = ((denom_samples as Float * wt).sqrt() + 0.5).round() as usize;
+        if n < 1 {
+            n = 1;
+        }
+        /* End of Adapted Radiance's code*/
+        n
+    }
+
+    fn russian_roulette(&self, intens: Float, rng: &mut RandGen)->bool{
+        if self.limit_weight > 0. && intens < self.limit_weight {
+            // russian roulette
+            let q : Float = rng.gen();
+            if q > intens/self.limit_weight {
+                return true
+            }
+        }
+        false
+    }
+
     /// Recursively traces a ray until it excedes the `max_depth` of the
     /// `DCFactory` or the ray does not hit anything (i.e., it reaches either
     /// the sky or the ground)
@@ -208,7 +237,6 @@ impl DCFactory {
                 if !material.emits_direct_light() {
                     // Run each spawned ray
 
-                    /* Adapted From Radiance's samp_hemi() at src/rt/ambcomp.c */
                     let mut intens = current_value.red;
                     if current_value.green > intens {
                         intens = current_value.green;
@@ -216,22 +244,13 @@ impl DCFactory {
                     if current_value.blue > intens {
                         intens = current_value.blue;
                     }
-                    let mut wt = intens;
 
-                    let d = intens * intens * 0.8 /* *one_over_samples*/ / self.limit_weight / denom_samples as Float;
-                    if wt > d {
-                        wt = d;
-                    }
-                    let mut n = ((denom_samples as Float * wt).sqrt() + 0.5).round() as usize;
-                    if n < 1 {
-                        n = 1;
-                    }
-                    /* End of Adapted Radiance's code*/
+                    let n = self.calc_new_n(intens, denom_samples);
 
                     (0..n).for_each(|_| {
                     
                 
-                        let (new_ray, _bsdf_value, _is_specular) = material.sample_bsdf(normal, e1, e2, intersection_pt, *ray, rng);                            
+                        let (new_ray, _bsdf_value, _is_specular) = material.sample_bsdf(&normal, &e1, &e2, &intersection_pt, ray, rng);                            
                         
                         let new_ray_dir = new_ray.geometry.direction;
                         debug_assert!((1. as Float-new_ray_dir.length()).abs() < 1e-5, "Length is {}", new_ray_dir.length());
@@ -253,12 +272,8 @@ impl DCFactory {
                         if new_value.blue > intens {
                             intens = new_value.blue;
                         }
-                        if self.limit_weight > 0. && intens < self.limit_weight {
-                            // russian roulette
-                            let q : Float = rng.gen();
-                            if q > intens/self.limit_weight {
-                                return;
-                            }
+                        if self.russian_roulette(intens, rng){
+                            return
                         }
                         self.trace_ray(scene, &new_ray, current_depth + 1, new_value * 1.5, denom_samples * n, contribution, rng);
                     }); // End the foreach spawned ray

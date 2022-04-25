@@ -36,8 +36,7 @@ fn main() {
                 .value_name("SIMPLE or Radiance file")
                 .help("This is the SIMPLE Model or a Radiance file")
                 .takes_value(true)
-                .required(true)
-                .index(1),
+                .required(true)                
         )
         .arg(
             Arg::new("weather")
@@ -46,8 +45,7 @@ fn main() {
                 .value_name("EPW File")
                 .help("This is an EPW weather file")
                 .takes_value(true)
-                .required(true)
-                .index(2),
+                .required(true)                
         )
         .get_matches();
 
@@ -89,7 +87,7 @@ fn main() {
 
     let mf = 1;
     let factory = DCFactory {
-        max_depth: 3,
+        max_depth: 1,
         n_ambient_samples: 10000,
         reinhart: ReinhartSky::new(mf),
         ..DCFactory::default()

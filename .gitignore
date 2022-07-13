@@ -4,3 +4,4 @@ check.txt
 tests/*/*
 !tests/*/eplusout.csv
 docs/validation/*
+.DS_Store

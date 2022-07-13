@@ -13,4 +13,8 @@ daylighting simulation world, and has the advantage of being extremely robust, a
 
 # Documentation and Validation
 
-Check documentation [HERE](https://simple-buildingsimulation.github.io/solar_model/)
+The main supporting documentation is [HERE](https://simple-buildingsimulation.github.io/solar_model/). It contains:
+
+* [Validation report](https://simple-buildingsimulation.github.io/solar_model/validation/incident_solar_radiation.html)
+* [Rust API documentation](https://simple-buildingsimulation.github.io/solar_model/rustdoc/doc/solar_model/index.html)
+

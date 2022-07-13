@@ -3,3 +3,4 @@ Cargo.lock
 check.txt
 tests/*/*
 !tests/*/eplusout.csv
+docs/validation/*

@@ -1,4 +1,5 @@
-/test_data
 /target
 Cargo.lock
 check.txt
+tests/*/*
+!tests/*/eplusout.csv

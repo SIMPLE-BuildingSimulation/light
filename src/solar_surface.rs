@@ -20,13 +20,9 @@ SOFTWARE.
 use std::path::Path;
 use std::rc::Rc;
 
-use crate::colour_matrix::*;
-use crate::daylight_coefficients::DCFactory;
 use crate::Float;
-
 use matrix::Matrix;
-
-use rendering::scene::Scene;
+use rendering::{colour_matrix::*, DCFactory, Scene};
 
 use simple_model::{Fenestration, SimulationStateElement, SimulationStateHeader, Surface};
 
@@ -65,7 +61,7 @@ fn get_sampler(triangles_areas: Vec<Float>) -> impl Fn(&mut RandGen) -> usize {
 pub struct SolarSurface {
     points: Vec<Point3D>,
     pub normal: Vector3D,
-    nrays: usize,
+    // nrays: usize,
 }
 
 impl SolarSurface {
@@ -100,7 +96,7 @@ impl SolarSurface {
         Self {
             normal,
             points,
-            nrays,
+            // nrays,
         }
     }
 
@@ -164,7 +160,7 @@ impl SolarSurface {
     /// just calculate and not save it anywhere.
     pub fn get_front_solar_dc_matrix(
         list: &[SolarSurface],
-        path: &Option<String>,
+        path: Option<&String>,
         scene: &Scene,
         dc_factory: &DCFactory,
     ) -> Result<Matrix, String> {
@@ -194,7 +190,7 @@ impl SolarSurface {
     /// just calculate and not save it anywhere.
     pub fn get_back_solar_dc_matrix(
         list: &[SolarSurface],
-        path: &Option<String>,
+        path: Option<&String>,
         scene: &Scene,
         dc_factory: &DCFactory,
     ) -> Result<Matrix, String> {

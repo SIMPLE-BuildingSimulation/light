@@ -17,12 +17,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-use rendering::scene::Scene;
 use solar::ReinhartSky;
 // use rendering::from_radiance::from
 use clap::{Arg, Command};
 use geometry3d::{Point3D, Ray3D, Vector3D};
-use solar_model::daylight_coefficients::DCFactory;
+use rendering::{DCFactory, Scene};
 
 fn main() {
     let matches = Command::new("SIMPLE Solar Simulation")
@@ -36,7 +35,7 @@ fn main() {
                 .value_name("SIMPLE or Radiance file")
                 .help("This is the SIMPLE Model or a Radiance file")
                 .takes_value(true)
-                .required(true)                
+                .required(true),
         )
         .arg(
             Arg::new("weather")
@@ -45,7 +44,7 @@ fn main() {
                 .value_name("EPW File")
                 .help("This is an EPW weather file")
                 .takes_value(true)
-                .required(true)                
+                .required(true),
         )
         .get_matches();
 
@@ -83,7 +82,7 @@ fn main() {
         },
     ];
 
-    eprintln!("Ready to calc!... # Surface = {}", scene.objects.len());
+    eprintln!("Ready to calc!... # Surface = {}", scene.triangles.len());
 
     let mf = 1;
     let factory = DCFactory {

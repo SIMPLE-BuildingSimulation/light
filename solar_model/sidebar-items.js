@@ -1,1 +1,0 @@
-initSidebarItems({"constant":[["PI",""]],"mod":[["colour_matrix",""],["daylight_coefficients",""],["model",""],["solar_surface",""]],"type":[["Float",""]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"constant":[["PI",""]],"mod":[["model",""],["solar_surface",""]],"type":[["Float",""]]});

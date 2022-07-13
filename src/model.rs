@@ -28,19 +28,7 @@ use solar::ReinhartSky;
 use solar::{PerezSky, SkyUnits, Solar};
 use weather::Weather;
 
-// impl Default for SolarModelOptions {
-//     fn default() -> Self {
-//         Self {
-//             n_solar_irradiance_points: Some(1),
-//             solar_sky_discretization: Some(1),
-//             solar_ambient_divitions: Some(3000),
-//             front_surfaces_solar_irradiance_matrix: None,
-//             back_surfaces_solar_irradiance_matrix: None,
-//             front_fenestrations_solar_irradiance_matrix: None,
-//             back_fenestrations_solar_irradiance_matrix: None,
-//         }
-//     }
-// }
+
 
 /// The main model
 pub struct SolarModel {

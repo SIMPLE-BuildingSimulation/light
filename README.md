@@ -3,6 +3,7 @@
 ![build badge](https://github.com/SIMPLE-BuildingSimulation/solar_model/actions/workflows/build.yaml/badge.svg)
 ![docs badge](https://github.com/SIMPLE-BuildingSimulation/solar_model/actions/workflows/docs.yaml/badge.svg)
 ![tests badge](https://github.com/SIMPLE-BuildingSimulation/solar_model/actions/workflows/tests.yaml/badge.svg)
+![tests badge](https://github.com/SIMPLE-BuildingSimulation/solar_model/actions/workflows/style.yaml/badge.svg)
 [![codecov](https://codecov.io/gh/SIMPLE-BuildingSimulation/solar_model/branch/main/graph/badge.svg?token=E1H9Q763J0)](https://codecov.io/gh/SIMPLE-BuildingSimulation/solar_model)
 
 This is [SIMPLE's](https://www.simplesim.tools) solar calculation module. It is responsible for:

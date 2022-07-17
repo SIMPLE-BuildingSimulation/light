@@ -224,28 +224,40 @@ impl SolarSurface {
         list.iter()
             .enumerate()
             .map(|(i, s)| {
-                let i = state.push(
-                    SimulationStateElement::FenestrationFrontSolarIrradiance(i),
-                    0.0,
-                );
-                s.set_front_incident_solar_irradiance_index(i);
+                if let None = s.front_incident_solar_irradiance_index(){
+                    let i = state.push(
+                        SimulationStateElement::FenestrationFrontSolarIrradiance(i),
+                        0.0,
+                    );
+                    s.set_front_incident_solar_irradiance_index(i);
+                }
 
-                let i = state.push(
-                    SimulationStateElement::FenestrationBackSolarIrradiance(i),
-                    0.0,
-                );
-                s.set_back_incident_solar_irradiance_index(i);
 
-                let i = state.push(
-                    SimulationStateElement::FenestrationFrontIRIrradiance(i),
-                    0.0,
-                );
-                s.set_front_ir_irradiance_index(i);
+                if let None = s.back_incident_solar_irradiance_index(){
+                    let i = state.push(
+                        SimulationStateElement::FenestrationBackSolarIrradiance(i),
+                        0.0,
+                    );
+                    s.set_back_incident_solar_irradiance_index(i);
+                }
 
-                let i = state.push(SimulationStateElement::FenestrationBackIRIrradiance(i), 0.0);
-                s.set_back_ir_irradiance_index(i);
-                // Create
+                if let None = s.front_ir_irradiance_index(){
+                    let i = state.push(
+                        SimulationStateElement::FenestrationFrontIRIrradiance(i),
+                        0.0,
+                    );
+                    s.set_front_ir_irradiance_index(i);
+                }
+
+                if let None = s.back_ir_irradiance_index(){
+                    let i = state.push(
+                        SimulationStateElement::FenestrationBackIRIrradiance(i), 
+                        0.0
+                    );
+                    s.set_back_ir_irradiance_index(i);
+                }                
                 SolarSurface::new(n_rays, &s.vertices)
+
             })
             .collect()
     }
@@ -261,17 +273,25 @@ impl SolarSurface {
         list.iter()
             .enumerate()
             .map(|(i, s)| {
-                let i = state.push(SimulationStateElement::SurfaceFrontSolarIrradiance(i), 0.0);
-                s.set_front_incident_solar_irradiance_index(i);
+                if let None = s.front_incident_solar_irradiance_index(){
+                    let i = state.push(SimulationStateElement::SurfaceFrontSolarIrradiance(i), 0.0);
+                    s.set_front_incident_solar_irradiance_index(i);
+                }
 
-                let i = state.push(SimulationStateElement::SurfaceBackSolarIrradiance(i), 0.0);
-                s.set_back_incident_solar_irradiance_index(i);
+                if let None = s.back_incident_solar_irradiance_index(){
+                    let i = state.push(SimulationStateElement::SurfaceBackSolarIrradiance(i), 0.0);
+                    s.set_back_incident_solar_irradiance_index(i);
+                }
 
-                let i = state.push(SimulationStateElement::SurfaceFrontIRIrradiance(i), 0.0);
-                s.set_front_ir_irradiance_index(i);
+                if let None = s.front_ir_irradiance_index(){
+                    let i = state.push(SimulationStateElement::SurfaceFrontIRIrradiance(i), 0.0);
+                    s.set_front_ir_irradiance_index(i);
+                }
 
-                let i = state.push(SimulationStateElement::SurfaceBackIRIrradiance(i), 0.0);
-                s.set_back_ir_irradiance_index(i);
+                if let None = s.back_ir_irradiance_index(){
+                    let i = state.push(SimulationStateElement::SurfaceBackIRIrradiance(i), 0.0);
+                    s.set_back_ir_irradiance_index(i);
+                }
 
                 // create
                 SolarSurface::new(n_rays, &s.vertices)

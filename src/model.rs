@@ -26,7 +26,7 @@ use rendering::{DCFactory, Scene, Wavelengths};
 use simple_model::{SimpleModel, SimulationState, SimulationStateHeader, SolarOptions};
 use solar::ReinhartSky;
 use solar::{PerezSky, SkyUnits, Solar};
-use weather::Weather;
+use weather::{Weather, CurrentWeather};
 
 
 
@@ -61,11 +61,138 @@ pub struct SolarModel {
     solar: Solar,
 }
 
+impl SolarModel {
+
+    /// This function makes the IR heat transfer Zero... we will try to fix this soon enough,
+    /// just not now
+    fn update_ir_radiation(&self, model: &SimpleModel, state: &mut SimulationState){
+
+        pub const SIGMA: crate::Float = 5.670374419e-8;
+
+        for surface in &model.surfaces {
+            // If there is not IR info, then just ignore it
+            if let Some(_) = surface.first_node_temperature(state){                
+                let front_temp = 273.15 +surface.first_node_temperature(state).unwrap();
+                let back_temp = 273.15 +surface.first_node_temperature(state).unwrap();
+                surface.set_front_ir_irradiance(state, SIGMA * front_temp.powi(4));
+                surface.set_back_ir_irradiance(state, SIGMA * back_temp.powi(4));
+            }
+        }
+
+        for fen in &model.fenestrations {
+            // If there is not IR info, then just ignore it
+            if let Some(_) = fen.first_node_temperature(state){                
+                let front_temp = 273.15 +fen.first_node_temperature(state).unwrap();
+                let back_temp = 273.15 +fen.first_node_temperature(state).unwrap();
+                fen.set_front_ir_irradiance(state, SIGMA * front_temp.powi(4));
+                fen.set_back_ir_irradiance(state, SIGMA * back_temp.powi(4));
+            }
+        }
+    }
+
+    fn update_solar_radiation(&self, date: Date, weather_data: CurrentWeather, model: &SimpleModel, state: &mut SimulationState){
+
+        let direct_normal_irrad = weather_data.direct_normal_radiation.unwrap();
+        let diffuse_horizontal_irrad = weather_data.diffuse_horizontal_radiation.unwrap();
+        
+        let is_day = direct_normal_irrad + diffuse_horizontal_irrad >= 1e-4;
+        let vec = if is_day {
+            // Build sky vector
+            let albedo = 0.2;
+            let add_sky = true;
+            let add_sun = true;
+            let units = SkyUnits::Solar;
+            PerezSky::gen_sky_vec(
+                *self.options.solar_sky_discretization().unwrap(),
+                &self.solar,
+                date,
+                weather_data,
+                units,
+                albedo,
+                add_sky,
+                add_sun,
+            )
+            .unwrap()
+        } else {
+            Matrix::empty()
+        };
+
+        // Process Solar Irradiance in Surfaces
+        if !self.front_surfaces_dc.is_empty() {
+            if is_day {
+                let solar_irradiance = &self.front_surfaces_dc * &vec;
+                if solar_irradiance.get(0, 0).unwrap() < 0.0 {
+                    dbg!(solar_irradiance.get(0, 0).unwrap());
+                }
+                for (i, s) in model.surfaces.iter().enumerate() {
+                    // Average of the period
+                    let v = solar_irradiance.get(i, 0).unwrap();
+                    let old_v = s.front_incident_solar_irradiance(state).unwrap();
+                    s.set_front_incident_solar_irradiance(state, (v + old_v) / 2.);
+                }
+            } else {
+                for s in model.surfaces.iter() {
+                    s.set_front_incident_solar_irradiance(state, 0.0);
+                }
+            }
+        }
+        if !self.back_surfaces_dc.is_empty() {
+            if is_day {
+                let solar_irradiance = &self.back_surfaces_dc * &vec;
+                for (i, s) in model.surfaces.iter().enumerate() {
+                    // Average of the period
+                    let v = solar_irradiance.get(i, 0).unwrap();
+                    let old_v = s.back_incident_solar_irradiance(state).unwrap();
+                    s.set_back_incident_solar_irradiance(state, (v + old_v) / 2.);
+                }
+            } else {
+                for s in model.surfaces.iter() {
+                    s.set_front_incident_solar_irradiance(state, 0.0);
+                }
+            }
+        }
+
+        // Process Solar Irradiance in Fenestration
+        if !self.front_fenestrations_dc.is_empty() {
+            if is_day {
+                let solar_irradiance = &self.front_fenestrations_dc * &vec;
+                for (i, s) in model.fenestrations.iter().enumerate() {
+                    // Average of the period
+                    let v = solar_irradiance.get(i, 0).unwrap();
+                    let old_v = s.front_incident_solar_irradiance(state).unwrap();
+                    s.set_front_incident_solar_irradiance(state, (v + old_v) / 2.);
+                }
+            } else {
+                for s in model.fenestrations.iter() {
+                    s.set_front_incident_solar_irradiance(state, 0.0);
+                }
+            }
+        }
+        if !self.back_fenestrations_dc.is_empty() {
+            if is_day {
+                let solar_irradiance = &self.back_fenestrations_dc * &vec;
+                for (i, s) in model.fenestrations.iter().enumerate() {
+                    // Average of the period
+                    let v = solar_irradiance.get(i, 0).unwrap();
+                    let old_v = s.back_incident_solar_irradiance(state).unwrap();
+                    s.set_back_incident_solar_irradiance(state, (v + old_v) / 2.);
+                }
+            } else {
+                for s in model.fenestrations.iter() {
+                    s.set_front_incident_solar_irradiance(state, 0.0);
+                }
+            }
+        }
+    }
+}
+
 impl ErrorHandling for SolarModel {
     fn module_name() -> &'static str {
         "Solar Model"
     }
 }
+
+
 
 impl SimulationModel for SolarModel {
     type Type = Self;
@@ -172,98 +299,10 @@ impl SimulationModel for SolarModel {
 
         let weather_data = weather.get_weather_data(date);
 
-        // let date = Date::from_day_of_year(self.solar.unwrap_solar_time(Time::Solar(date.day_of_year())));
+        self.update_solar_radiation(date, weather_data, model, state);
+        self.update_ir_radiation(model, state);
 
-        let direct_normal_irrad = weather_data.direct_normal_radiation.unwrap();
-        let diffuse_horizontal_irrad = weather_data.diffuse_horizontal_radiation.unwrap();
-        let is_day = direct_normal_irrad + diffuse_horizontal_irrad >= 1e-4;
-        let vec = if is_day {
-            // Build sky vector
-            let albedo = 0.2;
-            let add_sky = true;
-            let add_sun = true;
-            let units = SkyUnits::Solar;
-            PerezSky::gen_sky_vec(
-                *self.options.solar_sky_discretization().unwrap(),
-                &self.solar,
-                date,
-                weather_data,
-                units,
-                albedo,
-                add_sky,
-                add_sun,
-            )
-            .unwrap()
-        } else {
-            Matrix::empty()
-        };
-
-        // Process Solar Irradiance in Surfaces
-        if !self.front_surfaces_dc.is_empty() {
-            if is_day {
-                let solar_irradiance = &self.front_surfaces_dc * &vec;
-                if solar_irradiance.get(0, 0).unwrap() < 0.0 {
-                    dbg!(solar_irradiance.get(0, 0).unwrap());
-                }
-                for (i, s) in model.surfaces.iter().enumerate() {
-                    // Average of the period
-                    let v = solar_irradiance.get(i, 0).unwrap();
-                    let old_v = s.front_incident_solar_irradiance(state).unwrap();
-                    s.set_front_incident_solar_irradiance(state, (v + old_v) / 2.);
-                }
-            } else {
-                for s in model.surfaces.iter() {
-                    s.set_front_incident_solar_irradiance(state, 0.0);
-                }
-            }
-        }
-        if !self.back_surfaces_dc.is_empty() {
-            if is_day {
-                let solar_irradiance = &self.back_surfaces_dc * &vec;
-                for (i, s) in model.surfaces.iter().enumerate() {
-                    // Average of the period
-                    let v = solar_irradiance.get(i, 0).unwrap();
-                    let old_v = s.back_incident_solar_irradiance(state).unwrap();
-                    s.set_back_incident_solar_irradiance(state, (v + old_v) / 2.);
-                }
-            } else {
-                for s in model.surfaces.iter() {
-                    s.set_front_incident_solar_irradiance(state, 0.0);
-                }
-            }
-        }
-
-        // Process Solar Irradiance in Fenestration
-        if !self.front_fenestrations_dc.is_empty() {
-            if is_day {
-                let solar_irradiance = &self.front_fenestrations_dc * &vec;
-                for (i, s) in model.fenestrations.iter().enumerate() {
-                    // Average of the period
-                    let v = solar_irradiance.get(i, 0).unwrap();
-                    let old_v = s.front_incident_solar_irradiance(state).unwrap();
-                    s.set_front_incident_solar_irradiance(state, (v + old_v) / 2.);
-                }
-            } else {
-                for s in model.fenestrations.iter() {
-                    s.set_front_incident_solar_irradiance(state, 0.0);
-                }
-            }
-        }
-        if !self.back_fenestrations_dc.is_empty() {
-            if is_day {
-                let solar_irradiance = &self.back_fenestrations_dc * &vec;
-                for (i, s) in model.fenestrations.iter().enumerate() {
-                    // Average of the period
-                    let v = solar_irradiance.get(i, 0).unwrap();
-                    let old_v = s.back_incident_solar_irradiance(state).unwrap();
-                    s.set_back_incident_solar_irradiance(state, (v + old_v) / 2.);
-                }
-            } else {
-                for s in model.fenestrations.iter() {
-                    s.set_front_incident_solar_irradiance(state, 0.0);
-                }
-            }
-        }
+        
 
         // return
         Ok(())

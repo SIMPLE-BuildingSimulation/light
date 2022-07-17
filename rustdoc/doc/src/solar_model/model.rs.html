@@ -310,6 +310,45 @@
 <span id="270">270</span>
 <span id="271">271</span>
 <span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -338,7 +377,7 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident">simple_model</span>::{<span class="ident">SimpleModel</span>, <span class="ident">SimulationState</span>, <span class="ident">SimulationStateHeader</span>, <span class="ident">SolarOptions</span>};
 <span class="kw">use</span> <span class="ident">solar::ReinhartSky</span>;
 <span class="kw">use</span> <span class="ident">solar</span>::{<span class="ident">PerezSky</span>, <span class="ident">SkyUnits</span>, <span class="ident">Solar</span>};
-<span class="kw">use</span> <span class="ident">weather::Weather</span>;
+<span class="kw">use</span> <span class="ident">weather</span>::{<span class="ident">Weather</span>, <span class="ident">CurrentWeather</span>};
 
 
 
@@ -373,11 +412,138 @@ SOFTWARE.
     <span class="ident">solar</span>: <span class="ident">Solar</span>,
 }
 
+<span class="kw">impl</span> <span class="ident">SolarModel</span> {
+
+    <span class="doccomment">/// This function makes the IR heat transfer Zero... we will try to fix this soon enough,</span>
+    <span class="doccomment">/// just not now</span>
+    <span class="kw">fn</span> <span class="ident">update_ir_radiation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">model</span>: <span class="kw-2">&amp;</span><span class="ident">SimpleModel</span>, <span class="ident">state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SimulationState</span>){
+
+        <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SIGMA</span>: <span class="ident"><span class="kw">crate</span>::Float</span> <span class="op">=</span> <span class="number">5.670374419e-8</span>;
+
+        <span class="kw">for</span> <span class="ident">surface</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">model</span>.<span class="ident">surfaces</span> {
+            <span class="comment">// If there is not IR info, then just ignore it</span>
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">surface</span>.<span class="ident">first_node_temperature</span>(<span class="ident">state</span>){                
+                <span class="kw">let</span> <span class="ident">front_temp</span> <span class="op">=</span> <span class="number">273.15</span> <span class="op">+</span><span class="ident">surface</span>.<span class="ident">first_node_temperature</span>(<span class="ident">state</span>).<span class="ident">unwrap</span>();
+                <span class="kw">let</span> <span class="ident">back_temp</span> <span class="op">=</span> <span class="number">273.15</span> <span class="op">+</span><span class="ident">surface</span>.<span class="ident">first_node_temperature</span>(<span class="ident">state</span>).<span class="ident">unwrap</span>();
+                <span class="ident">surface</span>.<span class="ident">set_front_ir_irradiance</span>(<span class="ident">state</span>, <span class="ident">SIGMA</span> <span class="op">*</span> <span class="ident">front_temp</span>.<span class="ident">powi</span>(<span class="number">4</span>));
+                <span class="ident">surface</span>.<span class="ident">set_back_ir_irradiance</span>(<span class="ident">state</span>, <span class="ident">SIGMA</span> <span class="op">*</span> <span class="ident">back_temp</span>.<span class="ident">powi</span>(<span class="number">4</span>));
+            }
+        }
+
+        <span class="kw">for</span> <span class="ident">fen</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">model</span>.<span class="ident">fenestrations</span> {
+            <span class="comment">// If there is not IR info, then just ignore it</span>
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">fen</span>.<span class="ident">first_node_temperature</span>(<span class="ident">state</span>){                
+                <span class="kw">let</span> <span class="ident">front_temp</span> <span class="op">=</span> <span class="number">273.15</span> <span class="op">+</span><span class="ident">fen</span>.<span class="ident">first_node_temperature</span>(<span class="ident">state</span>).<span class="ident">unwrap</span>();
+                <span class="kw">let</span> <span class="ident">back_temp</span> <span class="op">=</span> <span class="number">273.15</span> <span class="op">+</span><span class="ident">fen</span>.<span class="ident">first_node_temperature</span>(<span class="ident">state</span>).<span class="ident">unwrap</span>();
+                <span class="ident">fen</span>.<span class="ident">set_front_ir_irradiance</span>(<span class="ident">state</span>, <span class="ident">SIGMA</span> <span class="op">*</span> <span class="ident">front_temp</span>.<span class="ident">powi</span>(<span class="number">4</span>));
+                <span class="ident">fen</span>.<span class="ident">set_back_ir_irradiance</span>(<span class="ident">state</span>, <span class="ident">SIGMA</span> <span class="op">*</span> <span class="ident">back_temp</span>.<span class="ident">powi</span>(<span class="number">4</span>));
+            }
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">update_solar_radiation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">date</span>: <span class="ident">Date</span>, <span class="ident">weather_data</span>: <span class="ident">CurrentWeather</span>, <span class="ident">model</span>: <span class="kw-2">&amp;</span><span class="ident">SimpleModel</span>, <span class="ident">state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SimulationState</span>){
+
+        <span class="kw">let</span> <span class="ident">direct_normal_irrad</span> <span class="op">=</span> <span class="ident">weather_data</span>.<span class="ident">direct_normal_radiation</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">diffuse_horizontal_irrad</span> <span class="op">=</span> <span class="ident">weather_data</span>.<span class="ident">diffuse_horizontal_radiation</span>.<span class="ident">unwrap</span>();
+        
+        <span class="kw">let</span> <span class="ident">is_day</span> <span class="op">=</span> <span class="ident">direct_normal_irrad</span> <span class="op">+</span> <span class="ident">diffuse_horizontal_irrad</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">1e-4</span>;
+        <span class="kw">let</span> <span class="ident">vec</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_day</span> {
+            <span class="comment">// Build sky vector</span>
+            <span class="kw">let</span> <span class="ident">albedo</span> <span class="op">=</span> <span class="number">0.2</span>;
+            <span class="kw">let</span> <span class="ident">add_sky</span> <span class="op">=</span> <span class="bool-val">true</span>;
+            <span class="kw">let</span> <span class="ident">add_sun</span> <span class="op">=</span> <span class="bool-val">true</span>;
+            <span class="kw">let</span> <span class="ident">units</span> <span class="op">=</span> <span class="ident">SkyUnits::Solar</span>;
+            <span class="ident">PerezSky::gen_sky_vec</span>(
+                <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">options</span>.<span class="ident">solar_sky_discretization</span>().<span class="ident">unwrap</span>(),
+                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">solar</span>,
+                <span class="ident">date</span>,
+                <span class="ident">weather_data</span>,
+                <span class="ident">units</span>,
+                <span class="ident">albedo</span>,
+                <span class="ident">add_sky</span>,
+                <span class="ident">add_sun</span>,
+            )
+            .<span class="ident">unwrap</span>()
+        } <span class="kw">else</span> {
+            <span class="ident">Matrix::empty</span>()
+        };
+
+        <span class="comment">// Process Solar Irradiance in Surfaces</span>
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">front_surfaces_dc</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">if</span> <span class="ident">is_day</span> {
+                <span class="kw">let</span> <span class="ident">solar_irradiance</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">front_surfaces_dc</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">vec</span>;
+                <span class="kw">if</span> <span class="ident">solar_irradiance</span>.<span class="ident">get</span>(<span class="number">0</span>, <span class="number">0</span>).<span class="ident">unwrap</span>() <span class="op">&lt;</span> <span class="number">0.0</span> {
+                    <span class="macro">dbg!</span>(<span class="ident">solar_irradiance</span>.<span class="ident">get</span>(<span class="number">0</span>, <span class="number">0</span>).<span class="ident">unwrap</span>());
+                }
+                <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">s</span>) <span class="kw">in</span> <span class="ident">model</span>.<span class="ident">surfaces</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+                    <span class="comment">// Average of the period</span>
+                    <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">solar_irradiance</span>.<span class="ident">get</span>(<span class="ident">i</span>, <span class="number">0</span>).<span class="ident">unwrap</span>();
+                    <span class="kw">let</span> <span class="ident">old_v</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">front_incident_solar_irradiance</span>(<span class="ident">state</span>).<span class="ident">unwrap</span>();
+                    <span class="ident">s</span>.<span class="ident">set_front_incident_solar_irradiance</span>(<span class="ident">state</span>, (<span class="ident">v</span> <span class="op">+</span> <span class="ident">old_v</span>) <span class="op">/</span> <span class="number">2.</span>);
+                }
+            } <span class="kw">else</span> {
+                <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="ident">model</span>.<span class="ident">surfaces</span>.<span class="ident">iter</span>() {
+                    <span class="ident">s</span>.<span class="ident">set_front_incident_solar_irradiance</span>(<span class="ident">state</span>, <span class="number">0.0</span>);
+                }
+            }
+        }
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">back_surfaces_dc</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">if</span> <span class="ident">is_day</span> {
+                <span class="kw">let</span> <span class="ident">solar_irradiance</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">back_surfaces_dc</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">vec</span>;
+                <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">s</span>) <span class="kw">in</span> <span class="ident">model</span>.<span class="ident">surfaces</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+                    <span class="comment">// Average of the period</span>
+                    <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">solar_irradiance</span>.<span class="ident">get</span>(<span class="ident">i</span>, <span class="number">0</span>).<span class="ident">unwrap</span>();
+                    <span class="kw">let</span> <span class="ident">old_v</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">back_incident_solar_irradiance</span>(<span class="ident">state</span>).<span class="ident">unwrap</span>();
+                    <span class="ident">s</span>.<span class="ident">set_back_incident_solar_irradiance</span>(<span class="ident">state</span>, (<span class="ident">v</span> <span class="op">+</span> <span class="ident">old_v</span>) <span class="op">/</span> <span class="number">2.</span>);
+                }
+            } <span class="kw">else</span> {
+                <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="ident">model</span>.<span class="ident">surfaces</span>.<span class="ident">iter</span>() {
+                    <span class="ident">s</span>.<span class="ident">set_front_incident_solar_irradiance</span>(<span class="ident">state</span>, <span class="number">0.0</span>);
+                }
+            }
+        }
+
+        <span class="comment">// Process Solar Irradiance in Fenestration</span>
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">front_fenestrations_dc</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">if</span> <span class="ident">is_day</span> {
+                <span class="kw">let</span> <span class="ident">solar_irradiance</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">front_fenestrations_dc</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">vec</span>;
+                <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">s</span>) <span class="kw">in</span> <span class="ident">model</span>.<span class="ident">fenestrations</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+                    <span class="comment">// Average of the period</span>
+                    <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">solar_irradiance</span>.<span class="ident">get</span>(<span class="ident">i</span>, <span class="number">0</span>).<span class="ident">unwrap</span>();
+                    <span class="kw">let</span> <span class="ident">old_v</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">front_incident_solar_irradiance</span>(<span class="ident">state</span>).<span class="ident">unwrap</span>();
+                    <span class="ident">s</span>.<span class="ident">set_front_incident_solar_irradiance</span>(<span class="ident">state</span>, (<span class="ident">v</span> <span class="op">+</span> <span class="ident">old_v</span>) <span class="op">/</span> <span class="number">2.</span>);
+                }
+            } <span class="kw">else</span> {
+                <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="ident">model</span>.<span class="ident">fenestrations</span>.<span class="ident">iter</span>() {
+                    <span class="ident">s</span>.<span class="ident">set_front_incident_solar_irradiance</span>(<span class="ident">state</span>, <span class="number">0.0</span>);
+                }
+            }
+        }
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">back_fenestrations_dc</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">if</span> <span class="ident">is_day</span> {
+                <span class="kw">let</span> <span class="ident">solar_irradiance</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">back_fenestrations_dc</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">vec</span>;
+                <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">s</span>) <span class="kw">in</span> <span class="ident">model</span>.<span class="ident">fenestrations</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+                    <span class="comment">// Average of the period</span>
+                    <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">solar_irradiance</span>.<span class="ident">get</span>(<span class="ident">i</span>, <span class="number">0</span>).<span class="ident">unwrap</span>();
+                    <span class="kw">let</span> <span class="ident">old_v</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">back_incident_solar_irradiance</span>(<span class="ident">state</span>).<span class="ident">unwrap</span>();
+                    <span class="ident">s</span>.<span class="ident">set_back_incident_solar_irradiance</span>(<span class="ident">state</span>, (<span class="ident">v</span> <span class="op">+</span> <span class="ident">old_v</span>) <span class="op">/</span> <span class="number">2.</span>);
+                }
+            } <span class="kw">else</span> {
+                <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="ident">model</span>.<span class="ident">fenestrations</span>.<span class="ident">iter</span>() {
+                    <span class="ident">s</span>.<span class="ident">set_front_incident_solar_irradiance</span>(<span class="ident">state</span>, <span class="number">0.0</span>);
+                }
+            }
+        }
+    }
+}
+
 <span class="kw">impl</span> <span class="ident">ErrorHandling</span> <span class="kw">for</span> <span class="ident">SolarModel</span> {
     <span class="kw">fn</span> <span class="ident">module_name</span>() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
         <span class="string">&quot;Solar Model&quot;</span>
     }
 }
+
+
 
 <span class="kw">impl</span> <span class="ident">SimulationModel</span> <span class="kw">for</span> <span class="ident">SolarModel</span> {
     <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> <span class="self">Self</span>;
@@ -484,98 +650,10 @@ SOFTWARE.
 
         <span class="kw">let</span> <span class="ident">weather_data</span> <span class="op">=</span> <span class="ident">weather</span>.<span class="ident">get_weather_data</span>(<span class="ident">date</span>);
 
-        <span class="comment">// let date = Date::from_day_of_year(self.solar.unwrap_solar_time(Time::Solar(date.day_of_year())));</span>
+        <span class="self">self</span>.<span class="ident">update_solar_radiation</span>(<span class="ident">date</span>, <span class="ident">weather_data</span>, <span class="ident">model</span>, <span class="ident">state</span>);
+        <span class="self">self</span>.<span class="ident">update_ir_radiation</span>(<span class="ident">model</span>, <span class="ident">state</span>);
 
-        <span class="kw">let</span> <span class="ident">direct_normal_irrad</span> <span class="op">=</span> <span class="ident">weather_data</span>.<span class="ident">direct_normal_radiation</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">diffuse_horizontal_irrad</span> <span class="op">=</span> <span class="ident">weather_data</span>.<span class="ident">diffuse_horizontal_radiation</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">is_day</span> <span class="op">=</span> <span class="ident">direct_normal_irrad</span> <span class="op">+</span> <span class="ident">diffuse_horizontal_irrad</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">1e-4</span>;
-        <span class="kw">let</span> <span class="ident">vec</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_day</span> {
-            <span class="comment">// Build sky vector</span>
-            <span class="kw">let</span> <span class="ident">albedo</span> <span class="op">=</span> <span class="number">0.2</span>;
-            <span class="kw">let</span> <span class="ident">add_sky</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="kw">let</span> <span class="ident">add_sun</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="kw">let</span> <span class="ident">units</span> <span class="op">=</span> <span class="ident">SkyUnits::Solar</span>;
-            <span class="ident">PerezSky::gen_sky_vec</span>(
-                <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">options</span>.<span class="ident">solar_sky_discretization</span>().<span class="ident">unwrap</span>(),
-                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">solar</span>,
-                <span class="ident">date</span>,
-                <span class="ident">weather_data</span>,
-                <span class="ident">units</span>,
-                <span class="ident">albedo</span>,
-                <span class="ident">add_sky</span>,
-                <span class="ident">add_sun</span>,
-            )
-            .<span class="ident">unwrap</span>()
-        } <span class="kw">else</span> {
-            <span class="ident">Matrix::empty</span>()
-        };
-
-        <span class="comment">// Process Solar Irradiance in Surfaces</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">front_surfaces_dc</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">if</span> <span class="ident">is_day</span> {
-                <span class="kw">let</span> <span class="ident">solar_irradiance</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">front_surfaces_dc</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">vec</span>;
-                <span class="kw">if</span> <span class="ident">solar_irradiance</span>.<span class="ident">get</span>(<span class="number">0</span>, <span class="number">0</span>).<span class="ident">unwrap</span>() <span class="op">&lt;</span> <span class="number">0.0</span> {
-                    <span class="macro">dbg!</span>(<span class="ident">solar_irradiance</span>.<span class="ident">get</span>(<span class="number">0</span>, <span class="number">0</span>).<span class="ident">unwrap</span>());
-                }
-                <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">s</span>) <span class="kw">in</span> <span class="ident">model</span>.<span class="ident">surfaces</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-                    <span class="comment">// Average of the period</span>
-                    <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">solar_irradiance</span>.<span class="ident">get</span>(<span class="ident">i</span>, <span class="number">0</span>).<span class="ident">unwrap</span>();
-                    <span class="kw">let</span> <span class="ident">old_v</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">front_incident_solar_irradiance</span>(<span class="ident">state</span>).<span class="ident">unwrap</span>();
-                    <span class="ident">s</span>.<span class="ident">set_front_incident_solar_irradiance</span>(<span class="ident">state</span>, (<span class="ident">v</span> <span class="op">+</span> <span class="ident">old_v</span>) <span class="op">/</span> <span class="number">2.</span>);
-                }
-            } <span class="kw">else</span> {
-                <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="ident">model</span>.<span class="ident">surfaces</span>.<span class="ident">iter</span>() {
-                    <span class="ident">s</span>.<span class="ident">set_front_incident_solar_irradiance</span>(<span class="ident">state</span>, <span class="number">0.0</span>);
-                }
-            }
-        }
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">back_surfaces_dc</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">if</span> <span class="ident">is_day</span> {
-                <span class="kw">let</span> <span class="ident">solar_irradiance</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">back_surfaces_dc</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">vec</span>;
-                <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">s</span>) <span class="kw">in</span> <span class="ident">model</span>.<span class="ident">surfaces</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-                    <span class="comment">// Average of the period</span>
-                    <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">solar_irradiance</span>.<span class="ident">get</span>(<span class="ident">i</span>, <span class="number">0</span>).<span class="ident">unwrap</span>();
-                    <span class="kw">let</span> <span class="ident">old_v</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">back_incident_solar_irradiance</span>(<span class="ident">state</span>).<span class="ident">unwrap</span>();
-                    <span class="ident">s</span>.<span class="ident">set_back_incident_solar_irradiance</span>(<span class="ident">state</span>, (<span class="ident">v</span> <span class="op">+</span> <span class="ident">old_v</span>) <span class="op">/</span> <span class="number">2.</span>);
-                }
-            } <span class="kw">else</span> {
-                <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="ident">model</span>.<span class="ident">surfaces</span>.<span class="ident">iter</span>() {
-                    <span class="ident">s</span>.<span class="ident">set_front_incident_solar_irradiance</span>(<span class="ident">state</span>, <span class="number">0.0</span>);
-                }
-            }
-        }
-
-        <span class="comment">// Process Solar Irradiance in Fenestration</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">front_fenestrations_dc</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">if</span> <span class="ident">is_day</span> {
-                <span class="kw">let</span> <span class="ident">solar_irradiance</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">front_fenestrations_dc</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">vec</span>;
-                <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">s</span>) <span class="kw">in</span> <span class="ident">model</span>.<span class="ident">fenestrations</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-                    <span class="comment">// Average of the period</span>
-                    <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">solar_irradiance</span>.<span class="ident">get</span>(<span class="ident">i</span>, <span class="number">0</span>).<span class="ident">unwrap</span>();
-                    <span class="kw">let</span> <span class="ident">old_v</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">front_incident_solar_irradiance</span>(<span class="ident">state</span>).<span class="ident">unwrap</span>();
-                    <span class="ident">s</span>.<span class="ident">set_front_incident_solar_irradiance</span>(<span class="ident">state</span>, (<span class="ident">v</span> <span class="op">+</span> <span class="ident">old_v</span>) <span class="op">/</span> <span class="number">2.</span>);
-                }
-            } <span class="kw">else</span> {
-                <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="ident">model</span>.<span class="ident">fenestrations</span>.<span class="ident">iter</span>() {
-                    <span class="ident">s</span>.<span class="ident">set_front_incident_solar_irradiance</span>(<span class="ident">state</span>, <span class="number">0.0</span>);
-                }
-            }
-        }
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">back_fenestrations_dc</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">if</span> <span class="ident">is_day</span> {
-                <span class="kw">let</span> <span class="ident">solar_irradiance</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">back_fenestrations_dc</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">vec</span>;
-                <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">s</span>) <span class="kw">in</span> <span class="ident">model</span>.<span class="ident">fenestrations</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-                    <span class="comment">// Average of the period</span>
-                    <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">solar_irradiance</span>.<span class="ident">get</span>(<span class="ident">i</span>, <span class="number">0</span>).<span class="ident">unwrap</span>();
-                    <span class="kw">let</span> <span class="ident">old_v</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">back_incident_solar_irradiance</span>(<span class="ident">state</span>).<span class="ident">unwrap</span>();
-                    <span class="ident">s</span>.<span class="ident">set_back_incident_solar_irradiance</span>(<span class="ident">state</span>, (<span class="ident">v</span> <span class="op">+</span> <span class="ident">old_v</span>) <span class="op">/</span> <span class="number">2.</span>);
-                }
-            } <span class="kw">else</span> {
-                <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="ident">model</span>.<span class="ident">fenestrations</span>.<span class="ident">iter</span>() {
-                    <span class="ident">s</span>.<span class="ident">set_front_incident_solar_irradiance</span>(<span class="ident">state</span>, <span class="number">0.0</span>);
-                }
-            }
-        }
+        
 
         <span class="comment">// return</span>
         <span class="prelude-val">Ok</span>(())

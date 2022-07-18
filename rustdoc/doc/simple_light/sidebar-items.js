@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["main",""]]};
+initSidebarItems({"fn":[["main",""]]});

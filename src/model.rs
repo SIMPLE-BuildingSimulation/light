@@ -223,7 +223,7 @@ impl SimulationModel for SolarModel {
         let solar_dc_factory = DCFactory {
             max_depth: 0,
             n_ambient_samples: *options.solar_ambient_divitions().unwrap(),
-            reinhart: ReinhartSky::new(mf),
+            reinhart: ReinhartSky::new(mf),            
             ..DCFactory::default()
         };
 
@@ -238,7 +238,7 @@ impl SimulationModel for SolarModel {
             path,
             &solar_scene,
             &solar_dc_factory,
-        )?;
+        )?;        
         let path = match options.back_surfaces_solar_irradiance_matrix() {
             Ok(e) => Some(e),
             Err(_e) => None,
@@ -249,21 +249,21 @@ impl SimulationModel for SolarModel {
             &solar_scene,
             &solar_dc_factory,
         )?;
-
+        
         // Process Fenestrations
         let path = match options.front_fenestrations_solar_irradiance_matrix() {
             Ok(e) => Some(e),
             Err(_e) => None,
         };
-        let fenestrations =
-            SolarSurface::make_fenestrations(&model.fenestrations, state, n_solar_rays);
+        
+        let fenestrations = SolarSurface::make_fenestrations(&model.fenestrations, state, n_solar_rays);
         let front_fenestrations_dc = SolarSurface::get_front_solar_dc_matrix(
             &fenestrations,
             path,
             &solar_scene,
             &solar_dc_factory,
         )?;
-
+        
         let path = match options.back_fenestrations_solar_irradiance_matrix() {
             Ok(e) => Some(e),
             Err(_e) => None,
@@ -274,7 +274,7 @@ impl SimulationModel for SolarModel {
             &solar_scene,
             &solar_dc_factory,
         )?;
-
+        
         Ok(Self {
             options,
             // solar_scene,

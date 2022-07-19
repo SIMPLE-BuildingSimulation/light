@@ -1,5 +1,0 @@
-/home/runner/work/solar_model/solar_model/./docs/rustdoc/debug/deps/communication_protocols-f4ed7b06676435a5.rmeta: /home/runner/.cargo/git/checkouts/communication_protocols-464e00eadcf0b3a0/f6dcdcc/src/lib.rs
-
-/home/runner/work/solar_model/solar_model/./docs/rustdoc/debug/deps/communication_protocols-f4ed7b06676435a5.d: /home/runner/.cargo/git/checkouts/communication_protocols-464e00eadcf0b3a0/f6dcdcc/src/lib.rs
-
-/home/runner/.cargo/git/checkouts/communication_protocols-464e00eadcf0b3a0/f6dcdcc/src/lib.rs:

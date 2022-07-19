@@ -18,8 +18,6 @@ geometry3d = {git = "https://github.com/SIMPLE-BuildingSimulation/geometry3d.git
 clap = "3.1.10"
 rayon = {version = "1.5.1", optional = true}
 
-[patch."https://github.com/SIMPLE-BuildingSimulation/solar.git"]
-solar = {path="../solar"}
 
 
 [dev-dependencies]

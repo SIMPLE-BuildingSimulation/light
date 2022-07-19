@@ -73,7 +73,7 @@ impl SolarModel {
             // If there is not IR info, then just ignore it
             if let Some(_) = surface.first_node_temperature(state){                
                 let front_temp = 273.15 +surface.first_node_temperature(state).unwrap();
-                let back_temp = 273.15 +surface.first_node_temperature(state).unwrap();
+                let back_temp = 273.15 +surface.last_node_temperature(state).unwrap();
                 surface.set_front_ir_irradiance(state, SIGMA * front_temp.powi(4));
                 surface.set_back_ir_irradiance(state, SIGMA * back_temp.powi(4));
             }
@@ -82,8 +82,8 @@ impl SolarModel {
         for fen in &model.fenestrations {
             // If there is not IR info, then just ignore it
             if let Some(_) = fen.first_node_temperature(state){                
-                let front_temp = 273.15 +fen.first_node_temperature(state).unwrap();
-                let back_temp = 273.15 +fen.first_node_temperature(state).unwrap();
+                let front_temp = 273.15 + fen.first_node_temperature(state).unwrap();
+                let back_temp = 273.15 + fen.last_node_temperature(state).unwrap();
                 fen.set_front_ir_irradiance(state, SIGMA * front_temp.powi(4));
                 fen.set_back_ir_irradiance(state, SIGMA * back_temp.powi(4));
             }

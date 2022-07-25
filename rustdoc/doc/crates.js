@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["simple_light","solar_model"];
+window.ALL_CRATES = ["light","simple_light"];

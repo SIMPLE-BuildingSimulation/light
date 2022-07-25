@@ -1,10 +1,10 @@
 # SIMPLE's Solar calculations
 
-![build badge](https://github.com/SIMPLE-BuildingSimulation/solar_model/actions/workflows/build.yaml/badge.svg)
-![docs badge](https://github.com/SIMPLE-BuildingSimulation/solar_model/actions/workflows/docs.yaml/badge.svg)
-![tests badge](https://github.com/SIMPLE-BuildingSimulation/solar_model/actions/workflows/tests.yaml/badge.svg)
-![tests badge](https://github.com/SIMPLE-BuildingSimulation/solar_model/actions/workflows/style.yaml/badge.svg)
-[![codecov](https://codecov.io/gh/SIMPLE-BuildingSimulation/solar_model/branch/main/graph/badge.svg?token=E1H9Q763J0)](https://codecov.io/gh/SIMPLE-BuildingSimulation/solar_model)
+![build badge](https://github.com/SIMPLE-BuildingSimulation/light/actions/workflows/build.yaml/badge.svg)
+![docs badge](https://github.com/SIMPLE-BuildingSimulation/light/actions/workflows/docs.yaml/badge.svg)
+![tests badge](https://github.com/SIMPLE-BuildingSimulation/light/actions/workflows/tests.yaml/badge.svg)
+![tests badge](https://github.com/SIMPLE-BuildingSimulation/light/actions/workflows/style.yaml/badge.svg)
+[![codecov](https://codecov.io/gh/SIMPLE-BuildingSimulation/light/branch/main/graph/badge.svg?token=E1H9Q763J0)](https://codecov.io/gh/SIMPLE-BuildingSimulation/light)
 
 This is [SIMPLE's](https://www.simplesim.tools) solar calculation module. It is responsible for:
 
@@ -15,8 +15,8 @@ daylighting simulation world, and has the advantage of being extremely robust, a
 
 # Documentation and Validation
 
-The main supporting documentation is [HERE](https://simple-buildingsimulation.github.io/solar_model/). It contains:
+The main supporting documentation is [HERE](https://simple-buildingsimulation.github.io/light/). It contains:
 
-* [Validation report](https://simple-buildingsimulation.github.io/solar_model/validation/incident_solar_radiation.html)
-* [Rust API documentation](https://simple-buildingsimulation.github.io/solar_model/rustdoc/doc/solar_model/index.html)
+* [Validation report](https://simple-buildingsimulation.github.io/light/validation/incident_solar_radiation.html)
+* [Rust API documentation](https://simple-buildingsimulation.github.io/light/rustdoc/doc/light/index.html)
 

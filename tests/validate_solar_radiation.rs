@@ -3,7 +3,7 @@ use communication_protocols::{MetaOptions, SimulationModel};
 use schedule::ScheduleConstant;
 use simple_model::SolarOptions;
 use simple_test_models::*;
-use solar_model::{Float, SolarModel};
+use light::{Float, SolarModel};
 use validate::{valid, SeriesValidator, Validate, Validator};
 use weather::SyntheticWeather;
 
@@ -198,7 +198,7 @@ fn wellington(validator: &mut Validator) {
 
 #[test]
 fn validate_solar_radiation() {
-    // cargo test --package solar_model --test validate_solar_radiation -- validate_solar_radiation --exact --nocapture
+    // cargo test --package light --test validate_solar_radiation -- validate_solar_radiation --exact --nocapture
     let mut validator = Validator::new(
         "Validate Solar Radiation",
         "./docs/validation/incident_solar_radiation.html",

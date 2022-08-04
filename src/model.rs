@@ -309,3 +309,20 @@ impl SimulationModel for SolarModel {
         // unimplemented!()
     }
 }
+
+
+
+#[cfg(test)]
+mod testing {
+    use super::*;
+    use validate::assert_close;
+    
+    // #[test]
+    fn test_ir_view_factors(){
+        let ground_vf = 1.5;
+        let sky_vf = 1.5;
+        assert_close!(ground_vf, 0.5);
+        assert_close!(sky_vf, 0.5);
+    }
+
+}

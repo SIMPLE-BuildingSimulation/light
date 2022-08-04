@@ -50,16 +50,17 @@ fn get_simple_results(
         latitude: lat.to_radians(),
         longitude: lon.to_radians(),
         standard_meridian: std_mer.to_radians(),
+        elevation: 0.0,
     };
 
-    let surface_area = 20. * 3.;
+    
     let zone_volume = 600.;
 
-    let (simple_model, mut state_header) = get_single_zone_test_building(
-        // &mut state,
+    let (simple_model, mut state_header) = get_single_zone_test_building(        
         &SingleZoneTestBuildingOptions {
             zone_volume,
-            surface_area,
+            surface_width: 20.,
+            surface_height: 3.,
             construction: vec![TestMat::Concrete(0.2)],
             orientation,
             ..Default::default()

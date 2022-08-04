@@ -20,7 +20,7 @@ SOFTWARE.
 
 #![deny(missing_docs)]
 
-//! This is [SIMPLE's](https://www.simplesim.tools) solar calculation module. It is responsible for:
+//! This is [SIMPLE's](https://www.simplesim.tools) Light and Solar calculation module. It is responsible for:
 //!
 //! * **Calculating Incident Solar Radiation in each surface**: Contrary to EnergyPlus (and probably other tools I am less familiar with), this module uses Daylight Coefficients for performing this simulation. This method was stolen from the
 //! daylighting simulation world, and has the advantage of being extremely robust, and therefore capable of handling complex geometries. Perhaps the main drawback is that—because the concept of Thermal Zone does not fit within Lighting calculations (it is quite artificial for radiation purposes, actually)—reporting the "Solar Heat Gains" in a zone needs significant post-processing.

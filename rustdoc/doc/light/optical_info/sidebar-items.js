@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["IRViewFactorSet","A set of view factors as seen by a `ThermalSurface`."],["OpticalInfo","Information about the solar radiation and other optical elements of the whole model."]]});

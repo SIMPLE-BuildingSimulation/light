@@ -9,21 +9,23 @@ edition = "2021"
 [dependencies]
 calendar = { git = "https://github.com/SIMPLE-BuildingSimulation/calendar.git" }
 weather = { git = "https://github.com/SIMPLE-BuildingSimulation/weather.git" }
-simple_model = {git = "https://github.com/SIMPLE-BuildingSimulation/simple_model.git"}
+simple_model = { git = "https://github.com/SIMPLE-BuildingSimulation/simple_model.git" }
 communication_protocols = { git = "https://github.com/SIMPLE-BuildingSimulation/communication_protocols.git" }
 solar = { git = "https://github.com/SIMPLE-BuildingSimulation/solar.git" }
 rendering = { git = "https://github.com/SIMPLE-BuildingSimulation/rendering.git" }
 matrix = { git = "https://github.com/SIMPLE-BuildingSimulation/matrix.git" }
-geometry3d = {git = "https://github.com/SIMPLE-BuildingSimulation/geometry3d.git", features=["parallel"]}
+geometry3d = { git = "https://github.com/SIMPLE-BuildingSimulation/geometry3d.git" }
 clap = "3.1.10"
-rayon = {version = "1.5.1", optional = true}
-
+rayon = { version = "1.5.1", optional = true }
+serde = {version="1.0.142", features=['derive']}
+serde_json ={ version = "1.0.83"}
 
 
 [dev-dependencies]
 schedule = { git = "https://github.com/SIMPLE-BuildingSimulation/schedule.git" }
-simple_test_models = {git="https://github.com/SIMPLE-BuildingSimulation/simple_test_models.git"}
-validate = {git="https://github.com/SIMPLE-BuildingSimulation/validate.git"}
+simple_test_models = { git = "https://github.com/SIMPLE-BuildingSimulation/simple_test_models.git" }
+validate = { git = "https://github.com/SIMPLE-BuildingSimulation/validate.git" }
+
 
 [lib]
 name = "light"
@@ -41,6 +43,13 @@ codegen-units = 1
 
 [features]
 default = []
-parallel = [ "rayon", "rendering/parallel", "matrix/parallel"]
-float = ["communication_protocols/float","calendar/float", "weather/float", "simple_model/float", "solar/float", "rendering/float", "geometry3d/float"]
-
+parallel = ["rayon", "rendering/parallel", "matrix/parallel", "geometry3d/parallel"]
+float = [
+    "communication_protocols/float",
+    "calendar/float",
+    "weather/float",
+    "simple_model/float",
+    "solar/float",
+    "rendering/float",
+    "geometry3d/float",
+]

@@ -51,3 +51,5 @@ pub const PI: Float = std::f64::consts::PI;
 pub mod model;
 pub use model::SolarModel;
 mod solar_surface;
+mod optical_info;
+

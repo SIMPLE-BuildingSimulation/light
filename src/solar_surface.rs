@@ -17,12 +17,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-use std::path::Path;
+
 use std::rc::Rc;
 
 use crate::Float;
+
 use matrix::Matrix;
-use rendering::{colour_matrix::*, DCFactory, Scene};
+use rendering::{colour_matrix::*, DCFactory, Scene, Ray};
 
 use simple_model::{Fenestration, SimulationStateElement, SimulationStateHeader, Surface};
 
@@ -36,6 +37,9 @@ use geometry3d::{
 };
 use rendering::primitive_samplers::sample_triangle_surface;
 use rendering::rand::*;
+
+use crate::optical_info::IRViewFactorSet;
+
 
 fn get_sampler(triangles_areas: Vec<Float>) -> impl Fn(&mut RandGen) -> usize {
     let total_area: Float = triangles_areas.iter().sum();
@@ -101,117 +105,40 @@ impl SolarSurface {
     }
 
     /// Receives a list of `SolarSurface` objects as well as the `Scene` containing them and
-    /// calculates the back Daylight Coefficient Matrix that can be used for
+    /// calculates the Daylight Coefficient Matrix that can be used for
     /// estimating the incident solar radiation in W/m2. The options for this calculation are
     /// contained in the `DCFactory` used as input.
-    fn calc_back_solar_dc_matrix(
+    pub fn calc_solar_dc_matrix(
         list: &[SolarSurface],
         scene: &Scene,
         dc_factory: &DCFactory,
+        front_side: bool,
     ) -> Matrix {
         if list.is_empty() {
             return Matrix::empty();
         }
 
         // Then the back
-        let back_dcs: Vec<Matrix> = list
+        let dcs: Vec<Matrix> = list
             .iter()
-            .map(|s| s.back_solar_irradiance(scene, dc_factory))
+            .map(|s| {
+                let rays = if front_side{
+                    s.front_rays()
+                }else{
+                    s.back_rays()
+                };
+                s.solar_irradiance(&rays, scene, dc_factory)
+            })
             .collect();
-        let mut back = back_dcs[0].clone();
-        for dc in back_dcs.iter().skip(1) {
-            back.concat_rows(dc).unwrap();
-        }
-        // return
-        back
+        let mut ret = dcs[0].clone();
+        for dc in dcs.iter().skip(1) {
+            ret.concat_rows(dc).unwrap();
+        }        
+        ret
     }
 
-    /// Receives a list of `SolarSurface` objects as well as the `Scene` containing them and
-    /// calculates the front Daylight Coefficient Matrix that can be used for
-    /// estimating the incident solar radiation in W/m2. The options for this calculation are
-    /// contained in the `DCFactory` used as input.
-    fn calc_front_solar_dc_matrix(
-        list: &[SolarSurface],
-        scene: &Scene,
-        dc_factory: &DCFactory,
-    ) -> Matrix {
-        if list.is_empty() {
-            return Matrix::empty();
-        }
 
-        // Calculate the front
-        let front_dcs: Vec<Matrix> = list
-            .iter()
-            .map(|s| s.front_solar_irradiance(scene, dc_factory))
-            .collect();
-        let mut front = front_dcs[0].clone();
-        for dc in front_dcs.iter().skip(1) {
-            front.concat_rows(dc).unwrap();
-        }
-
-        // return
-        front
-    }
-
-    /// Gets the front Daylight Coefficient Matrix that can be used for
-    /// estimating the incident solar radiation in W/m2. If the `path` exists,
-    /// then it will attempt to read the matrix in that file. If it does not exist,
-    /// it will calculate it and write it down there. If no `path` is given, it will
-    /// just calculate and not save it anywhere.
-    pub fn get_front_solar_dc_matrix(
-        list: &[SolarSurface],
-        path: Option<&String>,
-        scene: &Scene,
-        dc_factory: &DCFactory,
-    ) -> Result<Matrix, String> {
-        let matrix = if let Some(path) = path {
-            let path = Path::new(path);
-            if path.exists() && path.is_file() {
-                // Attempt to read... return error if error
-                read_matrix(path)?
-            } else {
-                // Calculate and write it down
-                let m = Self::calc_front_solar_dc_matrix(list, scene, dc_factory);
-                save_matrix(&m, path)?;
-                m
-            }
-        } else {
-            // Just calculate
-            Self::calc_front_solar_dc_matrix(list, scene, dc_factory)
-        };
-        // return
-        Ok(matrix)
-    }
-
-    /// Gets the back Daylight Coefficient Matrix that can be used for
-    /// estimating the incident solar radiation in W/m2. If the `path` exists,
-    /// then it will attempt to read the matrix in that file. If it does not exist,
-    /// it will calculate it and write it down there. If no `path` is given, it will
-    /// just calculate and not save it anywhere.
-    pub fn get_back_solar_dc_matrix(
-        list: &[SolarSurface],
-        path: Option<&String>,
-        scene: &Scene,
-        dc_factory: &DCFactory,
-    ) -> Result<Matrix, String> {
-        let matrix = if let Some(path) = path {
-            let path = Path::new(path);
-            if path.exists() && path.is_file() {
-                // Attempt to read... return error if error
-                read_matrix(path)?
-            } else {
-                // Calculate and write it down
-                let m = Self::calc_back_solar_dc_matrix(list, scene, dc_factory);
-                save_matrix(&m, path)?;
-                m
-            }
-        } else {
-            // Just calculate
-            Self::calc_back_solar_dc_matrix(list, scene, dc_factory)
-        };
-        // return
-        Ok(matrix)
-    }
+    
 
     /// Builds a set of SolarSurfaces from Fenestrations
     ///
@@ -322,18 +249,134 @@ impl SolarSurface {
     }
 
     /// Calculates the Daylight Coefficient matrix for the front of a `SolarSurface`
-    pub fn front_solar_irradiance(&self, scene: &Scene, factory: &DCFactory) -> Matrix {
-        let front_rays = self.front_rays();
-        let dc = factory.calc_dc(&front_rays, scene);
+    pub fn solar_irradiance(&self, rays: &[Ray3D], scene: &Scene, factory: &DCFactory) -> Matrix {
+        // let front_rays = self.front_rays();
+        let dc = factory.calc_dc(&rays, scene);
         let dc = colour_matrix_to_radiance(&dc);
         average_matrix(&dc)
     }
 
-    /// Calculates the Daylight Coefficient matrix for the back of a `SolarSurface`
-    pub fn back_solar_irradiance(&self, scene: &Scene, factory: &DCFactory) -> Matrix {
-        let back_rays = self.back_rays();
-        let dc = factory.calc_dc(&back_rays, scene);
-        let dc = colour_matrix_to_radiance(&dc);
-        average_matrix(&dc)
+    
+
+    /// Calculates an [`IRViewFactorSet`] for this surface
+    pub fn calc_view_factors(&self,         
+        scene: &Scene,
+        front_side: bool
+    )->IRViewFactorSet{
+        
+        let mut rng = rendering::rand::get_rng();
+
+        let rays = if front_side {
+            self.front_rays()
+        }else{
+            self.back_rays()
+        };
+
+        let mut ground = 0.0;
+        let mut sky = 0.0;
+        let mut other = 0.0;
+
+        let n_samples = 1000;
+        let mut  node_aux = Vec::with_capacity(2);    
+        for r in &rays{
+
+            let mut ray = Ray{
+                geometry: *r,
+                ..Ray::default()
+            };
+            let normal = r.direction;
+            let e1 = normal.get_perpendicular().unwrap();
+            let e2 = normal.cross(e1);
+    
+            for _ in 0..n_samples {
+                let dir = rendering::samplers::uniform_sample_hemisphere(&mut rng, e1, e2, normal);
+                if let Some(_) = scene.cast_ray(&mut ray, &mut node_aux){
+                    other += 1.0;
+                }else{
+                    if dir.z > 0.0 {
+                        sky += 1.0;
+                    }else{
+                        ground += 1.;
+                    }
+                }
+            }
+        }
+        
+        let n = n_samples as Float * rays.len() as Float;
+        ground /= n;
+        sky /= n;
+        other /= n;
+
+        IRViewFactorSet { sky, ground, other }
+
     }
+}
+
+
+#[cfg(test)]
+mod testing {
+    use super::*;
+    use geometry3d::Loop3D;
+    use validate::assert_close;
+    
+    #[test]
+    fn test_view_factors_empty_scene_vertical(){
+
+        let mut the_loop = Loop3D::new();
+        the_loop.push(Point3D::new(0., 0., 0.)).unwrap();
+        the_loop.push(Point3D::new(1., 0., 0.)).unwrap();
+        the_loop.push(Point3D::new(1., 0., 1.)).unwrap();
+        the_loop.push(Point3D::new(0., 0., 1.)).unwrap();
+        the_loop.close().unwrap();
+
+        let mut scene = Scene::new();
+        scene.build_accelerator();
+        let p = Polygon3D::new(the_loop).unwrap();
+        let s = SolarSurface::new(10, &p);
+        
+        // Front side
+        let views = s.calc_view_factors(&scene, true);
+        
+        assert_close!(views.ground, 0.5, 1e-2);
+        assert_close!(views.sky, 0.5, 1e-2);
+        assert_close!(views.other, 0.0, 1e-2);
+
+        // back side
+        let views = s.calc_view_factors(&scene, false);
+        
+        assert_close!(views.ground, 0.5, 1e-2);
+        assert_close!(views.sky, 0.5, 1e-2);
+        assert_close!(views.other, 0.0, 1e-2);
+    }
+
+    #[test]
+    fn test_view_factors_empty_scene_horizontal(){
+
+        let mut the_loop = Loop3D::new();
+        the_loop.push(Point3D::new(0., 0., 0.)).unwrap();
+        the_loop.push(Point3D::new(1., 0., 0.)).unwrap();
+        the_loop.push(Point3D::new(1., 1., 0.)).unwrap();
+        the_loop.push(Point3D::new(0., 1., 0.)).unwrap();
+        the_loop.close().unwrap();
+
+        let mut scene = Scene::new();
+        scene.build_accelerator();
+        let p = Polygon3D::new(the_loop).unwrap();
+        let s = SolarSurface::new(10, &p);
+        
+        // Front side
+        let views = s.calc_view_factors(&scene, true);
+        
+        assert_close!(views.ground, 0.0);
+        assert_close!(views.sky, 1.0);
+        assert_close!(views.other, 0.0);
+
+        // back side
+        let views = s.calc_view_factors(&scene, false);
+        
+        assert_close!(views.ground, 1.0);
+        assert_close!(views.sky, 0.0);
+        assert_close!(views.other, 0.0);
+    }
+
 }

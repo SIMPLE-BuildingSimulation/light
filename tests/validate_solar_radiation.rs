@@ -22,10 +22,10 @@ fn get_validator(expected: Vec<f64>, found: Vec<f64>) -> Box<SeriesValidator> {
 
 fn get_expected(city: &str, orientation: &str) -> (Vec<f64>, Vec<f64>, Vec<f64>) {
     let path = format!("./tests/{city}_{orientation}/eplusout.csv");
-    let cols = validate::from_csv(&path, &[1, 2, 3]);
-    let diffuse_horizontal_rad = &cols[0]; //3
-    let direct_normal_rad = &cols[1]; //15
-    let incident_solar_radiation = &cols[2]; //15
+    let cols = validate::from_csv(&path, &[2, 3, 4]);
+    let diffuse_horizontal_rad = &cols[0];
+    let direct_normal_rad = &cols[1]; 
+    let incident_solar_radiation = &cols[2]; 
 
     (
         incident_solar_radiation.clone(),
@@ -91,7 +91,9 @@ fn get_simple_results(
         let mut weather = SyntheticWeather::default();
         weather.direct_normal_radiation = Box::new(ScheduleConstant::new(*direct_normal));
         weather.diffuse_horizontal_radiation = Box::new(ScheduleConstant::new(*diffuse_horizontal));
-        weather.dew_point_temperature = Box::new(ScheduleConstant::new(11.));
+        weather.dew_point_temperature = Box::new(ScheduleConstant::new(11.)); // 11C is what Radiance uses by default.
+        weather.dry_bulb_temperature = Box::new(ScheduleConstant::new(21.)); // should be irrelevant
+        weather.opaque_sky_cover = Box::new(ScheduleConstant::new(0.)); // should be irrelevant
 
         let surface = &simple_model.surfaces[0];
 

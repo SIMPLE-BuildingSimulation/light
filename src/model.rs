@@ -17,10 +17,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+use crate::Float;
 use calendar::Date;
 use communication_protocols::{ErrorHandling, MetaOptions, SimulationModel};
 use matrix::Matrix;
-use simple_model::{SimpleModel, SimulationState, SimulationStateHeader, SolarOptions};
+use simple_model::{SimpleModel, SimulationState, SimulationStateHeader, SolarOptions, Boundary};
 use solar::{PerezSky, SkyUnits, Solar};
 use std::path::Path;
 use weather::{CurrentWeather, Weather};
@@ -52,28 +53,97 @@ pub struct SolarModel {
 impl SolarModel {
     /// This function makes the IR heat transfer Zero... we will try to fix this soon enough,
     /// just not now
-    fn update_ir_radiation(&self, model: &SimpleModel, state: &mut SimulationState) {
+    #[must_use]
+    fn update_ir_radiation(&self, weather_data: &CurrentWeather, model: &SimpleModel, state: &mut SimulationState) -> Result<(),String> {
         pub const SIGMA: crate::Float = 5.670374419e-8;
 
-        for surface in &model.surfaces {
-            // If there is not IR info, then just ignore it
-            if let Some(_) = surface.first_node_temperature(state) {
-                let front_temp = 273.15 + surface.first_node_temperature(state).unwrap();
-                let back_temp = 273.15 + surface.last_node_temperature(state).unwrap();
-                surface.set_front_ir_irradiance(state, SIGMA * front_temp.powi(4));
-                surface.set_back_ir_irradiance(state, SIGMA * back_temp.powi(4));
-            }
+        fn ir(temp: Float, emissivity: Float)->Float{
+            emissivity * SIGMA * (temp + 273.15).powi(4)
         }
 
-        for fen in &model.fenestrations {
-            // If there is not IR info, then just ignore it
-            if let Some(_) = fen.first_node_temperature(state) {
-                let front_temp = 273.15 + fen.first_node_temperature(state).unwrap();
-                let back_temp = 273.15 + fen.last_node_temperature(state).unwrap();
-                fen.set_front_ir_irradiance(state, SIGMA * front_temp.powi(4));
-                fen.set_back_ir_irradiance(state, SIGMA * back_temp.powi(4));
+        let db = match weather_data.dry_bulb_temperature {
+            Some(v)=>v,
+            None => return Err("Cannot calculate IR radiation without Dry Bulb temperature".into())
+        };
+        let horizontal_ir  = match weather_data.horizontal_infrared_radiation_intensity {
+            Some(v)=>v,
+            None => weather_data.derive_horizontal_ir()?
+        };
+        
+
+        #[cfg(feature="parallel")]
+        let iter = model.surfaces.par_iter().enumerate();
+        #[cfg(not(feature="parallel"))]
+        let iter = model.surfaces.iter().enumerate();
+
+        for (index,surface) in iter{
+            
+            // Deal with front
+            if let Ok(b) = surface.front_boundary() {
+                if let Boundary::Space(space) = b {
+                    let space_temp = space.dry_bulb_temperature(state).unwrap();                    
+                    surface.set_front_ir_irradiance(state, ir(space_temp, 0.9));
+                }// else is ground... ignore
+            }else{
+                // outdoor
+                let view_factors = &self.optical_info.front_surfaces_view_factors[index];                
+                let ground_other = (view_factors.ground + view_factors.air)*ir(db, 1.0);
+                let sky = view_factors.sky * horizontal_ir;                
+                surface.set_front_ir_irradiance(state, ground_other + sky);
             }
+            
+
+            // Deal with Back
+            if let Ok(b) = surface.back_boundary() {
+                if let Boundary::Space(space) = b {
+                    let space_temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);                    
+                    surface.set_back_ir_irradiance(state, ir(space_temp, 0.9));
+                }// else is ground... ignore
+            }else{
+                // outdoor
+                let view_factors = &self.optical_info.back_surfaces_view_factors[index];                
+                let ground_other = (view_factors.ground + view_factors.air)*ir(db, 1.0);
+                let sky = view_factors.sky * horizontal_ir;                
+                surface.set_back_ir_irradiance(state, ground_other + sky);
+            }            
         }
+
+        #[cfg(feature="parallel")]
+        let iter = model.fenestrations.par_iter().enumerate();
+        #[cfg(not(feature="parallel"))]
+        let iter = model.fenestrations.iter().enumerate();
+        for (index,surface) in iter {
+            
+            // Deal with front
+            if let Ok(b) = surface.front_boundary() {
+                if let Boundary::Space(space) = b {
+                    let space_temp = space.dry_bulb_temperature(state).unwrap();                    
+                    surface.set_front_ir_irradiance(state, ir(space_temp, 0.9));
+                }// else is ground... ignore
+            }else{
+                // outdoor
+                let view_factors = &self.optical_info.front_fenestrations_view_factors[index];                
+                let ground_other = (view_factors.ground + view_factors.air)*ir(db, 1.0);
+                let sky = view_factors.sky * horizontal_ir;                
+                surface.set_front_ir_irradiance(state, ground_other + sky);
+            }
+            
+            // Deal with Back
+            if let Ok(b) = surface.back_boundary() {
+                if let Boundary::Space(space) = b {
+                    let space_temp = space.dry_bulb_temperature(state).unwrap();                    
+                    surface.set_back_ir_irradiance(state, ir(space_temp, 0.9));
+                }// else is ground... ignore
+            }else{
+                // outdoor
+                let view_factors = &self.optical_info.back_fenestrations_view_factors[index];                
+                let ground_other = (view_factors.ground + view_factors.air)*ir(db, 1.0);
+                let sky = view_factors.sky * horizontal_ir;                
+                surface.set_back_ir_irradiance(state, ground_other + sky);
+            }            
+        }
+
+        Ok(())
     }
 
     fn update_solar_radiation(
@@ -254,8 +324,8 @@ impl SimulationModel for SolarModel {
 
         let weather_data = weather.get_weather_data(date);
 
+        self.update_ir_radiation(&weather_data, model, state)?;
         self.update_solar_radiation(date, weather_data, model, state);
-        self.update_ir_radiation(model, state);
 
         // return
         Ok(())

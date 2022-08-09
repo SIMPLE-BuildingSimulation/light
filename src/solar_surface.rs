@@ -273,13 +273,12 @@ impl SolarSurface {
         };
 
         let mut ground = 0.0;
-        let mut sky = 0.0;
-        let mut other = 0.0;
+        let mut sky = 0.0;        
 
-        let n_samples = 1000;
-        let mut  node_aux = Vec::with_capacity(2);    
+        let n_samples = 10000;
+        let mut node_aux = Vec::with_capacity(2);    
         for r in &rays{
-
+            
             let mut ray = Ray{
                 geometry: *r,
                 ..Ray::default()
@@ -290,9 +289,9 @@ impl SolarSurface {
     
             for _ in 0..n_samples {
                 let dir = rendering::samplers::uniform_sample_hemisphere(&mut rng, e1, e2, normal);
-                if let Some(_) = scene.cast_ray(&mut ray, &mut node_aux){
-                    other += 1.0;
-                }else{
+                
+               
+                if scene.cast_ray(&mut ray, &mut node_aux).is_none(){
                     if dir.z > 0.0 {
                         sky += 1.0;
                     }else{
@@ -304,10 +303,13 @@ impl SolarSurface {
         
         let n = n_samples as Float * rays.len() as Float;
         ground /= n;
-        sky /= n;
-        other /= n;
+        sky /= n;        
 
-        IRViewFactorSet { sky, ground, other }
+        let beta = sky.sqrt();
+        let air = sky*(1.-beta);
+        sky *= beta;
+
+        IRViewFactorSet { sky, ground, air }
 
     }
 }
@@ -334,19 +336,22 @@ mod testing {
         let p = Polygon3D::new(the_loop).unwrap();
         let s = SolarSurface::new(10, &p);
         
+        let beta = (0.5 as Float).sqrt();
+
         // Front side
         let views = s.calc_view_factors(&scene, true);
         
         assert_close!(views.ground, 0.5, 1e-2);
-        assert_close!(views.sky, 0.5, 1e-2);
-        assert_close!(views.other, 0.0, 1e-2);
+        assert_close!(views.sky, 0.5 * beta, 1e-2);
+        assert_close!(views.air, 0.5 * (1.-beta), 1e-2);
 
         // back side
         let views = s.calc_view_factors(&scene, false);
         
+        
         assert_close!(views.ground, 0.5, 1e-2);
-        assert_close!(views.sky, 0.5, 1e-2);
-        assert_close!(views.other, 0.0, 1e-2);
+        assert_close!(views.sky, 0.5*beta, 1e-2);
+        assert_close!(views.air, 0.5 * (1. - beta), 1e-2);
     }
 
     #[test]
@@ -368,15 +373,15 @@ mod testing {
         let views = s.calc_view_factors(&scene, true);
         
         assert_close!(views.ground, 0.0);
-        assert_close!(views.sky, 1.0);
-        assert_close!(views.other, 0.0);
+        assert_close!(views.sky, 1.0 );
+        assert_close!(views.air, 0.0);
 
         // back side
         let views = s.calc_view_factors(&scene, false);
         
         assert_close!(views.ground, 1.0);
         assert_close!(views.sky, 0.0);
-        assert_close!(views.other, 0.0);
+        assert_close!(views.air, 0.0);
     }
 
 }

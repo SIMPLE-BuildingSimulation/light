@@ -135,7 +135,6 @@ ZoneInfiltration:DesignFlowRate,
 
 
 
-
 Output:VariableDictionary, IDF;
 Output:Variable,*,Surface Outside Face Outdoor Air Drybulb Temperature,timestep; !- Zone Average [C]
 Output:Variable,*,Zone Mean Air Temperature,timestep; !- Zone Average [C]
@@ -152,3 +151,7 @@ Output:Variable,*,Surface Outside Face Incident Sky Diffuse Ground Reflected Sol
 Output:Variable,*,Site Diffuse Solar Radiation Rate per Area,timestep; !- Zone Average [W/m2]
 Output:Variable,*,Site Direct Solar Radiation Rate per Area,timestep; !- Zone Average [W/m2]
 Output:Variable,*,Surface Outside Face Beam Solar Incident Angle Cosine Value,timestep; !- Zone Average []
+Output:Variable,*,Site Horizontal Infrared Radiation Rate per Area,timestep; !- Zone Average [W/m2]
+
+Output:Variable,*,Surface Inside Face Temperature,timestep;  !- Zone Average [C]
+Output:Variable,*,Surface Outside Face Temperature,timestep; !- Zone Average [C]

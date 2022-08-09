@@ -36,7 +36,7 @@ pub struct IRViewFactorSet {
 
     /// The fraction of the view that corresponds to other objects and
     /// surfaces (they are assumed to be at air temperature)
-    pub other: Float,
+    pub air: Float,
 }
 
 

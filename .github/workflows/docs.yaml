@@ -17,7 +17,9 @@ jobs:
       - name: Update
         run: rustup update 
       - name: Build Validation
-        run: cargo test --release --package light --test validate_solar_radiation -- validate_solar_radiation --exact --nocapture
+        run: |
+          cargo test --release --package light --test validate_solar_radiation -- validate_solar_radiation --exact --nocapture
+          cargo test --release --package light --test validate_ir_radiation -- validate_ir_radiation --exact --nocapture
       - name: Build doc
         run: RUSTDOCFLAGS="--html-in-header katex.html" cargo doc --document-private-items --no-deps --target-dir ./docs/rustdoc      
       - name: Deploy

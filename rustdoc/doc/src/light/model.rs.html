@@ -371,6 +371,8 @@
 <span id="332">332</span>
 <span id="333">333</span>
 <span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -453,9 +455,10 @@ SOFTWARE.
             
             <span class="comment">// Deal with front</span>
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">surface</span>.<span class="ident">front_boundary</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Boundary::Space</span>(<span class="ident">space</span>) <span class="op">=</span> <span class="ident">b</span> {
-                    <span class="kw">let</span> <span class="ident">space_temp</span> <span class="op">=</span> <span class="ident">space</span>.<span class="ident">dry_bulb_temperature</span>(<span class="ident">state</span>).<span class="ident">unwrap</span>();                    
-                    <span class="ident">surface</span>.<span class="ident">set_front_ir_irradiance</span>(<span class="ident">state</span>, <span class="ident">ir</span>(<span class="ident">space_temp</span>, <span class="number">0.9</span>));
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Boundary::Space</span>(<span class="ident">_space</span>) <span class="op">=</span> <span class="ident">b</span> {
+                    <span class="comment">// let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);                    </span>
+                    <span class="kw">let</span> <span class="ident">temp</span> <span class="op">=</span> <span class="ident">surface</span>.<span class="ident">first_node_temperature</span>(<span class="ident">state</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="number">22.</span>);                    
+                    <span class="ident">surface</span>.<span class="ident">set_front_ir_irradiance</span>(<span class="ident">state</span>, <span class="ident">ir</span>(<span class="ident">temp</span>, <span class="number">1.0</span>));
                 }<span class="comment">// else is ground... ignore</span>
             }<span class="kw">else</span>{
                 <span class="comment">// outdoor</span>
@@ -468,9 +471,10 @@ SOFTWARE.
 
             <span class="comment">// Deal with Back</span>
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">surface</span>.<span class="ident">back_boundary</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Boundary::Space</span>(<span class="ident">space</span>) <span class="op">=</span> <span class="ident">b</span> {
-                    <span class="kw">let</span> <span class="ident">space_temp</span> <span class="op">=</span> <span class="ident">space</span>.<span class="ident">dry_bulb_temperature</span>(<span class="ident">state</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="number">22.</span>);                    
-                    <span class="ident">surface</span>.<span class="ident">set_back_ir_irradiance</span>(<span class="ident">state</span>, <span class="ident">ir</span>(<span class="ident">space_temp</span>, <span class="number">0.9</span>));
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Boundary::Space</span>(<span class="ident">_space</span>) <span class="op">=</span> <span class="ident">b</span> {
+                    <span class="comment">// let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);                    </span>
+                    <span class="kw">let</span> <span class="ident">temp</span> <span class="op">=</span> <span class="ident">surface</span>.<span class="ident">last_node_temperature</span>(<span class="ident">state</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="number">22.</span>);                    
+                    <span class="ident">surface</span>.<span class="ident">set_back_ir_irradiance</span>(<span class="ident">state</span>, <span class="ident">ir</span>(<span class="ident">temp</span>, <span class="number">1.0</span>));
                 }<span class="comment">// else is ground... ignore</span>
             }<span class="kw">else</span>{
                 <span class="comment">// outdoor</span>

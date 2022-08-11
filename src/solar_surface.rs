@@ -151,7 +151,7 @@ impl SolarSurface {
         list.iter()
             .enumerate()
             .map(|(i, s)| {
-                if let None = s.front_incident_solar_irradiance_index(){
+                if s.front_incident_solar_irradiance_index().is_none(){
                     let i = state.push(
                         SimulationStateElement::FenestrationFrontSolarIrradiance(i),
                         0.0,
@@ -160,7 +160,7 @@ impl SolarSurface {
                 }
 
 
-                if let None = s.back_incident_solar_irradiance_index(){
+                if s.back_incident_solar_irradiance_index().is_none(){
                     let i = state.push(
                         SimulationStateElement::FenestrationBackSolarIrradiance(i),
                         0.0,
@@ -168,7 +168,7 @@ impl SolarSurface {
                     s.set_back_incident_solar_irradiance_index(i);
                 }
 
-                if let None = s.front_ir_irradiance_index(){
+                if s.front_ir_irradiance_index().is_none(){
                     let i = state.push(
                         SimulationStateElement::FenestrationFrontIRIrradiance(i),
                         0.0,
@@ -176,7 +176,7 @@ impl SolarSurface {
                     s.set_front_ir_irradiance_index(i);
                 }
 
-                if let None = s.back_ir_irradiance_index(){
+                if s.back_ir_irradiance_index().is_none(){
                     let i = state.push(
                         SimulationStateElement::FenestrationBackIRIrradiance(i), 
                         0.0
@@ -200,22 +200,22 @@ impl SolarSurface {
         list.iter()
             .enumerate()
             .map(|(i, s)| {
-                if let None = s.front_incident_solar_irradiance_index(){
+                if s.front_incident_solar_irradiance_index().is_none(){
                     let i = state.push(SimulationStateElement::SurfaceFrontSolarIrradiance(i), 0.0);
                     s.set_front_incident_solar_irradiance_index(i);
                 }
 
-                if let None = s.back_incident_solar_irradiance_index(){
+                if s.back_incident_solar_irradiance_index().is_none(){
                     let i = state.push(SimulationStateElement::SurfaceBackSolarIrradiance(i), 0.0);
                     s.set_back_incident_solar_irradiance_index(i);
                 }
 
-                if let None = s.front_ir_irradiance_index(){
+                if s.front_ir_irradiance_index().is_none(){
                     let i = state.push(SimulationStateElement::SurfaceFrontIRIrradiance(i), 0.0);
                     s.set_front_ir_irradiance_index(i);
                 }
 
-                if let None = s.back_ir_irradiance_index(){
+                if s.back_ir_irradiance_index().is_none(){
                     let i = state.push(SimulationStateElement::SurfaceBackIRIrradiance(i), 0.0);
                     s.set_back_ir_irradiance_index(i);
                 }
@@ -251,7 +251,7 @@ impl SolarSurface {
     /// Calculates the Daylight Coefficient matrix for the front of a `SolarSurface`
     pub fn solar_irradiance(&self, rays: &[Ray3D], scene: &Scene, factory: &DCFactory) -> Matrix {
         // let front_rays = self.front_rays();
-        let dc = factory.calc_dc(&rays, scene);
+        let dc = factory.calc_dc(rays, scene);
         let dc = colour_matrix_to_radiance(&dc);
         average_matrix(&dc)
     }

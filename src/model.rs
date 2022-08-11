@@ -18,6 +18,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 use crate::Float;
+use std::fs::File;
+use std::io::Write;
 use calendar::Date;
 use communication_protocols::{ErrorHandling, MetaOptions, SimulationModel};
 use matrix::Matrix;
@@ -294,7 +296,9 @@ impl SimulationModel for SolarModel {
             } else {
                 // write into file
                 let info = OpticalInfo::new(&options, model, state);
-
+                let s = serde_json::to_value(&info).unwrap();
+                let mut file = File::create(path).unwrap();
+                writeln!(&mut file, "{}", s).unwrap();
                 info
             }
         } else {

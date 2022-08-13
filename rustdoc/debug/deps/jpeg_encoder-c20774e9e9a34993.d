@@ -1,0 +1,13 @@
+/home/runner/work/light/light/./docs/rustdoc/debug/deps/jpeg_encoder-c20774e9e9a34993.rmeta: /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/lib.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/encoder.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/error.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/fdct.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/huffman.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/image_buffer.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/marker.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/quantization.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/writer.rs
+
+/home/runner/work/light/light/./docs/rustdoc/debug/deps/jpeg_encoder-c20774e9e9a34993.d: /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/lib.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/encoder.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/error.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/fdct.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/huffman.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/image_buffer.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/marker.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/quantization.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/writer.rs
+
+/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/lib.rs:
+/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/encoder.rs:
+/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/error.rs:
+/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/fdct.rs:
+/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/huffman.rs:
+/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/image_buffer.rs:
+/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/marker.rs:
+/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/quantization.rs:
+/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jpeg-encoder-0.5.1/src/writer.rs:

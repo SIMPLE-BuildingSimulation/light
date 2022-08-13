@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/model.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>model.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.css" integrity="sha384-TEMocfGvRuD1rIAacqrknm5BQZ7W7uWitoih+jMNFXQIbNl16bO8OZmylH/Vi/Ei" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/model.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>model.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.css" integrity="sha384-TEMocfGvRuD1rIAacqrknm5BQZ7W7uWitoih+jMNFXQIbNl16bO8OZmylH/Vi/Ei" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.js" integrity="sha384-jmxIlussZWB7qCuB+PgKG1uLjjxbVVIayPJwi6cG6Zb4YKq0JIw+OMnkkEC7kYCq" crossorigin="anonymous"></script>
 <script>
   "use strict";
@@ -37,7 +36,9 @@
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../light/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../light/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../light/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -373,6 +374,12 @@
 <span id="334">334</span>
 <span id="335">335</span>
 <span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -393,6 +400,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
+<span class="kw">use</span> <span class="ident">std::fs::File</span>;
+<span class="kw">use</span> <span class="ident">std::io::Write</span>;
 <span class="kw">use</span> <span class="ident">calendar::Date</span>;
 <span class="kw">use</span> <span class="ident">communication_protocols</span>::{<span class="ident">ErrorHandling</span>, <span class="ident">MetaOptions</span>, <span class="ident">SimulationModel</span>};
 <span class="kw">use</span> <span class="ident">matrix::Matrix</span>;
@@ -493,9 +502,10 @@ SOFTWARE.
             
             <span class="comment">// Deal with front</span>
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">surface</span>.<span class="ident">front_boundary</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Boundary::Space</span>(<span class="ident">space</span>) <span class="op">=</span> <span class="ident">b</span> {
-                    <span class="kw">let</span> <span class="ident">space_temp</span> <span class="op">=</span> <span class="ident">space</span>.<span class="ident">dry_bulb_temperature</span>(<span class="ident">state</span>).<span class="ident">unwrap</span>();                    
-                    <span class="ident">surface</span>.<span class="ident">set_front_ir_irradiance</span>(<span class="ident">state</span>, <span class="ident">ir</span>(<span class="ident">space_temp</span>, <span class="number">0.9</span>));
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Boundary::Space</span>(<span class="ident">_space</span>) <span class="op">=</span> <span class="ident">b</span> {
+                    <span class="comment">// let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);                    </span>
+                    <span class="kw">let</span> <span class="ident">temp</span> <span class="op">=</span> <span class="ident">surface</span>.<span class="ident">first_node_temperature</span>(<span class="ident">state</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="number">22.</span>);                    
+                    <span class="ident">surface</span>.<span class="ident">set_front_ir_irradiance</span>(<span class="ident">state</span>, <span class="ident">ir</span>(<span class="ident">temp</span>, <span class="number">1.0</span>));
                 }<span class="comment">// else is ground... ignore</span>
             }<span class="kw">else</span>{
                 <span class="comment">// outdoor</span>
@@ -507,9 +517,10 @@ SOFTWARE.
             
             <span class="comment">// Deal with Back</span>
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">surface</span>.<span class="ident">back_boundary</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Boundary::Space</span>(<span class="ident">space</span>) <span class="op">=</span> <span class="ident">b</span> {
-                    <span class="kw">let</span> <span class="ident">space_temp</span> <span class="op">=</span> <span class="ident">space</span>.<span class="ident">dry_bulb_temperature</span>(<span class="ident">state</span>).<span class="ident">unwrap</span>();                    
-                    <span class="ident">surface</span>.<span class="ident">set_back_ir_irradiance</span>(<span class="ident">state</span>, <span class="ident">ir</span>(<span class="ident">space_temp</span>, <span class="number">0.9</span>));
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Boundary::Space</span>(<span class="ident">_space</span>) <span class="op">=</span> <span class="ident">b</span> {
+                    <span class="comment">// let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);                    </span>
+                    <span class="kw">let</span> <span class="ident">temp</span> <span class="op">=</span> <span class="ident">surface</span>.<span class="ident">last_node_temperature</span>(<span class="ident">state</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="number">22.</span>);                    
+                    <span class="ident">surface</span>.<span class="ident">set_back_ir_irradiance</span>(<span class="ident">state</span>, <span class="ident">ir</span>(<span class="ident">temp</span>, <span class="number">1.0</span>));
                 }<span class="comment">// else is ground... ignore</span>
             }<span class="kw">else</span>{
                 <span class="comment">// outdoor</span>
@@ -669,7 +680,9 @@ SOFTWARE.
             } <span class="kw">else</span> {
                 <span class="comment">// write into file</span>
                 <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">OpticalInfo::new</span>(<span class="kw-2">&amp;</span><span class="ident">options</span>, <span class="ident">model</span>, <span class="ident">state</span>);
-
+                <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="kw-2">&amp;</span><span class="ident">info</span>).<span class="ident">unwrap</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="ident">path</span>).<span class="ident">unwrap</span>();
+                <span class="macro">writeln!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">file</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">s</span>).<span class="ident">unwrap</span>();
                 <span class="ident">info</span>
             }
         } <span class="kw">else</span> {
@@ -710,5 +723,5 @@ SOFTWARE.
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="light" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="light" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
 </body></html>

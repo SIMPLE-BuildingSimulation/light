@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["SolarModel","The main model"]]});
+window.SIDEBAR_ITEMS = {"struct":[["SolarModel","The main model"]]};

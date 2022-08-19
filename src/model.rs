@@ -187,13 +187,13 @@ impl SolarModel {
         // Process Solar Irradiance in Surfaces
         if !self.optical_info.front_surfaces_dc.is_empty() {
             if is_day {
-                let solar_irradiance = &self.optical_info.front_surfaces_dc * &vec;
-                if solar_irradiance.get(0, 0).unwrap() < 0.0 {
-                    dbg!(solar_irradiance.get(0, 0).unwrap());
-                }
+                let solar_irradiance = &self.optical_info.front_surfaces_dc * &vec;                
                 for (i, s) in model.surfaces.iter().enumerate() {
                     // Average of the period
-                    let v = solar_irradiance.get(i, 0).unwrap();
+                    let mut v = solar_irradiance.get(i, 0).unwrap();
+                    if v < 0.0{
+                        v = 0.0
+                    }
                     let old_v = s.front_incident_solar_irradiance(state).unwrap();
                     s.set_front_incident_solar_irradiance(state, (v + old_v) / 2.);
                 }
@@ -208,7 +208,10 @@ impl SolarModel {
                 let solar_irradiance = &self.optical_info.back_surfaces_dc * &vec;
                 for (i, s) in model.surfaces.iter().enumerate() {
                     // Average of the period
-                    let v = solar_irradiance.get(i, 0).unwrap();
+                    let mut v = solar_irradiance.get(i, 0).unwrap();
+                    if v < 0.0{
+                        v = 0.0
+                    }
                     let old_v = s.back_incident_solar_irradiance(state).unwrap();
                     s.set_back_incident_solar_irradiance(state, (v + old_v) / 2.);
                 }

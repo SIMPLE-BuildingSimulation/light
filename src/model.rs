@@ -30,6 +30,7 @@ use weather::{CurrentWeather, Weather};
 
 use crate::optical_info::OpticalInfo;
 
+
 /// The main model
 pub struct SolarModel {
     // /// The scene that makes up this model from a lighting point of view.
@@ -73,9 +74,7 @@ impl SolarModel {
         };
         
 
-        #[cfg(feature="parallel")]
-        let iter = model.surfaces.par_iter().enumerate();
-        #[cfg(not(feature="parallel"))]
+        
         let iter = model.surfaces.iter().enumerate();
 
         for (index,surface) in iter{
@@ -111,10 +110,7 @@ impl SolarModel {
                 surface.set_back_ir_irradiance(state, ground_other + sky);
             }            
         }
-
-        #[cfg(feature="parallel")]
-        let iter = model.fenestrations.par_iter().enumerate();
-        #[cfg(not(feature="parallel"))]
+        
         let iter = model.fenestrations.iter().enumerate();
         for (index,surface) in iter {
             

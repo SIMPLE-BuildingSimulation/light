@@ -379,10 +379,6 @@
 <span id="339">339</span>
 <span id="340">340</span>
 <span id="341">341</span>
-<span id="342">342</span>
-<span id="343">343</span>
-<span id="344">344</span>
-<span id="345">345</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -414,6 +410,7 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident">weather</span>::{<span class="ident">CurrentWeather</span>, <span class="ident">Weather</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::optical_info::OpticalInfo</span>;
+
 
 <span class="doccomment">/// The main model</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SolarModel</span> {
@@ -458,9 +455,7 @@ SOFTWARE.
         };
         
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;parallel&quot;</span>)]</span>
-        <span class="kw">let</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">model</span>.<span class="ident">surfaces</span>.<span class="ident">par_iter</span>().<span class="ident">enumerate</span>();
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;parallel&quot;</span>))]</span>
+        
         <span class="kw">let</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">model</span>.<span class="ident">surfaces</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>();
 
         <span class="kw">for</span> (<span class="ident">index</span>,<span class="ident">surface</span>) <span class="kw">in</span> <span class="ident">iter</span>{
@@ -496,10 +491,7 @@ SOFTWARE.
                 <span class="ident">surface</span>.<span class="ident">set_back_ir_irradiance</span>(<span class="ident">state</span>, <span class="ident">ground_other</span> <span class="op">+</span> <span class="ident">sky</span>);
             }            
         }
-
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;parallel&quot;</span>)]</span>
-        <span class="kw">let</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">model</span>.<span class="ident">fenestrations</span>.<span class="ident">par_iter</span>().<span class="ident">enumerate</span>();
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;parallel&quot;</span>))]</span>
+        
         <span class="kw">let</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">model</span>.<span class="ident">fenestrations</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>();
         <span class="kw">for</span> (<span class="ident">index</span>,<span class="ident">surface</span>) <span class="kw">in</span> <span class="ident">iter</span> {
             

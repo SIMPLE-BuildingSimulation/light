@@ -320,10 +320,10 @@ impl SimulationModel for SolarModel {
         })
     }
 
-    fn march(
+    fn march<W: Weather>(
         &self,
         date: Date,
-        weather: &dyn Weather,
+        weather: &W,
         model: &SimpleModel,
         state: &mut SimulationState,
     ) -> Result<(), String> {

@@ -3,7 +3,7 @@ Cargo.lock
 check.txt
 *.json
 tests/*/*
-!tests/box/*.spl
+!tests/*/*.spl
 !tests/*/eplusout.csv
 docs/validation/*.html
 **/**/.DS_Store

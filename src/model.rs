@@ -45,12 +45,12 @@ pub struct SolarModel {
     /// The optical information from the model, containing
     /// DC matrices and view factors
     optical_info: OpticalInfo,
-
-    /// The options for the model.
-    options: SolarOptions,
-
+    
     /// The calculator for solar position and other solar variables
     solar: Solar,
+
+    /// The MF discretization scheme for the sky.
+    solar_sky_discretization: usize,
 }
 
 impl SolarModel {
@@ -155,8 +155,8 @@ impl SolarModel {
         model: &SimpleModel,
         state: &mut SimulationState,
     ) {
-        let direct_normal_irrad = weather_data.direct_normal_radiation.unwrap();
-        let diffuse_horizontal_irrad = weather_data.diffuse_horizontal_radiation.unwrap();
+        let direct_normal_irrad = weather_data.direct_normal_radiation.expect("Missing data for direct normal irradiance");
+        let diffuse_horizontal_irrad = weather_data.diffuse_horizontal_radiation.expect("Missing data for diffuse horizontal");
 
         let is_day = direct_normal_irrad + diffuse_horizontal_irrad >= 1e-4;
         let vec = if is_day {
@@ -166,7 +166,7 @@ impl SolarModel {
             let add_sun = true;
             let units = SkyUnits::Solar;
             PerezSky::gen_sky_vec(
-                *self.options.solar_sky_discretization().unwrap(),
+                self.solar_sky_discretization,
                 &self.solar,
                 date,
                 weather_data,
@@ -293,6 +293,7 @@ impl SimulationModel for SolarModel {
                         ))
                     }
                 };
+                
                 info
             } else {
                 // write into file
@@ -312,11 +313,28 @@ impl SimulationModel for SolarModel {
         let longitude = -meta_options.longitude;
         let standard_meridian = -meta_options.standard_meridian;
         let solar = Solar::new(latitude, longitude, standard_meridian);
+        
+        // derive MF
+        let (.., ncols) = optical_info.back_surfaces_dc.size();
+        if ncols == 0 {
+            return Err(format!("optical data is corrupt: daylight coefficient matrix has zero columns."))
+        }
+        let mut mf = 1;
+        loop {    
+            if mf >= 9 || ncols == 0 {
+                return Err(format!("sky discretization seems to be too high ({mf}... If this is a bug, please report it!"))
+            }                
+            if solar::ReinhartSky::n_bins(mf) == ncols{
+                break
+            }else{
+                mf += 1;
+            }
+        };
 
         Ok(Self {
-            optical_info,
-            options,
+            optical_info,            
             solar,
+            solar_sky_discretization: mf,
         })
     }
 
@@ -337,5 +355,68 @@ impl SimulationModel for SolarModel {
         // return
         Ok(())
         // unimplemented!()
+    }
+}
+
+
+#[cfg(test)]
+mod testing {
+    use super::*;
+    
+    
+    #[test]
+    fn test_model_mf(){
+        // cleanup
+        let optical_data_path = "./tests/wall/optical_data.json";
+        let path = Path::new(optical_data_path);
+        if path.exists() {
+            std::fs::remove_file(path).unwrap();
+        }
+
+        // Step 1: create the model, write the optical info data.
+        let meta_options = MetaOptions { 
+            latitude: -33., 
+            longitude: 72., 
+            standard_meridian: 70., 
+            elevation: 0.0,            
+        };
+        let (model, mut state_header) = SimpleModel::from_file("./tests/wall/wall.spl".into()).unwrap();
+        let mut solar_options = model.solar_options.clone().unwrap();
+        solar_options.set_optical_data_path(optical_data_path.to_string());
+        
+        let light_model = SolarModel::new(
+            &meta_options,
+            solar_options,
+            &model,
+            &mut state_header,
+            4,
+        ).unwrap();
+        assert_eq!(light_model.solar_sky_discretization, 1);//this comes in the model
+
+        // Step 2: Run it again, with a different option
+        let meta_options = MetaOptions { 
+            latitude: -33., 
+            longitude: 72., 
+            standard_meridian: 70., 
+            elevation: 0.0
+        };        
+        let mut solar_options = model.solar_options.clone().unwrap();
+        solar_options.set_solar_sky_discretization(2);
+        solar_options.set_optical_data_path(optical_data_path.to_string());
+        let light_model = SolarModel::new(
+            &meta_options,
+            solar_options,
+            &model,
+            &mut state_header,
+            4,
+        ).unwrap();
+        assert_eq!(light_model.solar_sky_discretization, 1); //this comes from the optical data.
+
+
+        // cleanup        
+        let path = Path::new(optical_data_path);
+        if path.exists() {
+            std::fs::remove_file(path).unwrap();
+        }
     }
 }

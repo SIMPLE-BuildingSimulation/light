@@ -373,6 +373,87 @@
 <span id="339">339</span>
 <span id="340">340</span>
 <span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -420,12 +501,12 @@ SOFTWARE.
     <span class="doccomment">/// The optical information from the model, containing</span>
     <span class="doccomment">/// DC matrices and view factors</span>
     <span class="ident">optical_info</span>: <span class="ident">OpticalInfo</span>,
-
-    <span class="doccomment">/// The options for the model.</span>
-    <span class="ident">options</span>: <span class="ident">SolarOptions</span>,
-
+    
     <span class="doccomment">/// The calculator for solar position and other solar variables</span>
     <span class="ident">solar</span>: <span class="ident">Solar</span>,
+
+    <span class="doccomment">/// The MF discretization scheme for the sky.</span>
+    <span class="ident">solar_sky_discretization</span>: <span class="ident">usize</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">SolarModel</span> {
@@ -530,8 +611,8 @@ SOFTWARE.
         <span class="ident">model</span>: <span class="kw-2">&amp;</span><span class="ident">SimpleModel</span>,
         <span class="ident">state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SimulationState</span>,
     ) {
-        <span class="kw">let</span> <span class="ident">direct_normal_irrad</span> <span class="op">=</span> <span class="ident">weather_data</span>.<span class="ident">direct_normal_radiation</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">diffuse_horizontal_irrad</span> <span class="op">=</span> <span class="ident">weather_data</span>.<span class="ident">diffuse_horizontal_radiation</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">direct_normal_irrad</span> <span class="op">=</span> <span class="ident">weather_data</span>.<span class="ident">direct_normal_radiation</span>.<span class="ident">expect</span>(<span class="string">&quot;Missing data for direct normal irradiance&quot;</span>);
+        <span class="kw">let</span> <span class="ident">diffuse_horizontal_irrad</span> <span class="op">=</span> <span class="ident">weather_data</span>.<span class="ident">diffuse_horizontal_radiation</span>.<span class="ident">expect</span>(<span class="string">&quot;Missing data for diffuse horizontal&quot;</span>);
 
         <span class="kw">let</span> <span class="ident">is_day</span> <span class="op">=</span> <span class="ident">direct_normal_irrad</span> <span class="op">+</span> <span class="ident">diffuse_horizontal_irrad</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">1e-4</span>;
         <span class="kw">let</span> <span class="ident">vec</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_day</span> {
@@ -541,7 +622,7 @@ SOFTWARE.
             <span class="kw">let</span> <span class="ident">add_sun</span> <span class="op">=</span> <span class="bool-val">true</span>;
             <span class="kw">let</span> <span class="ident">units</span> <span class="op">=</span> <span class="ident">SkyUnits::Solar</span>;
             <span class="ident">PerezSky::gen_sky_vec</span>(
-                <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">options</span>.<span class="ident">solar_sky_discretization</span>().<span class="ident">unwrap</span>(),
+                <span class="self">self</span>.<span class="ident">solar_sky_discretization</span>,
                 <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">solar</span>,
                 <span class="ident">date</span>,
                 <span class="ident">weather_data</span>,
@@ -668,6 +749,7 @@ SOFTWARE.
                         ))
                     }
                 };
+                
                 <span class="ident">info</span>
             } <span class="kw">else</span> {
                 <span class="comment">// write into file</span>
@@ -687,11 +769,28 @@ SOFTWARE.
         <span class="kw">let</span> <span class="ident">longitude</span> <span class="op">=</span> <span class="op">-</span><span class="ident">meta_options</span>.<span class="ident">longitude</span>;
         <span class="kw">let</span> <span class="ident">standard_meridian</span> <span class="op">=</span> <span class="op">-</span><span class="ident">meta_options</span>.<span class="ident">standard_meridian</span>;
         <span class="kw">let</span> <span class="ident">solar</span> <span class="op">=</span> <span class="ident">Solar::new</span>(<span class="ident">latitude</span>, <span class="ident">longitude</span>, <span class="ident">standard_meridian</span>);
+        
+        <span class="comment">// derive MF</span>
+        <span class="kw">let</span> (.., <span class="ident">ncols</span>) <span class="op">=</span> <span class="ident">optical_info</span>.<span class="ident">back_surfaces_dc</span>.<span class="ident">size</span>();
+        <span class="kw">if</span> <span class="ident">ncols</span> <span class="op">==</span> <span class="number">0</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;optical data is corrupt: daylight coefficient matrix has zero columns.&quot;</span>))
+        }
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mf</span> <span class="op">=</span> <span class="number">1</span>;
+        <span class="kw">loop</span> {    
+            <span class="kw">if</span> <span class="ident">mf</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">9</span> <span class="op">|</span><span class="op">|</span> <span class="ident">ncols</span> <span class="op">==</span> <span class="number">0</span> {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;sky discretization seems to be too high ({mf}... If this is a bug, please report it!&quot;</span>))
+            }                
+            <span class="kw">if</span> <span class="ident">solar::ReinhartSky::n_bins</span>(<span class="ident">mf</span>) <span class="op">==</span> <span class="ident">ncols</span>{
+                <span class="kw">break</span>
+            }<span class="kw">else</span>{
+                <span class="ident">mf</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            }
+        };
 
         <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">optical_info</span>,
-            <span class="ident">options</span>,
+            <span class="ident">optical_info</span>,            
             <span class="ident">solar</span>,
+            <span class="ident">solar_sky_discretization</span>: <span class="ident">mf</span>,
         })
     }
 
@@ -714,5 +813,67 @@ SOFTWARE.
         <span class="comment">// unimplemented!()</span>
     }
 }
-</code></pre></div>
+
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">testing</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    
+    
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_model_mf</span>(){
+        <span class="comment">// cleanup</span>
+        <span class="kw">let</span> <span class="ident">optical_data_path</span> <span class="op">=</span> <span class="string">&quot;./tests/wall/optical_data.json&quot;</span>;
+        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="ident">optical_data_path</span>);
+        <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">exists</span>() {
+            <span class="ident">std::fs::remove_file</span>(<span class="ident">path</span>).<span class="ident">unwrap</span>();
+        }
+
+        <span class="comment">// Step 1: create the model, write the optical info data.</span>
+        <span class="kw">let</span> <span class="ident">meta_options</span> <span class="op">=</span> <span class="ident">MetaOptions</span> { 
+            <span class="ident">latitude</span>: <span class="op">-</span><span class="number">33.</span>, 
+            <span class="ident">longitude</span>: <span class="number">72.</span>, 
+            <span class="ident">standard_meridian</span>: <span class="number">70.</span>, 
+            <span class="ident">elevation</span>: <span class="number">0.0</span>,            
+        };
+        <span class="kw">let</span> (<span class="ident">model</span>, <span class="kw-2">mut</span> <span class="ident">state_header</span>) <span class="op">=</span> <span class="ident">SimpleModel::from_file</span>(<span class="string">&quot;./tests/wall/wall.spl&quot;</span>.<span class="ident">into</span>()).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">solar_options</span> <span class="op">=</span> <span class="ident">model</span>.<span class="ident">solar_options</span>.<span class="ident">clone</span>().<span class="ident">unwrap</span>();
+        <span class="ident">solar_options</span>.<span class="ident">set_optical_data_path</span>(<span class="ident">optical_data_path</span>.<span class="ident">to_string</span>());
+        
+        <span class="kw">let</span> <span class="ident">light_model</span> <span class="op">=</span> <span class="ident">SolarModel::new</span>(
+            <span class="kw-2">&amp;</span><span class="ident">meta_options</span>,
+            <span class="ident">solar_options</span>,
+            <span class="kw-2">&amp;</span><span class="ident">model</span>,
+            <span class="kw-2">&amp;mut</span> <span class="ident">state_header</span>,
+            <span class="number">4</span>,
+        ).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="ident">light_model</span>.<span class="ident">solar_sky_discretization</span>, <span class="number">1</span>);<span class="comment">//this comes in the model</span>
+
+        <span class="comment">// Step 2: Run it again, with a different option</span>
+        <span class="kw">let</span> <span class="ident">meta_options</span> <span class="op">=</span> <span class="ident">MetaOptions</span> { 
+            <span class="ident">latitude</span>: <span class="op">-</span><span class="number">33.</span>, 
+            <span class="ident">longitude</span>: <span class="number">72.</span>, 
+            <span class="ident">standard_meridian</span>: <span class="number">70.</span>, 
+            <span class="ident">elevation</span>: <span class="number">0.0</span>
+        };        
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">solar_options</span> <span class="op">=</span> <span class="ident">model</span>.<span class="ident">solar_options</span>.<span class="ident">clone</span>().<span class="ident">unwrap</span>();
+        <span class="ident">solar_options</span>.<span class="ident">set_solar_sky_discretization</span>(<span class="number">2</span>);
+        <span class="ident">solar_options</span>.<span class="ident">set_optical_data_path</span>(<span class="ident">optical_data_path</span>.<span class="ident">to_string</span>());
+        <span class="kw">let</span> <span class="ident">light_model</span> <span class="op">=</span> <span class="ident">SolarModel::new</span>(
+            <span class="kw-2">&amp;</span><span class="ident">meta_options</span>,
+            <span class="ident">solar_options</span>,
+            <span class="kw-2">&amp;</span><span class="ident">model</span>,
+            <span class="kw-2">&amp;mut</span> <span class="ident">state_header</span>,
+            <span class="number">4</span>,
+        ).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="ident">light_model</span>.<span class="ident">solar_sky_discretization</span>, <span class="number">1</span>); <span class="comment">//this comes from the optical data.</span>
+
+
+        <span class="comment">// cleanup        </span>
+        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="ident">optical_data_path</span>);
+        <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">exists</span>() {
+            <span class="ident">std::fs::remove_file</span>(<span class="ident">path</span>).<span class="ident">unwrap</span>();
+        }
+    }
+}</code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="light" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

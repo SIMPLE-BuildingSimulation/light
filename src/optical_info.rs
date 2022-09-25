@@ -71,6 +71,7 @@ pub struct OpticalInfo {
 }
 
 impl OpticalInfo {
+    /// Calculates the new OpticalInformation 
     pub fn new(options: &SolarOptions, model: &SimpleModel, state: &mut SimulationStateHeader) -> Self {
         // Collect calculation options
         let mf = *options.solar_sky_discretization().unwrap();

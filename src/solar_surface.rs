@@ -33,7 +33,6 @@ use geometry3d::{
     Ray3D,
     Triangulation3D,
     Vector3D,
-    // Loop3D,
 };
 use rendering::primitive_samplers::sample_triangle_surface;
 use rendering::rand::*;

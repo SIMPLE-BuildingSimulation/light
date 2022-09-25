@@ -1,7 +1,9 @@
 /target
 Cargo.lock
 check.txt
+*.json
 tests/*/*
+!tests/box/*.spl
 !tests/*/eplusout.csv
 docs/validation/*.html
 **/**/.DS_Store

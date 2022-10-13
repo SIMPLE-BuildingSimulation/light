@@ -81,7 +81,7 @@ impl SolarModel {
             
             // Deal with front
             if let Ok(b) = surface.front_boundary() {
-                if let Boundary::Space(_space) = b {
+                if let Boundary::Space{..} = b {
                     // let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);                    
                     let temp = surface.first_node_temperature(state).unwrap_or_else(|| 22.);                    
                     surface.set_front_ir_irradiance(state, ir(temp, 1.0));
@@ -97,7 +97,7 @@ impl SolarModel {
 
             // Deal with Back
             if let Ok(b) = surface.back_boundary() {
-                if let Boundary::Space(_space) = b {
+                if let Boundary::Space {..} = b {
                     // let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);                    
                     let temp = surface.last_node_temperature(state).unwrap_or_else(|| 22.);                    
                     surface.set_back_ir_irradiance(state, ir(temp, 1.0));
@@ -116,7 +116,7 @@ impl SolarModel {
             
             // Deal with front
             if let Ok(b) = surface.front_boundary() {
-                if let Boundary::Space(_space) = b {
+                if let Boundary::Space{..} = b {
                     // let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);                    
                     let temp = surface.first_node_temperature(state).unwrap_or_else(|| 22.);                    
                     surface.set_front_ir_irradiance(state, ir(temp, 1.0));
@@ -131,7 +131,7 @@ impl SolarModel {
             
             // Deal with Back
             if let Ok(b) = surface.back_boundary() {
-                if let Boundary::Space(_space) = b {
+                if let Boundary::Space{..} = b {
                     // let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);                    
                     let temp = surface.last_node_temperature(state).unwrap_or_else(|| 22.);                    
                     surface.set_back_ir_irradiance(state, ir(temp, 1.0));
@@ -297,7 +297,7 @@ impl SimulationModel for SolarModel {
                 info
             } else {
                 // write into file
-                let info = OpticalInfo::new(&options, model, state);
+                let info = OpticalInfo::new(&options, model, state)?;
                 let s = serde_json::to_value(&info).unwrap();
                 let mut file = File::create(path).unwrap();
                 writeln!(&mut file, "{}", s).unwrap();
@@ -305,7 +305,7 @@ impl SimulationModel for SolarModel {
             }
         } else {
             // Forced calculation... not store
-            OpticalInfo::new(&options, model, state)
+            OpticalInfo::new(&options, model, state)?
         };
 
         // Create the Solar object
@@ -380,7 +380,7 @@ mod testing {
             standard_meridian: 70., 
             elevation: 0.0,            
         };
-        let (model, mut state_header) = SimpleModel::from_file("./tests/wall/wall.spl".into()).unwrap();
+        let (model, mut state_header) = SimpleModel::from_file("./tests/wall/wall.spl").unwrap();
         let mut solar_options = model.solar_options.clone().unwrap();
         solar_options.set_optical_data_path(optical_data_path.to_string());
         

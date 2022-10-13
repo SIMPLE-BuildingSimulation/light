@@ -72,7 +72,7 @@ pub struct OpticalInfo {
 
 impl OpticalInfo {
     /// Calculates the new OpticalInformation 
-    pub fn new(options: &SolarOptions, model: &SimpleModel, state: &mut SimulationStateHeader) -> Self {
+    pub fn new(options: &SolarOptions, model: &SimpleModel, state: &mut SimulationStateHeader) -> Result<Self, String> {
         // Collect calculation options
         let mf = *options.solar_sky_discretization().unwrap();
         let n_solar_rays = *options.n_solar_irradiance_points().unwrap();
@@ -84,7 +84,7 @@ impl OpticalInfo {
 
 
         // build scene
-        let mut solar_scene = Scene::from_simple_model(model, Wavelengths::Solar);
+        let mut solar_scene = Scene::from_simple_model(model, Wavelengths::Solar)?;
         solar_scene.build_accelerator();        
 
         // calculator
@@ -129,7 +129,7 @@ impl OpticalInfo {
         let front_fenestrations_view_factors : Vec<IRViewFactorSet> = fenestrations.iter().map(|s| s.calc_view_factors(&solar_scene,true)).collect();
         let back_fenestrations_view_factors : Vec<IRViewFactorSet> = fenestrations.iter().map(|s| s.calc_view_factors(&solar_scene,false)).collect();
 
-        Self { 
+        Ok(Self { 
             front_surfaces_view_factors,
             back_surfaces_view_factors,
             front_fenestrations_view_factors, 
@@ -138,6 +138,6 @@ impl OpticalInfo {
             back_surfaces_dc,
             front_fenestrations_dc, 
             back_fenestrations_dc,
-        }
+        })
     }
 }

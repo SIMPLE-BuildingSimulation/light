@@ -1,3 +1,4 @@
 (function() {var implementors = {};
 implementors["light"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.64.0/core/fmt/trait.Debug.html\" title=\"trait core::fmt::Debug\">Debug</a> for <a class=\"struct\" href=\"light/optical_info/struct.IRViewFactorSet.html\" title=\"struct light::optical_info::IRViewFactorSet\">IRViewFactorSet</a>","synthetic":false,"types":["light::optical_info::IRViewFactorSet"]}];
+implementors["simple_light"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.64.0/core/fmt/trait.Debug.html\" title=\"trait core::fmt::Debug\">Debug</a> for <a class=\"struct\" href=\"simple_light/struct.Inputs.html\" title=\"struct simple_light::Inputs\">Inputs</a>","synthetic":false,"types":["simple_light::Inputs"]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

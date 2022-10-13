@@ -537,7 +537,7 @@ SOFTWARE.
             
             <span class="comment">// Deal with front</span>
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">surface</span>.<span class="ident">front_boundary</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Boundary::Space</span>(<span class="ident">_space</span>) <span class="op">=</span> <span class="ident">b</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Boundary::Space</span>{..} <span class="op">=</span> <span class="ident">b</span> {
                     <span class="comment">// let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);                    </span>
                     <span class="kw">let</span> <span class="ident">temp</span> <span class="op">=</span> <span class="ident">surface</span>.<span class="ident">first_node_temperature</span>(<span class="ident">state</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="number">22.</span>);                    
                     <span class="ident">surface</span>.<span class="ident">set_front_ir_irradiance</span>(<span class="ident">state</span>, <span class="ident">ir</span>(<span class="ident">temp</span>, <span class="number">1.0</span>));
@@ -553,7 +553,7 @@ SOFTWARE.
 
             <span class="comment">// Deal with Back</span>
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">surface</span>.<span class="ident">back_boundary</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Boundary::Space</span>(<span class="ident">_space</span>) <span class="op">=</span> <span class="ident">b</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Boundary::Space</span> {..} <span class="op">=</span> <span class="ident">b</span> {
                     <span class="comment">// let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);                    </span>
                     <span class="kw">let</span> <span class="ident">temp</span> <span class="op">=</span> <span class="ident">surface</span>.<span class="ident">last_node_temperature</span>(<span class="ident">state</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="number">22.</span>);                    
                     <span class="ident">surface</span>.<span class="ident">set_back_ir_irradiance</span>(<span class="ident">state</span>, <span class="ident">ir</span>(<span class="ident">temp</span>, <span class="number">1.0</span>));
@@ -572,7 +572,7 @@ SOFTWARE.
             
             <span class="comment">// Deal with front</span>
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">surface</span>.<span class="ident">front_boundary</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Boundary::Space</span>(<span class="ident">_space</span>) <span class="op">=</span> <span class="ident">b</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Boundary::Space</span>{..} <span class="op">=</span> <span class="ident">b</span> {
                     <span class="comment">// let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);                    </span>
                     <span class="kw">let</span> <span class="ident">temp</span> <span class="op">=</span> <span class="ident">surface</span>.<span class="ident">first_node_temperature</span>(<span class="ident">state</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="number">22.</span>);                    
                     <span class="ident">surface</span>.<span class="ident">set_front_ir_irradiance</span>(<span class="ident">state</span>, <span class="ident">ir</span>(<span class="ident">temp</span>, <span class="number">1.0</span>));
@@ -587,7 +587,7 @@ SOFTWARE.
             
             <span class="comment">// Deal with Back</span>
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">surface</span>.<span class="ident">back_boundary</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Boundary::Space</span>(<span class="ident">_space</span>) <span class="op">=</span> <span class="ident">b</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Boundary::Space</span>{..} <span class="op">=</span> <span class="ident">b</span> {
                     <span class="comment">// let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);                    </span>
                     <span class="kw">let</span> <span class="ident">temp</span> <span class="op">=</span> <span class="ident">surface</span>.<span class="ident">last_node_temperature</span>(<span class="ident">state</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="number">22.</span>);                    
                     <span class="ident">surface</span>.<span class="ident">set_back_ir_irradiance</span>(<span class="ident">state</span>, <span class="ident">ir</span>(<span class="ident">temp</span>, <span class="number">1.0</span>));
@@ -753,7 +753,7 @@ SOFTWARE.
                 <span class="ident">info</span>
             } <span class="kw">else</span> {
                 <span class="comment">// write into file</span>
-                <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">OpticalInfo::new</span>(<span class="kw-2">&amp;</span><span class="ident">options</span>, <span class="ident">model</span>, <span class="ident">state</span>);
+                <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">OpticalInfo::new</span>(<span class="kw-2">&amp;</span><span class="ident">options</span>, <span class="ident">model</span>, <span class="ident">state</span>)<span class="question-mark">?</span>;
                 <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="kw-2">&amp;</span><span class="ident">info</span>).<span class="ident">unwrap</span>();
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="ident">path</span>).<span class="ident">unwrap</span>();
                 <span class="macro">writeln!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">file</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">s</span>).<span class="ident">unwrap</span>();
@@ -761,7 +761,7 @@ SOFTWARE.
             }
         } <span class="kw">else</span> {
             <span class="comment">// Forced calculation... not store</span>
-            <span class="ident">OpticalInfo::new</span>(<span class="kw-2">&amp;</span><span class="ident">options</span>, <span class="ident">model</span>, <span class="ident">state</span>)
+            <span class="ident">OpticalInfo::new</span>(<span class="kw-2">&amp;</span><span class="ident">options</span>, <span class="ident">model</span>, <span class="ident">state</span>)<span class="question-mark">?</span>
         };
 
         <span class="comment">// Create the Solar object</span>
@@ -836,7 +836,7 @@ SOFTWARE.
             <span class="ident">standard_meridian</span>: <span class="number">70.</span>, 
             <span class="ident">elevation</span>: <span class="number">0.0</span>,            
         };
-        <span class="kw">let</span> (<span class="ident">model</span>, <span class="kw-2">mut</span> <span class="ident">state_header</span>) <span class="op">=</span> <span class="ident">SimpleModel::from_file</span>(<span class="string">&quot;./tests/wall/wall.spl&quot;</span>.<span class="ident">into</span>()).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">model</span>, <span class="kw-2">mut</span> <span class="ident">state_header</span>) <span class="op">=</span> <span class="ident">SimpleModel::from_file</span>(<span class="string">&quot;./tests/wall/wall.spl&quot;</span>).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">solar_options</span> <span class="op">=</span> <span class="ident">model</span>.<span class="ident">solar_options</span>.<span class="ident">clone</span>().<span class="ident">unwrap</span>();
         <span class="ident">solar_options</span>.<span class="ident">set_optical_data_path</span>(<span class="ident">optical_data_path</span>.<span class="ident">to_string</span>());
         

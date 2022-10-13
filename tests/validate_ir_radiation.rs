@@ -91,7 +91,7 @@ fn get_simple_results(
     );
 
     // Finished model the SimpleModel
-    let mut options = SolarOptions::new("string".into());
+    let mut options = SolarOptions::new();
     options
         .set_n_solar_irradiance_points(10)
         .set_solar_ambient_divitions(3000)

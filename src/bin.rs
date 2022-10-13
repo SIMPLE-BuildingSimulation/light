@@ -19,37 +19,26 @@ SOFTWARE.
 */
 use solar::ReinhartSky;
 // use rendering::from_radiance::from
-use clap::{Arg, Command};
+use clap::Parser;
 use geometry3d::{Point3D, Ray3D, Vector3D};
 use rendering::{DCFactory, Scene};
 
-fn main() {
-    let matches = Command::new("SIMPLE Solar Simulation")
-        .version("0.1 (but it is still awesome!)")
-        .author("(c) German Molina")
-        .about("A Climate Based Daylight Simulation tool")
-        .arg(
-            Arg::new("input")
-                .short('i')
-                .long("input")
-                .value_name("SIMPLE or Radiance file")
-                .help("This is the SIMPLE Model or a Radiance file")
-                .takes_value(true)
-                .required(true),
-        )
-        .arg(
-            Arg::new("weather")
-                .short('w')
-                .long("weather_file")
-                .value_name("EPW File")
-                .help("This is an EPW weather file")
-                .takes_value(true)
-                .required(true),
-        )
-        .get_matches();
 
-    let input_file = matches.value_of("input").unwrap();
-    let _weather_file = "asd"; //matches.value_of("weather").unwrap();
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Inputs {
+    #[arg(short, long)]
+    input: String,
+
+    // #[arg(short, long)]
+    // weather: String,
+}
+
+fn main() {
+    let args = Inputs::parse();
+
+    let input_file = args.input;
+    // let _weather_file = "asd"; //matches.value_of("weather").unwrap();
 
     let mut scene = if input_file.ends_with(".rad") {
         Scene::from_radiance(input_file.to_string())

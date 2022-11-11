@@ -17,13 +17,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-use solar::ReinhartSky;
 use crate::solar_surface::SolarSurface;
-use rendering::{DCFactory, Scene, Wavelengths};
 use crate::Float;
 use matrix::Matrix;
+use rendering::{DCFactory, Scene, Wavelengths};
 use serde::{Deserialize, Serialize};
-use simple_model::{SimpleModel, SolarOptions, SimulationStateHeader};
+use simple_model::{SimpleModel, SimulationStateHeader, SolarOptions};
+use solar::ReinhartSky;
 
 /// A set of view factors as seen by a `ThermalSurface`.
 #[derive(Debug, Default, Copy, Clone, Serialize, Deserialize)]
@@ -39,12 +39,10 @@ pub struct IRViewFactorSet {
     pub air: Float,
 }
 
-
 /// Information about the solar radiation and other optical elements
 /// of the whole model.
 #[derive(Clone, Serialize, Deserialize)]
 pub struct OpticalInfo {
-
     /// The [`IRViewFactorSet`] for the front side of each surface
     pub front_surfaces_view_factors: Vec<IRViewFactorSet>,
 
@@ -71,21 +69,24 @@ pub struct OpticalInfo {
 }
 
 impl OpticalInfo {
-    /// Calculates the new OpticalInformation 
-    pub fn new(options: &SolarOptions, model: &SimpleModel, state: &mut SimulationStateHeader) -> Self {
+    /// Calculates the new OpticalInformation
+    pub fn new(
+        options: &SolarOptions,
+        model: &SimpleModel,
+        state: &mut SimulationStateHeader,
+    ) -> Result<Self, String> {
         // Collect calculation options
         let mf = *options.solar_sky_discretization().unwrap();
         let n_solar_rays = *options.n_solar_irradiance_points().unwrap();
-        
+
         // Create Surfaces and Fenestrations
         let surfaces = SolarSurface::make_surfaces(&model.surfaces, state, n_solar_rays);
         let fenestrations =
             SolarSurface::make_fenestrations(&model.fenestrations, state, n_solar_rays);
 
-
         // build scene
-        let mut solar_scene = Scene::from_simple_model(model, Wavelengths::Solar);
-        solar_scene.build_accelerator();        
+        let mut solar_scene = Scene::from_simple_model(model, Wavelengths::Solar)?;
+        solar_scene.build_accelerator();
 
         // calculator
         let solar_dc_factory = DCFactory {
@@ -96,48 +97,52 @@ impl OpticalInfo {
         };
 
         // calculate
-        let front_surfaces_dc = SolarSurface::calc_solar_dc_matrix(
-            &surfaces,            
-            &solar_scene,
-            &solar_dc_factory,
-            true,
-        );
-        
-        let back_surfaces_dc = SolarSurface::calc_solar_dc_matrix(
-            &surfaces,            
-            &solar_scene,
-            &solar_dc_factory,
-            false,
-        );
-        
+        let front_surfaces_dc =
+            SolarSurface::calc_solar_dc_matrix(&surfaces, &solar_scene, &solar_dc_factory, true);
+
+        let back_surfaces_dc =
+            SolarSurface::calc_solar_dc_matrix(&surfaces, &solar_scene, &solar_dc_factory, false);
+
         let front_fenestrations_dc = SolarSurface::calc_solar_dc_matrix(
-            &fenestrations,            
+            &fenestrations,
             &solar_scene,
             &solar_dc_factory,
             true,
         );
-        
+
         let back_fenestrations_dc = SolarSurface::calc_solar_dc_matrix(
-            &fenestrations,            
+            &fenestrations,
             &solar_scene,
             &solar_dc_factory,
             false,
         );
 
-        let front_surfaces_view_factors : Vec<IRViewFactorSet> = surfaces.iter().map(|s| s.calc_view_factors(&solar_scene,true)).collect();
-        let back_surfaces_view_factors : Vec<IRViewFactorSet> = surfaces.iter().map(|s| s.calc_view_factors(&solar_scene,false)).collect();
-        let front_fenestrations_view_factors : Vec<IRViewFactorSet> = fenestrations.iter().map(|s| s.calc_view_factors(&solar_scene,true)).collect();
-        let back_fenestrations_view_factors : Vec<IRViewFactorSet> = fenestrations.iter().map(|s| s.calc_view_factors(&solar_scene,false)).collect();
+        let front_surfaces_view_factors: Vec<IRViewFactorSet> = surfaces
+            .iter()
+            .map(|s| s.calc_view_factors(&solar_scene, true))
+            .collect();
+        let back_surfaces_view_factors: Vec<IRViewFactorSet> = surfaces
+            .iter()
+            .map(|s| s.calc_view_factors(&solar_scene, false))
+            .collect();
+        let front_fenestrations_view_factors: Vec<IRViewFactorSet> = fenestrations
+            .iter()
+            .map(|s| s.calc_view_factors(&solar_scene, true))
+            .collect();
+        let back_fenestrations_view_factors: Vec<IRViewFactorSet> = fenestrations
+            .iter()
+            .map(|s| s.calc_view_factors(&solar_scene, false))
+            .collect();
 
-        Self { 
+        Ok(Self {
             front_surfaces_view_factors,
             back_surfaces_view_factors,
-            front_fenestrations_view_factors, 
+            front_fenestrations_view_factors,
             back_fenestrations_view_factors,
             front_surfaces_dc,
             back_surfaces_dc,
-            front_fenestrations_dc, 
+            front_fenestrations_dc,
             back_fenestrations_dc,
-        }
+        })
     }
 }

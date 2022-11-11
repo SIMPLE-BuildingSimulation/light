@@ -23,22 +23,15 @@ use std::rc::Rc;
 use crate::Float;
 
 use matrix::Matrix;
-use rendering::{colour_matrix::*, DCFactory, Scene, Ray};
+use rendering::{colour_matrix::*, DCFactory, Ray, Scene};
 
 use simple_model::{Fenestration, SimulationStateElement, SimulationStateHeader, Surface};
 
-use geometry3d::{
-    Point3D,
-    Polygon3D,
-    Ray3D,
-    Triangulation3D,
-    Vector3D,
-};
+use geometry3d::{Point3D, Polygon3D, Ray3D, Triangulation3D, Vector3D};
 use rendering::primitive_samplers::sample_triangle_surface;
 use rendering::rand::*;
 
 use crate::optical_info::IRViewFactorSet;
-
 
 fn get_sampler(triangles_areas: Vec<Float>) -> impl Fn(&mut RandGen) -> usize {
     let total_area: Float = triangles_areas.iter().sum();
@@ -121,9 +114,9 @@ impl SolarSurface {
         let dcs: Vec<Matrix> = list
             .iter()
             .map(|s| {
-                let rays = if front_side{
+                let rays = if front_side {
                     s.front_rays()
-                }else{
+                } else {
                     s.back_rays()
                 };
                 s.solar_irradiance(&rays, scene, dc_factory)
@@ -132,12 +125,9 @@ impl SolarSurface {
         let mut ret = dcs[0].clone();
         for dc in dcs.iter().skip(1) {
             ret.concat_rows(dc).unwrap();
-        }        
+        }
         ret
     }
-
-
-    
 
     /// Builds a set of SolarSurfaces from Fenestrations
     ///
@@ -150,7 +140,7 @@ impl SolarSurface {
         list.iter()
             .enumerate()
             .map(|(i, s)| {
-                if s.front_incident_solar_irradiance_index().is_none(){
+                if s.front_incident_solar_irradiance_index().is_none() {
                     let i = state.push(
                         SimulationStateElement::FenestrationFrontSolarIrradiance(i),
                         0.0,
@@ -158,8 +148,7 @@ impl SolarSurface {
                     s.set_front_incident_solar_irradiance_index(i);
                 }
 
-
-                if s.back_incident_solar_irradiance_index().is_none(){
+                if s.back_incident_solar_irradiance_index().is_none() {
                     let i = state.push(
                         SimulationStateElement::FenestrationBackSolarIrradiance(i),
                         0.0,
@@ -167,7 +156,7 @@ impl SolarSurface {
                     s.set_back_incident_solar_irradiance_index(i);
                 }
 
-                if s.front_ir_irradiance_index().is_none(){
+                if s.front_ir_irradiance_index().is_none() {
                     let i = state.push(
                         SimulationStateElement::FenestrationFrontIRIrradiance(i),
                         0.0,
@@ -175,15 +164,12 @@ impl SolarSurface {
                     s.set_front_ir_irradiance_index(i);
                 }
 
-                if s.back_ir_irradiance_index().is_none(){
-                    let i = state.push(
-                        SimulationStateElement::FenestrationBackIRIrradiance(i), 
-                        0.0
-                    );
+                if s.back_ir_irradiance_index().is_none() {
+                    let i =
+                        state.push(SimulationStateElement::FenestrationBackIRIrradiance(i), 0.0);
                     s.set_back_ir_irradiance_index(i);
-                }                
+                }
                 SolarSurface::new(n_rays, &s.vertices)
-
             })
             .collect()
     }
@@ -199,22 +185,22 @@ impl SolarSurface {
         list.iter()
             .enumerate()
             .map(|(i, s)| {
-                if s.front_incident_solar_irradiance_index().is_none(){
+                if s.front_incident_solar_irradiance_index().is_none() {
                     let i = state.push(SimulationStateElement::SurfaceFrontSolarIrradiance(i), 0.0);
                     s.set_front_incident_solar_irradiance_index(i);
                 }
 
-                if s.back_incident_solar_irradiance_index().is_none(){
+                if s.back_incident_solar_irradiance_index().is_none() {
                     let i = state.push(SimulationStateElement::SurfaceBackSolarIrradiance(i), 0.0);
                     s.set_back_incident_solar_irradiance_index(i);
                 }
 
-                if s.front_ir_irradiance_index().is_none(){
+                if s.front_ir_irradiance_index().is_none() {
                     let i = state.push(SimulationStateElement::SurfaceFrontIRIrradiance(i), 0.0);
                     s.set_front_ir_irradiance_index(i);
                 }
 
-                if s.back_ir_irradiance_index().is_none(){
+                if s.back_ir_irradiance_index().is_none() {
                     let i = state.push(SimulationStateElement::SurfaceBackIRIrradiance(i), 0.0);
                     s.set_back_ir_irradiance_index(i);
                 }
@@ -255,74 +241,63 @@ impl SolarSurface {
         average_matrix(&dc)
     }
 
-    
-
     /// Calculates an [`IRViewFactorSet`] for this surface
-    pub fn calc_view_factors(&self,         
-        scene: &Scene,
-        front_side: bool
-    )->IRViewFactorSet{
-        
+    pub fn calc_view_factors(&self, scene: &Scene, front_side: bool) -> IRViewFactorSet {
         let mut rng = rendering::rand::get_rng();
 
         let rays = if front_side {
             self.front_rays()
-        }else{
+        } else {
             self.back_rays()
         };
 
         let mut ground = 0.0;
-        let mut sky = 0.0;        
+        let mut sky = 0.0;
 
         let n_samples = 10000;
-        let mut node_aux = Vec::with_capacity(2);    
-        for r in &rays{
-            
-            let mut ray = Ray{
+        let mut node_aux = Vec::with_capacity(2);
+        for r in &rays {
+            let mut ray = Ray {
                 geometry: *r,
                 ..Ray::default()
             };
             let normal = r.direction;
             let e1 = normal.get_perpendicular().unwrap();
             let e2 = normal.cross(e1);
-    
+
             for _ in 0..n_samples {
                 let dir = rendering::samplers::uniform_sample_hemisphere(&mut rng, e1, e2, normal);
-                
-               
-                if scene.cast_ray(&mut ray, &mut node_aux).is_none(){
+
+                if scene.cast_ray(&mut ray, &mut node_aux).is_none() {
                     if dir.z > 0.0 {
                         sky += 1.0;
-                    }else{
+                    } else {
                         ground += 1.;
                     }
                 }
             }
         }
-        
+
         let n = n_samples as Float * rays.len() as Float;
         ground /= n;
-        sky /= n;        
+        sky /= n;
 
         let beta = sky.sqrt();
-        let air = sky*(1.-beta);
+        let air = sky * (1. - beta);
         sky *= beta;
 
         IRViewFactorSet { sky, ground, air }
-
     }
 }
-
 
 #[cfg(test)]
 mod testing {
     use super::*;
     use geometry3d::Loop3D;
     use validate::assert_close;
-    
-    #[test]
-    fn test_view_factors_empty_scene_vertical(){
 
+    #[test]
+    fn test_view_factors_empty_scene_vertical() {
         let mut the_loop = Loop3D::new();
         the_loop.push(Point3D::new(0., 0., 0.)).unwrap();
         the_loop.push(Point3D::new(1., 0., 0.)).unwrap();
@@ -334,28 +309,26 @@ mod testing {
         scene.build_accelerator();
         let p = Polygon3D::new(the_loop).unwrap();
         let s = SolarSurface::new(10, &p);
-        
+
         let beta = (0.5 as Float).sqrt();
 
         // Front side
         let views = s.calc_view_factors(&scene, true);
-        
+
         assert_close!(views.ground, 0.5, 1e-2);
         assert_close!(views.sky, 0.5 * beta, 1e-2);
-        assert_close!(views.air, 0.5 * (1.-beta), 1e-2);
+        assert_close!(views.air, 0.5 * (1. - beta), 1e-2);
 
         // back side
         let views = s.calc_view_factors(&scene, false);
-        
-        
+
         assert_close!(views.ground, 0.5, 1e-2);
-        assert_close!(views.sky, 0.5*beta, 1e-2);
+        assert_close!(views.sky, 0.5 * beta, 1e-2);
         assert_close!(views.air, 0.5 * (1. - beta), 1e-2);
     }
 
     #[test]
-    fn test_view_factors_empty_scene_horizontal(){
-
+    fn test_view_factors_empty_scene_horizontal() {
         let mut the_loop = Loop3D::new();
         the_loop.push(Point3D::new(0., 0., 0.)).unwrap();
         the_loop.push(Point3D::new(1., 0., 0.)).unwrap();
@@ -367,20 +340,19 @@ mod testing {
         scene.build_accelerator();
         let p = Polygon3D::new(the_loop).unwrap();
         let s = SolarSurface::new(10, &p);
-        
+
         // Front side
         let views = s.calc_view_factors(&scene, true);
-        
+
         assert_close!(views.ground, 0.0);
-        assert_close!(views.sky, 1.0 );
+        assert_close!(views.sky, 1.0);
         assert_close!(views.air, 0.0);
 
         // back side
         let views = s.calc_view_factors(&scene, false);
-        
+
         assert_close!(views.ground, 1.0);
         assert_close!(views.sky, 0.0);
         assert_close!(views.air, 0.0);
     }
-
 }

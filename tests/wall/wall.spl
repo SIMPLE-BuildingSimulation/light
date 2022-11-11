@@ -1,11 +1,11 @@
 SolarOptions {
-    name: "some_name",
     n_solar_irradiance_points: 100,
     solar_ambient_divitions: 3000,
     solar_sky_discretization: 1,    
 }
 
-Substance::Normal {
+Substance {
+    type: "Normal",
     name: "R13_substance",
     density: 30., 
     specific_heat_capacity: 800, 
@@ -15,6 +15,7 @@ Substance::Normal {
     front_solar_absorbtance: 0.7500000,
     back_solar_absorbtance: 0.7500000,     
 }
+
 Material {
     name: "R13LAYER",
     substance: "R13_substance",
@@ -34,7 +35,9 @@ Space {
     name: "ZONE ONE",
     volume: 1061.88, 
 }
-Output::SpaceDryBulbTemperature("ZONE ONE")
+Output{
+    SpaceDryBulbTemperature: "ZONE ONE"
+}
 
   
 
@@ -42,7 +45,10 @@ Output::SpaceDryBulbTemperature("ZONE ONE")
 Surface {
     name: "Zn001:Wall001",
     construction: "R13WALL",
-    back_boundary: Boundary::Space("ZONE ONE"),
+    back_boundary: {
+        type : "Space",
+        space: "ZONE ONE",
+    },
     vertices: [
         0,          0,  4.572000,
         0,          0,  0,       

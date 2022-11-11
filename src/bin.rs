@@ -23,13 +23,11 @@ use clap::Parser;
 use geometry3d::{Point3D, Ray3D, Vector3D};
 use rendering::{DCFactory, Scene};
 
-
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Inputs {
     #[arg(short, long)]
     input: String,
-
     // #[arg(short, long)]
     // weather: String,
 }
@@ -41,7 +39,7 @@ fn main() {
     // let _weather_file = "asd"; //matches.value_of("weather").unwrap();
 
     let mut scene = if input_file.ends_with(".rad") {
-        Scene::from_radiance(input_file.to_string())
+        Scene::from_radiance(input_file)
     } else if input_file.ends_with(".simple") || input_file.ends_with(".spl") {
         panic!("Reading SIMPLE models is still not suppoerted")
     } else {

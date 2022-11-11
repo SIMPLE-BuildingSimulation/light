@@ -50,7 +50,6 @@ pub const PI: Float = std::f64::consts::PI;
 /// calculating solar and lighting factors.
 pub mod model;
 pub use model::SolarModel;
-mod solar_surface;
 mod optical_info;
-pub use optical_info::{OpticalInfo, IRViewFactorSet};
-
+mod solar_surface;
+pub use optical_info::{IRViewFactorSet, OpticalInfo};

@@ -82,9 +82,9 @@ impl SolarModel {
         for (index, surface) in iter {
             // Deal with front
             if let Ok(b) = surface.front_boundary() {
-                if let Boundary::Space { .. } = b {
-                    // let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);
-                    let temp = surface.first_node_temperature(state).unwrap_or( 22.);
+                if let Boundary::Space{..} = b {
+                    // let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);                    
+                    let temp = surface.first_node_temperature(state).unwrap_or_else(|| 22.);                    
                     surface.set_front_ir_irradiance(state, ir(temp, 1.0));
                 } // else is ground... ignore
             } else {
@@ -97,9 +97,9 @@ impl SolarModel {
 
             // Deal with Back
             if let Ok(b) = surface.back_boundary() {
-                if let Boundary::Space { .. } = b {
-                    // let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);
-                    let temp = surface.last_node_temperature(state).unwrap_or(22.);
+                if let Boundary::Space {..} = b {
+                    // let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);                    
+                    let temp = surface.last_node_temperature(state).unwrap_or_else(|| 22.);                    
                     surface.set_back_ir_irradiance(state, ir(temp, 1.0));
                 } // else is ground... ignore
             } else {
@@ -115,9 +115,9 @@ impl SolarModel {
         for (index, surface) in iter {
             // Deal with front
             if let Ok(b) = surface.front_boundary() {
-                if let Boundary::Space { .. } = b {
-                    // let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);
-                    let temp = surface.first_node_temperature(state).unwrap_or( 22.);
+                if let Boundary::Space{..} = b {
+                    // let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);                    
+                    let temp = surface.first_node_temperature(state).unwrap_or_else(|| 22.);                    
                     surface.set_front_ir_irradiance(state, ir(temp, 1.0));
                 } // else is ground... ignore
             } else {
@@ -130,9 +130,9 @@ impl SolarModel {
 
             // Deal with Back
             if let Ok(b) = surface.back_boundary() {
-                if let Boundary::Space { .. } = b {
-                    // let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);
-                    let temp = surface.last_node_temperature(state).unwrap_or( 22.);
+                if let Boundary::Space{..} = b {
+                    // let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);                    
+                    let temp = surface.last_node_temperature(state).unwrap_or_else(|| 22.);                    
                     surface.set_back_ir_irradiance(state, ir(temp, 1.0));
                 } // else is ground... ignore
             } else {

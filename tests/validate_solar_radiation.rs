@@ -1,9 +1,9 @@
 use calendar::Date;
 use communication_protocols::{MetaOptions, SimulationModel};
+use light::{Float, SolarModel};
 use schedule::ScheduleConstant;
 use simple_model::SolarOptions;
 use simple_test_models::*;
-use light::{Float, SolarModel};
 use validate::{valid, SeriesValidator, Validate, Validator};
 use weather::SyntheticWeather;
 
@@ -24,8 +24,8 @@ fn get_expected(city: &str, orientation: &str) -> (Vec<f64>, Vec<f64>, Vec<f64>)
     let path = format!("./tests/{city}_{orientation}/eplusout.csv");
     let cols = validate::from_csv(&path, &[2, 3, 4]);
     let diffuse_horizontal_rad = &cols[0];
-    let direct_normal_rad = &cols[1]; 
-    let incident_solar_radiation = &cols[2]; 
+    let direct_normal_rad = &cols[1];
+    let incident_solar_radiation = &cols[2];
 
     (
         incident_solar_radiation.clone(),
@@ -53,19 +53,17 @@ fn get_simple_results(
         elevation: 0.0,
     };
 
-    
     let zone_volume = 600.;
 
-    let (simple_model, mut state_header) = get_single_zone_test_building(        
-        &SingleZoneTestBuildingOptions {
+    let (simple_model, mut state_header) =
+        get_single_zone_test_building(&SingleZoneTestBuildingOptions {
             zone_volume,
             surface_width: 20.,
             surface_height: 3.,
             construction: vec![TestMat::Concrete(0.2)],
             orientation,
             ..Default::default()
-        },
-    );
+        });
 
     // Finished model the SimpleModel
     let mut options = SolarOptions::new();

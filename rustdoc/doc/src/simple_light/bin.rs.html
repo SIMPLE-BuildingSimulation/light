@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/bin.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>bin.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.css" integrity="sha384-TEMocfGvRuD1rIAacqrknm5BQZ7W7uWitoih+jMNFXQIbNl16bO8OZmylH/Vi/Ei" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/bin.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>bin.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.css" integrity="sha384-TEMocfGvRuD1rIAacqrknm5BQZ7W7uWitoih+jMNFXQIbNl16bO8OZmylH/Vi/Ei" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.js" integrity="sha384-jmxIlussZWB7qCuB+PgKG1uLjjxbVVIayPJwi6cG6Zb4YKq0JIw+OMnkkEC7kYCq" crossorigin="anonymous"></script>
 <script>
   "use strict";
@@ -115,8 +115,6 @@
 <span id="81">81</span>
 <span id="82">82</span>
 <span id="83">83</span>
-<span id="84">84</span>
-<span id="85">85</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -135,72 +133,70 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-*/</span>
-<span class="kw">use</span> <span class="ident">solar::ReinhartSky</span>;
-<span class="comment">// use rendering::from_radiance::from</span>
-<span class="kw">use</span> <span class="ident">clap::Parser</span>;
-<span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Ray3D</span>, <span class="ident">Vector3D</span>};
-<span class="kw">use</span> <span class="ident">rendering</span>::{<span class="ident">DCFactory</span>, <span class="ident">Scene</span>};
+*/
+</span><span class="kw">use </span>solar::ReinhartSky;
+<span class="comment">// use rendering::from_radiance::from
+</span><span class="kw">use </span>clap::Parser;
+<span class="kw">use </span>geometry3d::{Point3D, Ray3D, Vector3D};
+<span class="kw">use </span>rendering::{DCFactory, Scene};
 
+<span class="attribute">#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = <span class="prelude-val">None</span>)]
+</span><span class="kw">struct </span>Inputs {
+    <span class="attribute">#[arg(short, long)]
+    </span>input: String,
+    <span class="comment">// #[arg(short, long)]
+    // weather: String,
+</span>}
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Parser</span>, <span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">command</span>(<span class="ident">author</span>, <span class="ident">version</span>, <span class="ident">about</span>, <span class="ident">long_about</span> <span class="op">=</span> <span class="prelude-val">None</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Inputs</span> {
-    <span class="attribute">#[<span class="ident">arg</span>(<span class="ident">short</span>, <span class="ident">long</span>)]</span>
-    <span class="ident">input</span>: <span class="ident">String</span>,
+<span class="kw">fn </span>main() {
+    <span class="kw">let </span>args = Inputs::parse();
 
-    <span class="comment">// #[arg(short, long)]</span>
-    <span class="comment">// weather: String,</span>
-}
+    <span class="kw">let </span>input_file = args.input;
+    <span class="comment">// let _weather_file = &quot;asd&quot;; //matches.value_of(&quot;weather&quot;).unwrap();
 
-<span class="kw">fn</span> <span class="ident">main</span>() {
-    <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">Inputs::parse</span>();
-
-    <span class="kw">let</span> <span class="ident">input_file</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">input</span>;
-    <span class="comment">// let _weather_file = &quot;asd&quot;; //matches.value_of(&quot;weather&quot;).unwrap();</span>
-
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">input_file</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.rad&quot;</span>) {
-        <span class="ident">Scene::from_radiance</span>(<span class="ident">input_file</span>.<span class="ident">to_string</span>())
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">input_file</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.simple&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">input_file</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.spl&quot;</span>) {
+    </span><span class="kw">let </span><span class="kw-2">mut </span>scene = <span class="kw">if </span>input_file.ends_with(<span class="string">&quot;.rad&quot;</span>) {
+        Scene::from_radiance(input_file)
+    } <span class="kw">else if </span>input_file.ends_with(<span class="string">&quot;.simple&quot;</span>) || input_file.ends_with(<span class="string">&quot;.spl&quot;</span>) {
         <span class="macro">panic!</span>(<span class="string">&quot;Reading SIMPLE models is still not suppoerted&quot;</span>)
-    } <span class="kw">else</span> {
+    } <span class="kw">else </span>{
         <span class="macro">eprintln!</span>(
             <span class="string">&quot;Don&#39;t know how to read file &#39;{}&#39;... only .rad is supported for now&quot;</span>,
-            <span class="ident">input_file</span>
+            input_file
         );
-        <span class="ident">std::process::exit</span>(<span class="number">1</span>);
+        std::process::exit(<span class="number">1</span>);
     };
 
-    <span class="ident">scene</span>.<span class="ident">build_accelerator</span>();
+    scene.build_accelerator();
 
-    <span class="comment">// Setup sensors</span>
-    <span class="kw">let</span> <span class="ident">up</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>);
-    <span class="kw">let</span> <span class="ident">rays</span> <span class="op">=</span> <span class="macro">vec!</span>[
-        <span class="ident">Ray3D</span> {
-            <span class="ident">origin</span>: <span class="ident">Point3D::new</span>(<span class="number">2.</span>, <span class="number">0.5</span>, <span class="number">0.8</span>),
-            <span class="ident">direction</span>: <span class="ident">up</span>,
+    <span class="comment">// Setup sensors
+    </span><span class="kw">let </span>up = Vector3D::new(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>);
+    <span class="kw">let </span>rays = <span class="macro">vec!</span>[
+        Ray3D {
+            origin: Point3D::new(<span class="number">2.</span>, <span class="number">0.5</span>, <span class="number">0.8</span>),
+            direction: up,
         },
-        <span class="ident">Ray3D</span> {
-            <span class="ident">origin</span>: <span class="ident">Point3D::new</span>(<span class="number">2.</span>, <span class="number">2.5</span>, <span class="number">0.8</span>),
-            <span class="ident">direction</span>: <span class="ident">up</span>,
+        Ray3D {
+            origin: Point3D::new(<span class="number">2.</span>, <span class="number">2.5</span>, <span class="number">0.8</span>),
+            direction: up,
         },
-        <span class="ident">Ray3D</span> {
-            <span class="ident">origin</span>: <span class="ident">Point3D::new</span>(<span class="number">2.</span>, <span class="number">5.5</span>, <span class="number">0.8</span>),
-            <span class="ident">direction</span>: <span class="ident">up</span>,
+        Ray3D {
+            origin: Point3D::new(<span class="number">2.</span>, <span class="number">5.5</span>, <span class="number">0.8</span>),
+            direction: up,
         },
     ];
 
-    <span class="macro">eprintln!</span>(<span class="string">&quot;Ready to calc!... # Surface = {}&quot;</span>, <span class="ident">scene</span>.<span class="ident">triangles</span>.<span class="ident">len</span>());
+    <span class="macro">eprintln!</span>(<span class="string">&quot;Ready to calc!... # Surface = {}&quot;</span>, scene.triangles.len());
 
-    <span class="kw">let</span> <span class="ident">mf</span> <span class="op">=</span> <span class="number">1</span>;
-    <span class="kw">let</span> <span class="ident">factory</span> <span class="op">=</span> <span class="ident">DCFactory</span> {
-        <span class="ident">max_depth</span>: <span class="number">1</span>,
-        <span class="ident">n_ambient_samples</span>: <span class="number">10000</span>,
-        <span class="ident">reinhart</span>: <span class="ident">ReinhartSky::new</span>(<span class="ident">mf</span>),
-        ..<span class="ident">DCFactory::default</span>()
+    <span class="kw">let </span>mf = <span class="number">1</span>;
+    <span class="kw">let </span>factory = DCFactory {
+        max_depth: <span class="number">1</span>,
+        n_ambient_samples: <span class="number">10000</span>,
+        reinhart: ReinhartSky::new(mf),
+        ..DCFactory::default()
     };
-    <span class="kw">let</span> <span class="ident">dc_matrix</span> <span class="op">=</span> <span class="ident">factory</span>.<span class="ident">calc_dc</span>(<span class="kw-2">&amp;</span><span class="ident">rays</span>, <span class="kw-2">&amp;</span><span class="ident">scene</span>);
-    <span class="macro">println!</span>(<span class="string">&quot;Matrix = {}&quot;</span>, <span class="ident">dc_matrix</span>);
+    <span class="kw">let </span>dc_matrix = factory.calc_dc(<span class="kw-2">&amp;</span>rays, <span class="kw-2">&amp;</span>scene);
+    <span class="macro">println!</span>(<span class="string">&quot;Matrix = {}&quot;</span>, dc_matrix);
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="simple_light" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="simple_light" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

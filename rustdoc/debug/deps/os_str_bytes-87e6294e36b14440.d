@@ -1,0 +1,10 @@
+/home/runner/work/light/light/./docs/rustdoc/debug/deps/os_str_bytes-87e6294e36b14440.rmeta: /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/os_str_bytes-6.4.0/src/lib.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/os_str_bytes-6.4.0/src/common/mod.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/os_str_bytes-6.4.0/src/common/raw.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/os_str_bytes-6.4.0/src/iter.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/os_str_bytes-6.4.0/src/pattern.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/os_str_bytes-6.4.0/src/raw_str.rs
+
+/home/runner/work/light/light/./docs/rustdoc/debug/deps/os_str_bytes-87e6294e36b14440.d: /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/os_str_bytes-6.4.0/src/lib.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/os_str_bytes-6.4.0/src/common/mod.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/os_str_bytes-6.4.0/src/common/raw.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/os_str_bytes-6.4.0/src/iter.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/os_str_bytes-6.4.0/src/pattern.rs /home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/os_str_bytes-6.4.0/src/raw_str.rs
+
+/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/os_str_bytes-6.4.0/src/lib.rs:
+/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/os_str_bytes-6.4.0/src/common/mod.rs:
+/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/os_str_bytes-6.4.0/src/common/raw.rs:
+/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/os_str_bytes-6.4.0/src/iter.rs:
+/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/os_str_bytes-6.4.0/src/pattern.rs:
+/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/os_str_bytes-6.4.0/src/raw_str.rs:

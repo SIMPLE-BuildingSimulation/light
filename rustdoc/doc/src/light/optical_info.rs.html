@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/optical_info.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>optical_info.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.css" integrity="sha384-TEMocfGvRuD1rIAacqrknm5BQZ7W7uWitoih+jMNFXQIbNl16bO8OZmylH/Vi/Ei" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/optical_info.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>optical_info.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.css" integrity="sha384-TEMocfGvRuD1rIAacqrknm5BQZ7W7uWitoih+jMNFXQIbNl16bO8OZmylH/Vi/Ei" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.js" integrity="sha384-jmxIlussZWB7qCuB+PgKG1uLjjxbVVIayPJwi6cG6Zb4YKq0JIw+OMnkkEC7kYCq" crossorigin="anonymous"></script>
 <script>
   "use strict";
@@ -175,6 +175,11 @@
 <span id="141">141</span>
 <span id="142">142</span>
 <span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -193,130 +198,135 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-*/</span>
-<span class="kw">use</span> <span class="ident">solar::ReinhartSky</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::solar_surface::SolarSurface</span>;
-<span class="kw">use</span> <span class="ident">rendering</span>::{<span class="ident">DCFactory</span>, <span class="ident">Scene</span>, <span class="ident">Wavelengths</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
-<span class="kw">use</span> <span class="ident">matrix::Matrix</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">simple_model</span>::{<span class="ident">SimpleModel</span>, <span class="ident">SolarOptions</span>, <span class="ident">SimulationStateHeader</span>};
+*/
+</span><span class="kw">use </span><span class="kw">crate</span>::solar_surface::SolarSurface;
+<span class="kw">use </span><span class="kw">crate</span>::Float;
+<span class="kw">use </span>matrix::Matrix;
+<span class="kw">use </span>rendering::{DCFactory, Scene, Wavelengths};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="kw">use </span>simple_model::{SimpleModel, SimulationStateHeader, SolarOptions};
+<span class="kw">use </span>solar::ReinhartSky;
 
-<span class="doccomment">/// A set of view factors as seen by a `ThermalSurface`.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IRViewFactorSet</span> {
-    <span class="doccomment">/// The fraction of the view that corresponds to the sky</span>
-    <span class="kw">pub</span> <span class="ident">sky</span>: <span class="ident">Float</span>,
+<span class="doccomment">/// A set of view factors as seen by a `ThermalSurface`.
+</span><span class="attribute">#[derive(Debug, Default, Copy, Clone, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>IRViewFactorSet {
+    <span class="doccomment">/// The fraction of the view that corresponds to the sky
+    </span><span class="kw">pub </span>sky: Float,
 
-    <span class="doccomment">/// The fraction of the view that corresponds to the ground</span>
-    <span class="kw">pub</span> <span class="ident">ground</span>: <span class="ident">Float</span>,
+    <span class="doccomment">/// The fraction of the view that corresponds to the ground
+    </span><span class="kw">pub </span>ground: Float,
 
-    <span class="doccomment">/// The fraction of the view that corresponds to other objects and</span>
-    <span class="doccomment">/// surfaces (they are assumed to be at air temperature)</span>
-    <span class="kw">pub</span> <span class="ident">air</span>: <span class="ident">Float</span>,
+    <span class="doccomment">/// The fraction of the view that corresponds to other objects and
+    /// surfaces (they are assumed to be at air temperature)
+    </span><span class="kw">pub </span>air: Float,
 }
 
+<span class="doccomment">/// Information about the solar radiation and other optical elements
+/// of the whole model.
+</span><span class="attribute">#[derive(Clone, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>OpticalInfo {
+    <span class="doccomment">/// The [`IRViewFactorSet`] for the front side of each surface
+    </span><span class="kw">pub </span>front_surfaces_view_factors: Vec&lt;IRViewFactorSet&gt;,
 
-<span class="doccomment">/// Information about the solar radiation and other optical elements</span>
-<span class="doccomment">/// of the whole model.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OpticalInfo</span> {
+    <span class="doccomment">/// The [`IRViewFactorSet`] for the back side of each surface
+    </span><span class="kw">pub </span>back_surfaces_view_factors: Vec&lt;IRViewFactorSet&gt;,
 
-    <span class="doccomment">/// The [`IRViewFactorSet`] for the front side of each surface</span>
-    <span class="kw">pub</span> <span class="ident">front_surfaces_view_factors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IRViewFactorSet</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The [`IRViewFactorSet`] for the front side of each fenestration
+    </span><span class="kw">pub </span>front_fenestrations_view_factors: Vec&lt;IRViewFactorSet&gt;,
 
-    <span class="doccomment">/// The [`IRViewFactorSet`] for the back side of each surface</span>
-    <span class="kw">pub</span> <span class="ident">back_surfaces_view_factors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IRViewFactorSet</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The [`IRViewFactorSet`] for the back side of each fenestration
+    </span><span class="kw">pub </span>back_fenestrations_view_factors: Vec&lt;IRViewFactorSet&gt;,
 
-    <span class="doccomment">/// The [`IRViewFactorSet`] for the front side of each fenestration</span>
-    <span class="kw">pub</span> <span class="ident">front_fenestrations_view_factors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IRViewFactorSet</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The Daylight Coefficients matrix for the front-side of the  surfaces in the scene
+    </span><span class="kw">pub </span>front_surfaces_dc: Matrix,
 
-    <span class="doccomment">/// The [`IRViewFactorSet`] for the back side of each fenestration</span>
-    <span class="kw">pub</span> <span class="ident">back_fenestrations_view_factors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IRViewFactorSet</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The Daylight Coefficients matrix for the back-side of the  surfaces in the scene
+    </span><span class="kw">pub </span>back_surfaces_dc: Matrix,
 
-    <span class="doccomment">/// The Daylight Coefficients matrix for the front-side of the  surfaces in the scene</span>
-    <span class="kw">pub</span> <span class="ident">front_surfaces_dc</span>: <span class="ident">Matrix</span>,
+    <span class="doccomment">/// The Daylight Coefficients matrix for the front-side of the  fenestrations in the scene
+    </span><span class="kw">pub </span>front_fenestrations_dc: Matrix,
 
-    <span class="doccomment">/// The Daylight Coefficients matrix for the back-side of the  surfaces in the scene</span>
-    <span class="kw">pub</span> <span class="ident">back_surfaces_dc</span>: <span class="ident">Matrix</span>,
-
-    <span class="doccomment">/// The Daylight Coefficients matrix for the front-side of the  fenestrations in the scene</span>
-    <span class="kw">pub</span> <span class="ident">front_fenestrations_dc</span>: <span class="ident">Matrix</span>,
-
-    <span class="doccomment">/// The Daylight Coefficients matrix for the back-side of the fenestrations in the scene</span>
-    <span class="kw">pub</span> <span class="ident">back_fenestrations_dc</span>: <span class="ident">Matrix</span>,
+    <span class="doccomment">/// The Daylight Coefficients matrix for the back-side of the fenestrations in the scene
+    </span><span class="kw">pub </span>back_fenestrations_dc: Matrix,
 }
 
-<span class="kw">impl</span> <span class="ident">OpticalInfo</span> {
-    <span class="doccomment">/// Calculates the new OpticalInformation </span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">SolarOptions</span>, <span class="ident">model</span>: <span class="kw-2">&amp;</span><span class="ident">SimpleModel</span>, <span class="ident">state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SimulationStateHeader</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="comment">// Collect calculation options</span>
-        <span class="kw">let</span> <span class="ident">mf</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">options</span>.<span class="ident">solar_sky_discretization</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">n_solar_rays</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">options</span>.<span class="ident">n_solar_irradiance_points</span>().<span class="ident">unwrap</span>();
-        
-        <span class="comment">// Create Surfaces and Fenestrations</span>
-        <span class="kw">let</span> <span class="ident">surfaces</span> <span class="op">=</span> <span class="ident">SolarSurface::make_surfaces</span>(<span class="kw-2">&amp;</span><span class="ident">model</span>.<span class="ident">surfaces</span>, <span class="ident">state</span>, <span class="ident">n_solar_rays</span>);
-        <span class="kw">let</span> <span class="ident">fenestrations</span> <span class="op">=</span>
-            <span class="ident">SolarSurface::make_fenestrations</span>(<span class="kw-2">&amp;</span><span class="ident">model</span>.<span class="ident">fenestrations</span>, <span class="ident">state</span>, <span class="ident">n_solar_rays</span>);
+<span class="kw">impl </span>OpticalInfo {
+    <span class="doccomment">/// Calculates the new OpticalInformation
+    </span><span class="kw">pub fn </span>new(
+        options: <span class="kw-2">&amp;</span>SolarOptions,
+        model: <span class="kw-2">&amp;</span>SimpleModel,
+        state: <span class="kw-2">&amp;mut </span>SimulationStateHeader,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, String&gt; {
+        <span class="comment">// Collect calculation options
+        </span><span class="kw">let </span>mf = <span class="kw-2">*</span>options.solar_sky_discretization().unwrap();
+        <span class="kw">let </span>n_solar_rays = <span class="kw-2">*</span>options.n_solar_irradiance_points().unwrap();
 
+        <span class="comment">// Create Surfaces and Fenestrations
+        </span><span class="kw">let </span>surfaces = SolarSurface::make_surfaces(<span class="kw-2">&amp;</span>model.surfaces, state, n_solar_rays);
+        <span class="kw">let </span>fenestrations =
+            SolarSurface::make_fenestrations(<span class="kw-2">&amp;</span>model.fenestrations, state, n_solar_rays);
 
-        <span class="comment">// build scene</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">solar_scene</span> <span class="op">=</span> <span class="ident">Scene::from_simple_model</span>(<span class="ident">model</span>, <span class="ident">Wavelengths::Solar</span>)<span class="question-mark">?</span>;
-        <span class="ident">solar_scene</span>.<span class="ident">build_accelerator</span>();        
+        <span class="comment">// build scene
+        </span><span class="kw">let </span><span class="kw-2">mut </span>solar_scene = Scene::from_simple_model(model, Wavelengths::Solar)<span class="question-mark">?</span>;
+        solar_scene.build_accelerator();
 
-        <span class="comment">// calculator</span>
-        <span class="kw">let</span> <span class="ident">solar_dc_factory</span> <span class="op">=</span> <span class="ident">DCFactory</span> {
-            <span class="ident">max_depth</span>: <span class="number">0</span>,
-            <span class="ident">n_ambient_samples</span>: <span class="kw-2">*</span><span class="ident">options</span>.<span class="ident">solar_ambient_divitions</span>().<span class="ident">unwrap</span>(),
-            <span class="ident">reinhart</span>: <span class="ident">ReinhartSky::new</span>(<span class="ident">mf</span>),
-            ..<span class="ident">DCFactory::default</span>()
+        <span class="comment">// calculator
+        </span><span class="kw">let </span>solar_dc_factory = DCFactory {
+            max_depth: <span class="number">0</span>,
+            n_ambient_samples: <span class="kw-2">*</span>options.solar_ambient_divitions().unwrap(),
+            reinhart: ReinhartSky::new(mf),
+            ..DCFactory::default()
         };
 
-        <span class="comment">// calculate</span>
-        <span class="kw">let</span> <span class="ident">front_surfaces_dc</span> <span class="op">=</span> <span class="ident">SolarSurface::calc_solar_dc_matrix</span>(
-            <span class="kw-2">&amp;</span><span class="ident">surfaces</span>,            
-            <span class="kw-2">&amp;</span><span class="ident">solar_scene</span>,
-            <span class="kw-2">&amp;</span><span class="ident">solar_dc_factory</span>,
+        <span class="comment">// calculate
+        </span><span class="kw">let </span>front_surfaces_dc =
+            SolarSurface::calc_solar_dc_matrix(<span class="kw-2">&amp;</span>surfaces, <span class="kw-2">&amp;</span>solar_scene, <span class="kw-2">&amp;</span>solar_dc_factory, <span class="bool-val">true</span>);
+
+        <span class="kw">let </span>back_surfaces_dc =
+            SolarSurface::calc_solar_dc_matrix(<span class="kw-2">&amp;</span>surfaces, <span class="kw-2">&amp;</span>solar_scene, <span class="kw-2">&amp;</span>solar_dc_factory, <span class="bool-val">false</span>);
+
+        <span class="kw">let </span>front_fenestrations_dc = SolarSurface::calc_solar_dc_matrix(
+            <span class="kw-2">&amp;</span>fenestrations,
+            <span class="kw-2">&amp;</span>solar_scene,
+            <span class="kw-2">&amp;</span>solar_dc_factory,
             <span class="bool-val">true</span>,
         );
-        
-        <span class="kw">let</span> <span class="ident">back_surfaces_dc</span> <span class="op">=</span> <span class="ident">SolarSurface::calc_solar_dc_matrix</span>(
-            <span class="kw-2">&amp;</span><span class="ident">surfaces</span>,            
-            <span class="kw-2">&amp;</span><span class="ident">solar_scene</span>,
-            <span class="kw-2">&amp;</span><span class="ident">solar_dc_factory</span>,
-            <span class="bool-val">false</span>,
-        );
-        
-        <span class="kw">let</span> <span class="ident">front_fenestrations_dc</span> <span class="op">=</span> <span class="ident">SolarSurface::calc_solar_dc_matrix</span>(
-            <span class="kw-2">&amp;</span><span class="ident">fenestrations</span>,            
-            <span class="kw-2">&amp;</span><span class="ident">solar_scene</span>,
-            <span class="kw-2">&amp;</span><span class="ident">solar_dc_factory</span>,
-            <span class="bool-val">true</span>,
-        );
-        
-        <span class="kw">let</span> <span class="ident">back_fenestrations_dc</span> <span class="op">=</span> <span class="ident">SolarSurface::calc_solar_dc_matrix</span>(
-            <span class="kw-2">&amp;</span><span class="ident">fenestrations</span>,            
-            <span class="kw-2">&amp;</span><span class="ident">solar_scene</span>,
-            <span class="kw-2">&amp;</span><span class="ident">solar_dc_factory</span>,
+
+        <span class="kw">let </span>back_fenestrations_dc = SolarSurface::calc_solar_dc_matrix(
+            <span class="kw-2">&amp;</span>fenestrations,
+            <span class="kw-2">&amp;</span>solar_scene,
+            <span class="kw-2">&amp;</span>solar_dc_factory,
             <span class="bool-val">false</span>,
         );
 
-        <span class="kw">let</span> <span class="ident">front_surfaces_view_factors</span> : <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IRViewFactorSet</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">surfaces</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">calc_view_factors</span>(<span class="kw-2">&amp;</span><span class="ident">solar_scene</span>,<span class="bool-val">true</span>)).<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="ident">back_surfaces_view_factors</span> : <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IRViewFactorSet</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">surfaces</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">calc_view_factors</span>(<span class="kw-2">&amp;</span><span class="ident">solar_scene</span>,<span class="bool-val">false</span>)).<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="ident">front_fenestrations_view_factors</span> : <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IRViewFactorSet</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">fenestrations</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">calc_view_factors</span>(<span class="kw-2">&amp;</span><span class="ident">solar_scene</span>,<span class="bool-val">true</span>)).<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="ident">back_fenestrations_view_factors</span> : <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IRViewFactorSet</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">fenestrations</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">calc_view_factors</span>(<span class="kw-2">&amp;</span><span class="ident">solar_scene</span>,<span class="bool-val">false</span>)).<span class="ident">collect</span>();
+        <span class="kw">let </span>front_surfaces_view_factors: Vec&lt;IRViewFactorSet&gt; = surfaces
+            .iter()
+            .map(|s| s.calc_view_factors(<span class="kw-2">&amp;</span>solar_scene, <span class="bool-val">true</span>))
+            .collect();
+        <span class="kw">let </span>back_surfaces_view_factors: Vec&lt;IRViewFactorSet&gt; = surfaces
+            .iter()
+            .map(|s| s.calc_view_factors(<span class="kw-2">&amp;</span>solar_scene, <span class="bool-val">false</span>))
+            .collect();
+        <span class="kw">let </span>front_fenestrations_view_factors: Vec&lt;IRViewFactorSet&gt; = fenestrations
+            .iter()
+            .map(|s| s.calc_view_factors(<span class="kw-2">&amp;</span>solar_scene, <span class="bool-val">true</span>))
+            .collect();
+        <span class="kw">let </span>back_fenestrations_view_factors: Vec&lt;IRViewFactorSet&gt; = fenestrations
+            .iter()
+            .map(|s| s.calc_view_factors(<span class="kw-2">&amp;</span>solar_scene, <span class="bool-val">false</span>))
+            .collect();
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> { 
-            <span class="ident">front_surfaces_view_factors</span>,
-            <span class="ident">back_surfaces_view_factors</span>,
-            <span class="ident">front_fenestrations_view_factors</span>, 
-            <span class="ident">back_fenestrations_view_factors</span>,
-            <span class="ident">front_surfaces_dc</span>,
-            <span class="ident">back_surfaces_dc</span>,
-            <span class="ident">front_fenestrations_dc</span>, 
-            <span class="ident">back_fenestrations_dc</span>,
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            front_surfaces_view_factors,
+            back_surfaces_view_factors,
+            front_fenestrations_view_factors,
+            back_fenestrations_view_factors,
+            front_surfaces_dc,
+            back_surfaces_dc,
+            front_fenestrations_dc,
+            back_fenestrations_dc,
         })
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="light" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="light" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

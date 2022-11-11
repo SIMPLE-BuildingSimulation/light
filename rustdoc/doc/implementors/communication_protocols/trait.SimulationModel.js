@@ -1,3 +1,3 @@
-(function() {var implementors = {};
-implementors["light"] = [{"text":"impl SimulationModel for <a class=\"struct\" href=\"light/model/struct.SolarModel.html\" title=\"struct light::model::SolarModel\">SolarModel</a>","synthetic":false,"types":["light::model::SolarModel"]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {var implementors = {
+"light":[["impl SimulationModel for <a class=\"struct\" href=\"light/model/struct.SolarModel.html\" title=\"struct light::model::SolarModel\">SolarModel</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/solar_surface.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>solar_surface.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.css" integrity="sha384-TEMocfGvRuD1rIAacqrknm5BQZ7W7uWitoih+jMNFXQIbNl16bO8OZmylH/Vi/Ei" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/solar_surface.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>solar_surface.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.css" integrity="sha384-TEMocfGvRuD1rIAacqrknm5BQZ7W7uWitoih+jMNFXQIbNl16bO8OZmylH/Vi/Ei" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.js" integrity="sha384-jmxIlussZWB7qCuB+PgKG1uLjjxbVVIayPJwi6cG6Zb4YKq0JIw+OMnkkEC7kYCq" crossorigin="anonymous"></script>
 <script>
   "use strict";
@@ -390,34 +390,6 @@
 <span id="356">356</span>
 <span id="357">357</span>
 <span id="358">358</span>
-<span id="359">359</span>
-<span id="360">360</span>
-<span id="361">361</span>
-<span id="362">362</span>
-<span id="363">363</span>
-<span id="364">364</span>
-<span id="365">365</span>
-<span id="366">366</span>
-<span id="367">367</span>
-<span id="368">368</span>
-<span id="369">369</span>
-<span id="370">370</span>
-<span id="371">371</span>
-<span id="372">372</span>
-<span id="373">373</span>
-<span id="374">374</span>
-<span id="375">375</span>
-<span id="376">376</span>
-<span id="377">377</span>
-<span id="378">378</span>
-<span id="379">379</span>
-<span id="380">380</span>
-<span id="381">381</span>
-<span id="382">382</span>
-<span id="383">383</span>
-<span id="384">384</span>
-<span id="385">385</span>
-<span id="386">386</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -436,372 +408,345 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-*/</span>
+*/
 
-<span class="kw">use</span> <span class="ident">std::rc::Rc</span>;
+</span><span class="kw">use </span>std::rc::Rc;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
+<span class="kw">use </span><span class="kw">crate</span>::Float;
 
-<span class="kw">use</span> <span class="ident">matrix::Matrix</span>;
-<span class="kw">use</span> <span class="ident">rendering</span>::{<span class="ident">colour_matrix</span>::<span class="kw-2">*</span>, <span class="ident">DCFactory</span>, <span class="ident">Scene</span>, <span class="ident">Ray</span>};
+<span class="kw">use </span>matrix::Matrix;
+<span class="kw">use </span>rendering::{colour_matrix::<span class="kw-2">*</span>, DCFactory, Ray, Scene};
 
-<span class="kw">use</span> <span class="ident">simple_model</span>::{<span class="ident">Fenestration</span>, <span class="ident">SimulationStateElement</span>, <span class="ident">SimulationStateHeader</span>, <span class="ident">Surface</span>};
+<span class="kw">use </span>simple_model::{Fenestration, SimulationStateElement, SimulationStateHeader, Surface};
 
-<span class="kw">use</span> <span class="ident">geometry3d</span>::{
-    <span class="ident">Point3D</span>,
-    <span class="ident">Polygon3D</span>,
-    <span class="ident">Ray3D</span>,
-    <span class="ident">Triangulation3D</span>,
-    <span class="ident">Vector3D</span>,
-};
-<span class="kw">use</span> <span class="ident">rendering::primitive_samplers::sample_triangle_surface</span>;
-<span class="kw">use</span> <span class="ident">rendering::rand</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span>geometry3d::{Point3D, Polygon3D, Ray3D, Triangulation3D, Vector3D};
+<span class="kw">use </span>rendering::primitive_samplers::sample_triangle_surface;
+<span class="kw">use </span>rendering::rand::<span class="kw-2">*</span>;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::optical_info::IRViewFactorSet</span>;
+<span class="kw">use </span><span class="kw">crate</span>::optical_info::IRViewFactorSet;
 
+<span class="kw">fn </span>get_sampler(triangles_areas: Vec&lt;Float&gt;) -&gt; <span class="kw">impl </span>Fn(<span class="kw-2">&amp;mut </span>RandGen) -&gt; usize {
+    <span class="kw">let </span>total_area: Float = triangles_areas.iter().sum();
 
-<span class="kw">fn</span> <span class="ident">get_sampler</span>(<span class="ident">triangles_areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>) -&gt; <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>) -&gt; <span class="ident">usize</span> {
-    <span class="kw">let</span> <span class="ident">total_area</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="ident">triangles_areas</span>.<span class="ident">iter</span>().<span class="ident">sum</span>();
-
-    <span class="kw">move</span> <span class="op">|</span><span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span><span class="op">|</span> -&gt; <span class="ident">usize</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
-        <span class="ident">r</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">total_area</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">acc</span> <span class="op">=</span> <span class="number">0.0</span>;
-        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">area</span>) <span class="kw">in</span> <span class="ident">triangles_areas</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="ident">acc</span> <span class="op">+</span><span class="op">=</span> <span class="ident">area</span>;
-            <span class="kw">if</span> <span class="ident">r</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">acc</span> {
-                <span class="kw">return</span> <span class="ident">i</span>;
+    <span class="kw">move </span>|rng: <span class="kw-2">&amp;mut </span>RandGen| -&gt; usize {
+        <span class="kw">let </span><span class="kw-2">mut </span>r: Float = rng.gen();
+        r <span class="kw-2">*</span>= total_area;
+        <span class="kw">let </span><span class="kw-2">mut </span>acc = <span class="number">0.0</span>;
+        <span class="kw">for </span>(i, area) <span class="kw">in </span>triangles_areas.iter().enumerate() {
+            acc += area;
+            <span class="kw">if </span>r &lt;= acc {
+                <span class="kw">return </span>i;
             }
         }
         <span class="macro">unreachable!</span>();
     }
 }
 
-<span class="doccomment">/// Structure that can help calculate solar radiation</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// It contains the normal of the original Surface and the points</span>
-<span class="doccomment">/// randomly sampled in each surface.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SolarSurface</span> {
-    <span class="ident">points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Point3D</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
-    <span class="comment">// nrays: usize,</span>
-}
+<span class="doccomment">/// Structure that can help calculate solar radiation
+///
+/// It contains the normal of the original Surface and the points
+/// randomly sampled in each surface.
+</span><span class="kw">pub struct </span>SolarSurface {
+    points: Vec&lt;Point3D&gt;,
+    <span class="kw">pub </span>normal: Vector3D,
+    <span class="comment">// nrays: usize,
+</span>}
 
-<span class="kw">impl</span> <span class="ident">SolarSurface</span> {
-    <span class="doccomment">/// Offset for the starting point of the rays.</span>
-    <span class="kw">const</span> <span class="ident">DELTA</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="number">0.001</span>;
+<span class="kw">impl </span>SolarSurface {
+    <span class="doccomment">/// Offset for the starting point of the rays.
+    </span><span class="kw">const </span>DELTA: Float = <span class="number">0.001</span>;
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">nrays</span>: <span class="ident">usize</span>, <span class="ident">polygon</span>: <span class="kw-2">&amp;</span><span class="ident">Polygon3D</span>) -&gt; <span class="self">Self</span> {
-        <span class="comment">// Get polygon</span>
-        <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">polygon</span>.<span class="ident">normal</span>();
+    <span class="kw">pub fn </span>new(nrays: usize, polygon: <span class="kw-2">&amp;</span>Polygon3D) -&gt; <span class="self">Self </span>{
+        <span class="comment">// Get polygon
+        </span><span class="kw">let </span>normal = polygon.normal();
 
-        <span class="comment">// Triangulate the polygon</span>
-        <span class="kw">let</span> <span class="ident">triangles</span> <span class="op">=</span> <span class="ident">Triangulation3D::from_polygon</span>(<span class="ident">polygon</span>)
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">get_trilist</span>();
-        <span class="kw">let</span> <span class="ident">triangles_areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">triangles</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">area</span>()).<span class="ident">collect</span>();
+        <span class="comment">// Triangulate the polygon
+        </span><span class="kw">let </span>triangles = Triangulation3D::from_polygon(polygon)
+            .unwrap()
+            .get_trilist();
+        <span class="kw">let </span>triangles_areas: Vec&lt;Float&gt; = triangles.iter().map(|t| t.area()).collect();
 
-        <span class="comment">// Build a triangle sampler</span>
-        <span class="kw">let</span> <span class="ident">sampler</span> <span class="op">=</span> <span class="ident">get_sampler</span>(<span class="ident">triangles_areas</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">get_rng</span>();
+        <span class="comment">// Build a triangle sampler
+        </span><span class="kw">let </span>sampler = get_sampler(triangles_areas);
+        <span class="kw">let </span><span class="kw-2">mut </span>rng = get_rng();
 
-        <span class="comment">// sample points</span>
-        <span class="kw">let</span> <span class="ident">points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Point3D</span><span class="op">&gt;</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">nrays</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-                <span class="comment">// choose the triangle</span>
-                <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">sampler</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
-                <span class="comment">// choose a point in the triangle</span>
-                <span class="ident">sample_triangle_surface</span>(<span class="kw-2">&amp;</span><span class="ident">triangles</span>[<span class="ident">i</span>], <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>)
+        <span class="comment">// sample points
+        </span><span class="kw">let </span>points: Vec&lt;Point3D&gt; = (<span class="number">0</span>..nrays)
+            .map(|<span class="kw">_</span>| {
+                <span class="comment">// choose the triangle
+                </span><span class="kw">let </span>i = sampler(<span class="kw-2">&amp;mut </span>rng);
+                <span class="comment">// choose a point in the triangle
+                </span>sample_triangle_surface(<span class="kw-2">&amp;</span>triangles[i], <span class="kw-2">&amp;mut </span>rng)
             })
-            .<span class="ident">collect</span>();
+            .collect();
 
-        <span class="comment">// return</span>
-        <span class="self">Self</span> {
-            <span class="ident">normal</span>,
-            <span class="ident">points</span>,
-            <span class="comment">// nrays,</span>
-        }
+        <span class="comment">// return
+        </span><span class="self">Self </span>{
+            normal,
+            points,
+            <span class="comment">// nrays,
+        </span>}
     }
 
-    <span class="doccomment">/// Receives a list of `SolarSurface` objects as well as the `Scene` containing them and</span>
-    <span class="doccomment">/// calculates the Daylight Coefficient Matrix that can be used for</span>
-    <span class="doccomment">/// estimating the incident solar radiation in W/m2. The options for this calculation are</span>
-    <span class="doccomment">/// contained in the `DCFactory` used as input.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">calc_solar_dc_matrix</span>(
-        <span class="ident">list</span>: <span class="kw-2">&amp;</span>[<span class="ident">SolarSurface</span>],
-        <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>,
-        <span class="ident">dc_factory</span>: <span class="kw-2">&amp;</span><span class="ident">DCFactory</span>,
-        <span class="ident">front_side</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="ident">Matrix</span> {
-        <span class="kw">if</span> <span class="ident">list</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="ident">Matrix::empty</span>();
+    <span class="doccomment">/// Receives a list of `SolarSurface` objects as well as the `Scene` containing them and
+    /// calculates the Daylight Coefficient Matrix that can be used for
+    /// estimating the incident solar radiation in W/m2. The options for this calculation are
+    /// contained in the `DCFactory` used as input.
+    </span><span class="kw">pub fn </span>calc_solar_dc_matrix(
+        list: <span class="kw-2">&amp;</span>[SolarSurface],
+        scene: <span class="kw-2">&amp;</span>Scene,
+        dc_factory: <span class="kw-2">&amp;</span>DCFactory,
+        front_side: bool,
+    ) -&gt; Matrix {
+        <span class="kw">if </span>list.is_empty() {
+            <span class="kw">return </span>Matrix::empty();
         }
 
-        <span class="comment">// Then the back</span>
-        <span class="kw">let</span> <span class="ident">dcs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Matrix</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">list</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">rays</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">front_side</span>{
-                    <span class="ident">s</span>.<span class="ident">front_rays</span>()
-                }<span class="kw">else</span>{
-                    <span class="ident">s</span>.<span class="ident">back_rays</span>()
+        <span class="comment">// Then the back
+        </span><span class="kw">let </span>dcs: Vec&lt;Matrix&gt; = list
+            .iter()
+            .map(|s| {
+                <span class="kw">let </span>rays = <span class="kw">if </span>front_side {
+                    s.front_rays()
+                } <span class="kw">else </span>{
+                    s.back_rays()
                 };
-                <span class="ident">s</span>.<span class="ident">solar_irradiance</span>(<span class="kw-2">&amp;</span><span class="ident">rays</span>, <span class="ident">scene</span>, <span class="ident">dc_factory</span>)
+                s.solar_irradiance(<span class="kw-2">&amp;</span>rays, scene, dc_factory)
             })
-            .<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">dcs</span>[<span class="number">0</span>].<span class="ident">clone</span>();
-        <span class="kw">for</span> <span class="ident">dc</span> <span class="kw">in</span> <span class="ident">dcs</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>) {
-            <span class="ident">ret</span>.<span class="ident">concat_rows</span>(<span class="ident">dc</span>).<span class="ident">unwrap</span>();
-        }        
-        <span class="ident">ret</span>
+            .collect();
+        <span class="kw">let </span><span class="kw-2">mut </span>ret = dcs[<span class="number">0</span>].clone();
+        <span class="kw">for </span>dc <span class="kw">in </span>dcs.iter().skip(<span class="number">1</span>) {
+            ret.concat_rows(dc).unwrap();
+        }
+        ret
     }
 
-
-    
-
-    <span class="doccomment">/// Builds a set of SolarSurfaces from Fenestrations</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Adds the necessary elements to the `SimulationStateHeader`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_fenestrations</span>(
-        <span class="ident">list</span>: <span class="kw-2">&amp;</span>[<span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Fenestration</span><span class="op">&gt;</span>],
-        <span class="ident">state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SimulationStateHeader</span>,
-        <span class="ident">n_rays</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SolarSurface</span><span class="op">&gt;</span> {
-        <span class="ident">list</span>.<span class="ident">iter</span>()
-            .<span class="ident">enumerate</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">s</span>)<span class="op">|</span> {
-                <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">front_incident_solar_irradiance_index</span>().<span class="ident">is_none</span>(){
-                    <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">push</span>(
-                        <span class="ident">SimulationStateElement::FenestrationFrontSolarIrradiance</span>(<span class="ident">i</span>),
+    <span class="doccomment">/// Builds a set of SolarSurfaces from Fenestrations
+    ///
+    /// Adds the necessary elements to the `SimulationStateHeader`
+    </span><span class="kw">pub fn </span>make_fenestrations(
+        list: <span class="kw-2">&amp;</span>[Rc&lt;Fenestration&gt;],
+        state: <span class="kw-2">&amp;mut </span>SimulationStateHeader,
+        n_rays: usize,
+    ) -&gt; Vec&lt;SolarSurface&gt; {
+        list.iter()
+            .enumerate()
+            .map(|(i, s)| {
+                <span class="kw">if </span>s.front_incident_solar_irradiance_index().is_none() {
+                    <span class="kw">let </span>i = state.push(
+                        SimulationStateElement::FenestrationFrontSolarIrradiance(i),
                         <span class="number">0.0</span>,
                     );
-                    <span class="ident">s</span>.<span class="ident">set_front_incident_solar_irradiance_index</span>(<span class="ident">i</span>);
+                    s.set_front_incident_solar_irradiance_index(i);
                 }
 
-
-                <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">back_incident_solar_irradiance_index</span>().<span class="ident">is_none</span>(){
-                    <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">push</span>(
-                        <span class="ident">SimulationStateElement::FenestrationBackSolarIrradiance</span>(<span class="ident">i</span>),
+                <span class="kw">if </span>s.back_incident_solar_irradiance_index().is_none() {
+                    <span class="kw">let </span>i = state.push(
+                        SimulationStateElement::FenestrationBackSolarIrradiance(i),
                         <span class="number">0.0</span>,
                     );
-                    <span class="ident">s</span>.<span class="ident">set_back_incident_solar_irradiance_index</span>(<span class="ident">i</span>);
+                    s.set_back_incident_solar_irradiance_index(i);
                 }
 
-                <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">front_ir_irradiance_index</span>().<span class="ident">is_none</span>(){
-                    <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">push</span>(
-                        <span class="ident">SimulationStateElement::FenestrationFrontIRIrradiance</span>(<span class="ident">i</span>),
+                <span class="kw">if </span>s.front_ir_irradiance_index().is_none() {
+                    <span class="kw">let </span>i = state.push(
+                        SimulationStateElement::FenestrationFrontIRIrradiance(i),
                         <span class="number">0.0</span>,
                     );
-                    <span class="ident">s</span>.<span class="ident">set_front_ir_irradiance_index</span>(<span class="ident">i</span>);
+                    s.set_front_ir_irradiance_index(i);
                 }
 
-                <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">back_ir_irradiance_index</span>().<span class="ident">is_none</span>(){
-                    <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">push</span>(
-                        <span class="ident">SimulationStateElement::FenestrationBackIRIrradiance</span>(<span class="ident">i</span>), 
-                        <span class="number">0.0</span>
-                    );
-                    <span class="ident">s</span>.<span class="ident">set_back_ir_irradiance_index</span>(<span class="ident">i</span>);
-                }                
-                <span class="ident">SolarSurface::new</span>(<span class="ident">n_rays</span>, <span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">vertices</span>)
-
+                <span class="kw">if </span>s.back_ir_irradiance_index().is_none() {
+                    <span class="kw">let </span>i =
+                        state.push(SimulationStateElement::FenestrationBackIRIrradiance(i), <span class="number">0.0</span>);
+                    s.set_back_ir_irradiance_index(i);
+                }
+                SolarSurface::new(n_rays, <span class="kw-2">&amp;</span>s.vertices)
             })
-            .<span class="ident">collect</span>()
+            .collect()
     }
 
-    <span class="doccomment">/// Builds a set of SolarSurfaces from Surfaces</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Adds the necessary elements to the `SimulationStateHeader</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_surfaces</span>(
-        <span class="ident">list</span>: <span class="kw-2">&amp;</span>[<span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Surface</span><span class="op">&gt;</span>],
-        <span class="ident">state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SimulationStateHeader</span>,
-        <span class="ident">n_rays</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SolarSurface</span><span class="op">&gt;</span> {
-        <span class="ident">list</span>.<span class="ident">iter</span>()
-            .<span class="ident">enumerate</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">s</span>)<span class="op">|</span> {
-                <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">front_incident_solar_irradiance_index</span>().<span class="ident">is_none</span>(){
-                    <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">push</span>(<span class="ident">SimulationStateElement::SurfaceFrontSolarIrradiance</span>(<span class="ident">i</span>), <span class="number">0.0</span>);
-                    <span class="ident">s</span>.<span class="ident">set_front_incident_solar_irradiance_index</span>(<span class="ident">i</span>);
+    <span class="doccomment">/// Builds a set of SolarSurfaces from Surfaces
+    ///
+    /// Adds the necessary elements to the `SimulationStateHeader
+    </span><span class="kw">pub fn </span>make_surfaces(
+        list: <span class="kw-2">&amp;</span>[Rc&lt;Surface&gt;],
+        state: <span class="kw-2">&amp;mut </span>SimulationStateHeader,
+        n_rays: usize,
+    ) -&gt; Vec&lt;SolarSurface&gt; {
+        list.iter()
+            .enumerate()
+            .map(|(i, s)| {
+                <span class="kw">if </span>s.front_incident_solar_irradiance_index().is_none() {
+                    <span class="kw">let </span>i = state.push(SimulationStateElement::SurfaceFrontSolarIrradiance(i), <span class="number">0.0</span>);
+                    s.set_front_incident_solar_irradiance_index(i);
                 }
 
-                <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">back_incident_solar_irradiance_index</span>().<span class="ident">is_none</span>(){
-                    <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">push</span>(<span class="ident">SimulationStateElement::SurfaceBackSolarIrradiance</span>(<span class="ident">i</span>), <span class="number">0.0</span>);
-                    <span class="ident">s</span>.<span class="ident">set_back_incident_solar_irradiance_index</span>(<span class="ident">i</span>);
+                <span class="kw">if </span>s.back_incident_solar_irradiance_index().is_none() {
+                    <span class="kw">let </span>i = state.push(SimulationStateElement::SurfaceBackSolarIrradiance(i), <span class="number">0.0</span>);
+                    s.set_back_incident_solar_irradiance_index(i);
                 }
 
-                <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">front_ir_irradiance_index</span>().<span class="ident">is_none</span>(){
-                    <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">push</span>(<span class="ident">SimulationStateElement::SurfaceFrontIRIrradiance</span>(<span class="ident">i</span>), <span class="number">0.0</span>);
-                    <span class="ident">s</span>.<span class="ident">set_front_ir_irradiance_index</span>(<span class="ident">i</span>);
+                <span class="kw">if </span>s.front_ir_irradiance_index().is_none() {
+                    <span class="kw">let </span>i = state.push(SimulationStateElement::SurfaceFrontIRIrradiance(i), <span class="number">0.0</span>);
+                    s.set_front_ir_irradiance_index(i);
                 }
 
-                <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">back_ir_irradiance_index</span>().<span class="ident">is_none</span>(){
-                    <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">push</span>(<span class="ident">SimulationStateElement::SurfaceBackIRIrradiance</span>(<span class="ident">i</span>), <span class="number">0.0</span>);
-                    <span class="ident">s</span>.<span class="ident">set_back_ir_irradiance_index</span>(<span class="ident">i</span>);
+                <span class="kw">if </span>s.back_ir_irradiance_index().is_none() {
+                    <span class="kw">let </span>i = state.push(SimulationStateElement::SurfaceBackIRIrradiance(i), <span class="number">0.0</span>);
+                    s.set_back_ir_irradiance_index(i);
                 }
 
-                <span class="comment">// create</span>
-                <span class="ident">SolarSurface::new</span>(<span class="ident">n_rays</span>, <span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">vertices</span>)
+                <span class="comment">// create
+                </span>SolarSurface::new(n_rays, <span class="kw-2">&amp;</span>s.vertices)
             })
-            .<span class="ident">collect</span>()
+            .collect()
     }
 
-    <span class="doccomment">/// Gets the front rays of a surface</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">front_rays</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ray3D</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">points</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">Ray3D</span> {
-                <span class="ident">direction</span>: <span class="self">self</span>.<span class="ident">normal</span>,
-                <span class="ident">origin</span>: <span class="kw-2">*</span><span class="ident">p</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">normal</span> <span class="op">*</span> <span class="ident"><span class="self">Self</span>::DELTA</span>,
+    <span class="doccomment">/// Gets the front rays of a surface
+    </span><span class="kw">pub fn </span>front_rays(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;Ray3D&gt; {
+        <span class="self">self</span>.points
+            .iter()
+            .map(|p| Ray3D {
+                direction: <span class="self">self</span>.normal,
+                origin: <span class="kw-2">*</span>p + <span class="self">self</span>.normal * <span class="self">Self</span>::DELTA,
             })
-            .<span class="ident">collect</span>()
+            .collect()
     }
 
-    <span class="doccomment">/// Gets the back rays of a surface</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">back_rays</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ray3D</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">points</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">Ray3D</span> {
-                <span class="ident">direction</span>: <span class="self">self</span>.<span class="ident">normal</span> <span class="op">*</span> <span class="op">-</span><span class="number">1.</span>,
-                <span class="ident">origin</span>: <span class="kw-2">*</span><span class="ident">p</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">normal</span> <span class="op">*</span> <span class="ident"><span class="self">Self</span>::DELTA</span>,
+    <span class="doccomment">/// Gets the back rays of a surface
+    </span><span class="kw">pub fn </span>back_rays(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;Ray3D&gt; {
+        <span class="self">self</span>.points
+            .iter()
+            .map(|p| Ray3D {
+                direction: <span class="self">self</span>.normal * -<span class="number">1.</span>,
+                origin: <span class="kw-2">*</span>p - <span class="self">self</span>.normal * <span class="self">Self</span>::DELTA,
             })
-            .<span class="ident">collect</span>()
+            .collect()
     }
 
-    <span class="doccomment">/// Calculates the Daylight Coefficient matrix for the front of a `SolarSurface`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">solar_irradiance</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rays</span>: <span class="kw-2">&amp;</span>[<span class="ident">Ray3D</span>], <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>, <span class="ident">factory</span>: <span class="kw-2">&amp;</span><span class="ident">DCFactory</span>) -&gt; <span class="ident">Matrix</span> {
-        <span class="comment">// let front_rays = self.front_rays();</span>
-        <span class="kw">let</span> <span class="ident">dc</span> <span class="op">=</span> <span class="ident">factory</span>.<span class="ident">calc_dc</span>(<span class="ident">rays</span>, <span class="ident">scene</span>);
-        <span class="kw">let</span> <span class="ident">dc</span> <span class="op">=</span> <span class="ident">colour_matrix_to_radiance</span>(<span class="kw-2">&amp;</span><span class="ident">dc</span>);
-        <span class="ident">average_matrix</span>(<span class="kw-2">&amp;</span><span class="ident">dc</span>)
+    <span class="doccomment">/// Calculates the Daylight Coefficient matrix for the front of a `SolarSurface`
+    </span><span class="kw">pub fn </span>solar_irradiance(<span class="kw-2">&amp;</span><span class="self">self</span>, rays: <span class="kw-2">&amp;</span>[Ray3D], scene: <span class="kw-2">&amp;</span>Scene, factory: <span class="kw-2">&amp;</span>DCFactory) -&gt; Matrix {
+        <span class="comment">// let front_rays = self.front_rays();
+        </span><span class="kw">let </span>dc = factory.calc_dc(rays, scene);
+        <span class="kw">let </span>dc = colour_matrix_to_radiance(<span class="kw-2">&amp;</span>dc);
+        average_matrix(<span class="kw-2">&amp;</span>dc)
     }
 
-    
+    <span class="doccomment">/// Calculates an [`IRViewFactorSet`] for this surface
+    </span><span class="kw">pub fn </span>calc_view_factors(<span class="kw-2">&amp;</span><span class="self">self</span>, scene: <span class="kw-2">&amp;</span>Scene, front_side: bool) -&gt; IRViewFactorSet {
+        <span class="kw">let </span><span class="kw-2">mut </span>rng = rendering::rand::get_rng();
 
-    <span class="doccomment">/// Calculates an [`IRViewFactorSet`] for this surface</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">calc_view_factors</span>(<span class="kw-2">&amp;</span><span class="self">self</span>,         
-        <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>,
-        <span class="ident">front_side</span>: <span class="ident">bool</span>
-    )-&gt;<span class="ident">IRViewFactorSet</span>{
-        
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">rendering::rand::get_rng</span>();
-
-        <span class="kw">let</span> <span class="ident">rays</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">front_side</span> {
-            <span class="self">self</span>.<span class="ident">front_rays</span>()
-        }<span class="kw">else</span>{
-            <span class="self">self</span>.<span class="ident">back_rays</span>()
+        <span class="kw">let </span>rays = <span class="kw">if </span>front_side {
+            <span class="self">self</span>.front_rays()
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.back_rays()
         };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ground</span> <span class="op">=</span> <span class="number">0.0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sky</span> <span class="op">=</span> <span class="number">0.0</span>;        
+        <span class="kw">let </span><span class="kw-2">mut </span>ground = <span class="number">0.0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>sky = <span class="number">0.0</span>;
 
-        <span class="kw">let</span> <span class="ident">n_samples</span> <span class="op">=</span> <span class="number">10000</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">node_aux</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="number">2</span>);    
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">rays</span>{
-            
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ray</span> <span class="op">=</span> <span class="ident">Ray</span>{
-                <span class="ident">geometry</span>: <span class="kw-2">*</span><span class="ident">r</span>,
-                ..<span class="ident">Ray::default</span>()
+        <span class="kw">let </span>n_samples = <span class="number">10000</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>node_aux = Vec::with_capacity(<span class="number">2</span>);
+        <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span>rays {
+            <span class="kw">let </span><span class="kw-2">mut </span>ray = Ray {
+                geometry: <span class="kw-2">*</span>r,
+                ..Ray::default()
             };
-            <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">direction</span>;
-            <span class="kw">let</span> <span class="ident">e1</span> <span class="op">=</span> <span class="ident">normal</span>.<span class="ident">get_perpendicular</span>().<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">e2</span> <span class="op">=</span> <span class="ident">normal</span>.<span class="ident">cross</span>(<span class="ident">e1</span>);
-    
-            <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">n_samples</span> {
-                <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">rendering::samplers::uniform_sample_hemisphere</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">normal</span>);
-                
-               
-                <span class="kw">if</span> <span class="ident">scene</span>.<span class="ident">cast_ray</span>(<span class="kw-2">&amp;mut</span> <span class="ident">ray</span>, <span class="kw-2">&amp;mut</span> <span class="ident">node_aux</span>).<span class="ident">is_none</span>(){
-                    <span class="kw">if</span> <span class="ident">dir</span>.<span class="ident">z</span> <span class="op">&gt;</span> <span class="number">0.0</span> {
-                        <span class="ident">sky</span> <span class="op">+</span><span class="op">=</span> <span class="number">1.0</span>;
-                    }<span class="kw">else</span>{
-                        <span class="ident">ground</span> <span class="op">+</span><span class="op">=</span> <span class="number">1.</span>;
+            <span class="kw">let </span>normal = r.direction;
+            <span class="kw">let </span>e1 = normal.get_perpendicular().unwrap();
+            <span class="kw">let </span>e2 = normal.cross(e1);
+
+            <span class="kw">for _ in </span><span class="number">0</span>..n_samples {
+                <span class="kw">let </span>dir = rendering::samplers::uniform_sample_hemisphere(<span class="kw-2">&amp;mut </span>rng, e1, e2, normal);
+
+                <span class="kw">if </span>scene.cast_ray(<span class="kw-2">&amp;mut </span>ray, <span class="kw-2">&amp;mut </span>node_aux).is_none() {
+                    <span class="kw">if </span>dir.z &gt; <span class="number">0.0 </span>{
+                        sky += <span class="number">1.0</span>;
+                    } <span class="kw">else </span>{
+                        ground += <span class="number">1.</span>;
                     }
                 }
             }
         }
-        
-        <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">n_samples</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">rays</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">Float</span>;
-        <span class="ident">ground</span> <span class="op">/</span><span class="op">=</span> <span class="ident">n</span>;
-        <span class="ident">sky</span> <span class="op">/</span><span class="op">=</span> <span class="ident">n</span>;        
 
-        <span class="kw">let</span> <span class="ident">beta</span> <span class="op">=</span> <span class="ident">sky</span>.<span class="ident">sqrt</span>();
-        <span class="kw">let</span> <span class="ident">air</span> <span class="op">=</span> <span class="ident">sky</span><span class="kw-2">*</span>(<span class="number">1.</span><span class="op">-</span><span class="ident">beta</span>);
-        <span class="ident">sky</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">beta</span>;
+        <span class="kw">let </span>n = n_samples <span class="kw">as </span>Float * rays.len() <span class="kw">as </span>Float;
+        ground /= n;
+        sky /= n;
 
-        <span class="ident">IRViewFactorSet</span> { <span class="ident">sky</span>, <span class="ident">ground</span>, <span class="ident">air</span> }
+        <span class="kw">let </span>beta = sky.sqrt();
+        <span class="kw">let </span>air = sky * (<span class="number">1. </span>- beta);
+        sky <span class="kw-2">*</span>= beta;
 
+        IRViewFactorSet { sky, ground, air }
     }
 }
 
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>testing {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span>geometry3d::Loop3D;
+    <span class="kw">use </span>validate::assert_close;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">testing</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident">geometry3d::Loop3D</span>;
-    <span class="kw">use</span> <span class="ident">validate::assert_close</span>;
-    
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_view_factors_empty_scene_vertical</span>(){
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_view_factors_empty_scene_vertical() {
+        <span class="kw">let </span><span class="kw-2">mut </span>the_loop = Loop3D::new();
+        the_loop.push(Point3D::new(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>)).unwrap();
+        the_loop.push(Point3D::new(<span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>)).unwrap();
+        the_loop.push(Point3D::new(<span class="number">1.</span>, <span class="number">0.</span>, <span class="number">1.</span>)).unwrap();
+        the_loop.push(Point3D::new(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>)).unwrap();
+        the_loop.close().unwrap();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">the_loop</span> <span class="op">=</span> <span class="ident">Loop3D::new</span>();
-        <span class="ident">the_loop</span>.<span class="ident">push</span>(<span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>)).<span class="ident">unwrap</span>();
-        <span class="ident">the_loop</span>.<span class="ident">push</span>(<span class="ident">Point3D::new</span>(<span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>)).<span class="ident">unwrap</span>();
-        <span class="ident">the_loop</span>.<span class="ident">push</span>(<span class="ident">Point3D::new</span>(<span class="number">1.</span>, <span class="number">0.</span>, <span class="number">1.</span>)).<span class="ident">unwrap</span>();
-        <span class="ident">the_loop</span>.<span class="ident">push</span>(<span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>)).<span class="ident">unwrap</span>();
-        <span class="ident">the_loop</span>.<span class="ident">close</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>scene = Scene::new();
+        scene.build_accelerator();
+        <span class="kw">let </span>p = Polygon3D::new(the_loop).unwrap();
+        <span class="kw">let </span>s = SolarSurface::new(<span class="number">10</span>, <span class="kw-2">&amp;</span>p);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">Scene::new</span>();
-        <span class="ident">scene</span>.<span class="ident">build_accelerator</span>();
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Polygon3D::new</span>(<span class="ident">the_loop</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">SolarSurface::new</span>(<span class="number">10</span>, <span class="kw-2">&amp;</span><span class="ident">p</span>);
-        
-        <span class="kw">let</span> <span class="ident">beta</span> <span class="op">=</span> (<span class="number">0.5</span> <span class="kw">as</span> <span class="ident">Float</span>).<span class="ident">sqrt</span>();
+        <span class="kw">let </span>beta = (<span class="number">0.5 </span><span class="kw">as </span>Float).sqrt();
 
-        <span class="comment">// Front side</span>
-        <span class="kw">let</span> <span class="ident">views</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">calc_view_factors</span>(<span class="kw-2">&amp;</span><span class="ident">scene</span>, <span class="bool-val">true</span>);
-        
-        <span class="macro">assert_close!</span>(<span class="ident">views</span>.<span class="ident">ground</span>, <span class="number">0.5</span>, <span class="number">1e-2</span>);
-        <span class="macro">assert_close!</span>(<span class="ident">views</span>.<span class="ident">sky</span>, <span class="number">0.5</span> <span class="op">*</span> <span class="ident">beta</span>, <span class="number">1e-2</span>);
-        <span class="macro">assert_close!</span>(<span class="ident">views</span>.<span class="ident">air</span>, <span class="number">0.5</span> <span class="op">*</span> (<span class="number">1.</span><span class="op">-</span><span class="ident">beta</span>), <span class="number">1e-2</span>);
+        <span class="comment">// Front side
+        </span><span class="kw">let </span>views = s.calc_view_factors(<span class="kw-2">&amp;</span>scene, <span class="bool-val">true</span>);
 
-        <span class="comment">// back side</span>
-        <span class="kw">let</span> <span class="ident">views</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">calc_view_factors</span>(<span class="kw-2">&amp;</span><span class="ident">scene</span>, <span class="bool-val">false</span>);
-        
-        
-        <span class="macro">assert_close!</span>(<span class="ident">views</span>.<span class="ident">ground</span>, <span class="number">0.5</span>, <span class="number">1e-2</span>);
-        <span class="macro">assert_close!</span>(<span class="ident">views</span>.<span class="ident">sky</span>, <span class="number">0.5</span><span class="kw-2">*</span><span class="ident">beta</span>, <span class="number">1e-2</span>);
-        <span class="macro">assert_close!</span>(<span class="ident">views</span>.<span class="ident">air</span>, <span class="number">0.5</span> <span class="op">*</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">beta</span>), <span class="number">1e-2</span>);
+        <span class="macro">assert_close!</span>(views.ground, <span class="number">0.5</span>, <span class="number">1e-2</span>);
+        <span class="macro">assert_close!</span>(views.sky, <span class="number">0.5 </span>* beta, <span class="number">1e-2</span>);
+        <span class="macro">assert_close!</span>(views.air, <span class="number">0.5 </span>* (<span class="number">1. </span>- beta), <span class="number">1e-2</span>);
+
+        <span class="comment">// back side
+        </span><span class="kw">let </span>views = s.calc_view_factors(<span class="kw-2">&amp;</span>scene, <span class="bool-val">false</span>);
+
+        <span class="macro">assert_close!</span>(views.ground, <span class="number">0.5</span>, <span class="number">1e-2</span>);
+        <span class="macro">assert_close!</span>(views.sky, <span class="number">0.5 </span>* beta, <span class="number">1e-2</span>);
+        <span class="macro">assert_close!</span>(views.air, <span class="number">0.5 </span>* (<span class="number">1. </span>- beta), <span class="number">1e-2</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_view_factors_empty_scene_horizontal</span>(){
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_view_factors_empty_scene_horizontal() {
+        <span class="kw">let </span><span class="kw-2">mut </span>the_loop = Loop3D::new();
+        the_loop.push(Point3D::new(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>)).unwrap();
+        the_loop.push(Point3D::new(<span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>)).unwrap();
+        the_loop.push(Point3D::new(<span class="number">1.</span>, <span class="number">1.</span>, <span class="number">0.</span>)).unwrap();
+        the_loop.push(Point3D::new(<span class="number">0.</span>, <span class="number">1.</span>, <span class="number">0.</span>)).unwrap();
+        the_loop.close().unwrap();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">the_loop</span> <span class="op">=</span> <span class="ident">Loop3D::new</span>();
-        <span class="ident">the_loop</span>.<span class="ident">push</span>(<span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>)).<span class="ident">unwrap</span>();
-        <span class="ident">the_loop</span>.<span class="ident">push</span>(<span class="ident">Point3D::new</span>(<span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>)).<span class="ident">unwrap</span>();
-        <span class="ident">the_loop</span>.<span class="ident">push</span>(<span class="ident">Point3D::new</span>(<span class="number">1.</span>, <span class="number">1.</span>, <span class="number">0.</span>)).<span class="ident">unwrap</span>();
-        <span class="ident">the_loop</span>.<span class="ident">push</span>(<span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">1.</span>, <span class="number">0.</span>)).<span class="ident">unwrap</span>();
-        <span class="ident">the_loop</span>.<span class="ident">close</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>scene = Scene::new();
+        scene.build_accelerator();
+        <span class="kw">let </span>p = Polygon3D::new(the_loop).unwrap();
+        <span class="kw">let </span>s = SolarSurface::new(<span class="number">10</span>, <span class="kw-2">&amp;</span>p);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">Scene::new</span>();
-        <span class="ident">scene</span>.<span class="ident">build_accelerator</span>();
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Polygon3D::new</span>(<span class="ident">the_loop</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">SolarSurface::new</span>(<span class="number">10</span>, <span class="kw-2">&amp;</span><span class="ident">p</span>);
-        
-        <span class="comment">// Front side</span>
-        <span class="kw">let</span> <span class="ident">views</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">calc_view_factors</span>(<span class="kw-2">&amp;</span><span class="ident">scene</span>, <span class="bool-val">true</span>);
-        
-        <span class="macro">assert_close!</span>(<span class="ident">views</span>.<span class="ident">ground</span>, <span class="number">0.0</span>);
-        <span class="macro">assert_close!</span>(<span class="ident">views</span>.<span class="ident">sky</span>, <span class="number">1.0</span> );
-        <span class="macro">assert_close!</span>(<span class="ident">views</span>.<span class="ident">air</span>, <span class="number">0.0</span>);
+        <span class="comment">// Front side
+        </span><span class="kw">let </span>views = s.calc_view_factors(<span class="kw-2">&amp;</span>scene, <span class="bool-val">true</span>);
 
-        <span class="comment">// back side</span>
-        <span class="kw">let</span> <span class="ident">views</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">calc_view_factors</span>(<span class="kw-2">&amp;</span><span class="ident">scene</span>, <span class="bool-val">false</span>);
-        
-        <span class="macro">assert_close!</span>(<span class="ident">views</span>.<span class="ident">ground</span>, <span class="number">1.0</span>);
-        <span class="macro">assert_close!</span>(<span class="ident">views</span>.<span class="ident">sky</span>, <span class="number">0.0</span>);
-        <span class="macro">assert_close!</span>(<span class="ident">views</span>.<span class="ident">air</span>, <span class="number">0.0</span>);
+        <span class="macro">assert_close!</span>(views.ground, <span class="number">0.0</span>);
+        <span class="macro">assert_close!</span>(views.sky, <span class="number">1.0</span>);
+        <span class="macro">assert_close!</span>(views.air, <span class="number">0.0</span>);
+
+        <span class="comment">// back side
+        </span><span class="kw">let </span>views = s.calc_view_factors(<span class="kw-2">&amp;</span>scene, <span class="bool-val">false</span>);
+
+        <span class="macro">assert_close!</span>(views.ground, <span class="number">1.0</span>);
+        <span class="macro">assert_close!</span>(views.sky, <span class="number">0.0</span>);
+        <span class="macro">assert_close!</span>(views.air, <span class="number">0.0</span>);
     }
-
-}</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="light" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+}
+</code></pre></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="light" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

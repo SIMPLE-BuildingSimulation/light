@@ -136,42 +136,42 @@ impl SolarSurface {
         list: &[Rc<Fenestration>],
         state: &mut SimulationStateHeader,
         n_rays: usize,
-    ) -> Vec<SolarSurface> {
-        list.iter()
-            .enumerate()
-            .map(|(i, s)| {
+    ) -> Result<Vec<SolarSurface>, String> {
+        let mut ret = Vec::with_capacity(list.len());
+        for (i, s) in list.iter().enumerate(){
                 if s.front_incident_solar_irradiance_index().is_none() {
                     let i = state.push(
                         SimulationStateElement::FenestrationFrontSolarIrradiance(i),
                         0.0,
-                    );
-                    s.set_front_incident_solar_irradiance_index(i);
+                    )?;
+                    s.set_front_incident_solar_irradiance_index(i)?;
                 }
 
                 if s.back_incident_solar_irradiance_index().is_none() {
                     let i = state.push(
                         SimulationStateElement::FenestrationBackSolarIrradiance(i),
                         0.0,
-                    );
-                    s.set_back_incident_solar_irradiance_index(i);
+                    )?;
+                    s.set_back_incident_solar_irradiance_index(i)?;
                 }
 
                 if s.front_ir_irradiance_index().is_none() {
                     let i = state.push(
                         SimulationStateElement::FenestrationFrontIRIrradiance(i),
                         0.0,
-                    );
-                    s.set_front_ir_irradiance_index(i);
+                    )?;
+                    s.set_front_ir_irradiance_index(i)?;
                 }
 
                 if s.back_ir_irradiance_index().is_none() {
                     let i =
-                        state.push(SimulationStateElement::FenestrationBackIRIrradiance(i), 0.0);
-                    s.set_back_ir_irradiance_index(i);
+                        state.push(SimulationStateElement::FenestrationBackIRIrradiance(i), 0.0)?;
+                    s.set_back_ir_irradiance_index(i)?;
                 }
-                SolarSurface::new(n_rays, &s.vertices)
-            })
-            .collect()
+                ret.push(SolarSurface::new(n_rays, &s.vertices))
+            }
+
+        Ok(ret)
     }
 
     /// Builds a set of SolarSurfaces from Surfaces
@@ -181,34 +181,35 @@ impl SolarSurface {
         list: &[Rc<Surface>],
         state: &mut SimulationStateHeader,
         n_rays: usize,
-    ) -> Vec<SolarSurface> {
-        list.iter()
-            .enumerate()
-            .map(|(i, s)| {
-                if s.front_incident_solar_irradiance_index().is_none() {
-                    let i = state.push(SimulationStateElement::SurfaceFrontSolarIrradiance(i), 0.0);
-                    s.set_front_incident_solar_irradiance_index(i);
-                }
+    ) -> Result<Vec<SolarSurface>, String> {
+        let mut ret = Vec::with_capacity(list.len());
 
-                if s.back_incident_solar_irradiance_index().is_none() {
-                    let i = state.push(SimulationStateElement::SurfaceBackSolarIrradiance(i), 0.0);
-                    s.set_back_incident_solar_irradiance_index(i);
-                }
+        for (i, s) in list.iter().enumerate() {
+            if s.front_incident_solar_irradiance_index().is_none() {
+                let i = state.push(SimulationStateElement::SurfaceFrontSolarIrradiance(i), 0.0)?;
+                s.set_front_incident_solar_irradiance_index(i)?;
+            }
 
-                if s.front_ir_irradiance_index().is_none() {
-                    let i = state.push(SimulationStateElement::SurfaceFrontIRIrradiance(i), 0.0);
-                    s.set_front_ir_irradiance_index(i);
-                }
+            if s.back_incident_solar_irradiance_index().is_none() {
+                let i = state.push(SimulationStateElement::SurfaceBackSolarIrradiance(i), 0.0)?;
+                s.set_back_incident_solar_irradiance_index(i)?;
+            }
 
-                if s.back_ir_irradiance_index().is_none() {
-                    let i = state.push(SimulationStateElement::SurfaceBackIRIrradiance(i), 0.0);
-                    s.set_back_ir_irradiance_index(i);
-                }
+            if s.front_ir_irradiance_index().is_none() {
+                let i = state.push(SimulationStateElement::SurfaceFrontIRIrradiance(i), 0.0)?;
+                s.set_front_ir_irradiance_index(i)?;
+            }
 
-                // create
-                SolarSurface::new(n_rays, &s.vertices)
-            })
-            .collect()
+            if s.back_ir_irradiance_index().is_none() {
+                let i = state.push(SimulationStateElement::SurfaceBackIRIrradiance(i), 0.0)?;
+                s.set_back_ir_irradiance_index(i)?;
+            }
+
+            // create
+            ret.push(SolarSurface::new(n_rays, &s.vertices))
+        }
+
+        Ok(ret)
     }
 
     /// Gets the front rays of a surface

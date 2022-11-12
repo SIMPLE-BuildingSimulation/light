@@ -80,9 +80,9 @@ impl OpticalInfo {
         let n_solar_rays = *options.n_solar_irradiance_points().unwrap();
 
         // Create Surfaces and Fenestrations
-        let surfaces = SolarSurface::make_surfaces(&model.surfaces, state, n_solar_rays);
+        let surfaces = SolarSurface::make_surfaces(&model.surfaces, state, n_solar_rays)?;
         let fenestrations =
-            SolarSurface::make_fenestrations(&model.fenestrations, state, n_solar_rays);
+            SolarSurface::make_fenestrations(&model.fenestrations, state, n_solar_rays)?;
 
         // build scene
         let mut solar_scene = Scene::from_simple_model(model, Wavelengths::Solar)?;

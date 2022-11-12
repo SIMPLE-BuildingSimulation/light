@@ -85,14 +85,14 @@ impl SolarModel {
                 if let Boundary::Space{..} = b {
                     // let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);                    
                     let temp = surface.first_node_temperature(state).unwrap_or_else(|| 22.);                    
-                    surface.set_front_ir_irradiance(state, ir(temp, 1.0));
+                    surface.set_front_ir_irradiance(state, ir(temp, 1.0))?;
                 } // else is ground... ignore
             } else {
                 // outdoor
                 let view_factors = &self.optical_info.front_surfaces_view_factors[index];
                 let ground_other = (view_factors.ground + view_factors.air) * ir(db, 1.0);
                 let sky = view_factors.sky * horizontal_ir;
-                surface.set_front_ir_irradiance(state, ground_other + sky);
+                surface.set_front_ir_irradiance(state, ground_other + sky)?;
             }
 
             // Deal with Back
@@ -100,14 +100,14 @@ impl SolarModel {
                 if let Boundary::Space {..} = b {
                     // let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);                    
                     let temp = surface.last_node_temperature(state).unwrap_or_else(|| 22.);                    
-                    surface.set_back_ir_irradiance(state, ir(temp, 1.0));
+                    surface.set_back_ir_irradiance(state, ir(temp, 1.0))?;
                 } // else is ground... ignore
             } else {
                 // outdoor
                 let view_factors = &self.optical_info.back_surfaces_view_factors[index];
                 let ground_other = (view_factors.ground + view_factors.air) * ir(db, 1.0);
                 let sky = view_factors.sky * horizontal_ir;
-                surface.set_back_ir_irradiance(state, ground_other + sky);
+                surface.set_back_ir_irradiance(state, ground_other + sky)?;
             }
         }
 
@@ -118,14 +118,14 @@ impl SolarModel {
                 if let Boundary::Space{..} = b {
                     // let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);                    
                     let temp = surface.first_node_temperature(state).unwrap_or_else(|| 22.);                    
-                    surface.set_front_ir_irradiance(state, ir(temp, 1.0));
+                    surface.set_front_ir_irradiance(state, ir(temp, 1.0))?;
                 } // else is ground... ignore
             } else {
                 // outdoor
                 let view_factors = &self.optical_info.front_fenestrations_view_factors[index];
                 let ground_other = (view_factors.ground + view_factors.air) * ir(db, 1.0);
                 let sky = view_factors.sky * horizontal_ir;
-                surface.set_front_ir_irradiance(state, ground_other + sky);
+                surface.set_front_ir_irradiance(state, ground_other + sky)?;
             }
 
             // Deal with Back
@@ -133,14 +133,14 @@ impl SolarModel {
                 if let Boundary::Space{..} = b {
                     // let temp = space.dry_bulb_temperature(state).unwrap_or_else(|| 22.);                    
                     let temp = surface.last_node_temperature(state).unwrap_or_else(|| 22.);                    
-                    surface.set_back_ir_irradiance(state, ir(temp, 1.0));
+                    surface.set_back_ir_irradiance(state, ir(temp, 1.0))?;
                 } // else is ground... ignore
             } else {
                 // outdoor
                 let view_factors = &self.optical_info.back_fenestrations_view_factors[index];
                 let ground_other = (view_factors.ground + view_factors.air) * ir(db, 1.0);
                 let sky = view_factors.sky * horizontal_ir;
-                surface.set_back_ir_irradiance(state, ground_other + sky);
+                surface.set_back_ir_irradiance(state, ground_other + sky)?;
             }
         }
 
@@ -153,7 +153,7 @@ impl SolarModel {
         weather_data: CurrentWeather,
         model: &SimpleModel,
         state: &mut SimulationState,
-    ) {
+    ) -> Result<(),String> {
         let direct_normal_irrad = weather_data
             .direct_normal_radiation
             .expect("Missing data for direct normal irradiance");
@@ -194,11 +194,11 @@ impl SolarModel {
                         v = 0.0
                     }
                     let old_v = s.front_incident_solar_irradiance(state).unwrap();
-                    s.set_front_incident_solar_irradiance(state, (v + old_v) / 2.);
+                    s.set_front_incident_solar_irradiance(state, (v + old_v) / 2.)?;
                 }
             } else {
                 for s in model.surfaces.iter() {
-                    s.set_front_incident_solar_irradiance(state, 0.0);
+                    s.set_front_incident_solar_irradiance(state, 0.0)?;
                 }
             }
         }
@@ -212,11 +212,11 @@ impl SolarModel {
                         v = 0.0
                     }
                     let old_v = s.back_incident_solar_irradiance(state).unwrap();
-                    s.set_back_incident_solar_irradiance(state, (v + old_v) / 2.);
+                    s.set_back_incident_solar_irradiance(state, (v + old_v) / 2.)?;
                 }
             } else {
                 for s in model.surfaces.iter() {
-                    s.set_front_incident_solar_irradiance(state, 0.0);
+                    s.set_front_incident_solar_irradiance(state, 0.0)?;
                 }
             }
         }
@@ -229,11 +229,11 @@ impl SolarModel {
                     // Average of the period
                     let v = solar_irradiance.get(i, 0).unwrap();
                     let old_v = s.front_incident_solar_irradiance(state).unwrap();
-                    s.set_front_incident_solar_irradiance(state, (v + old_v) / 2.);
+                    s.set_front_incident_solar_irradiance(state, (v + old_v) / 2.)?;
                 }
             } else {
                 for s in model.fenestrations.iter() {
-                    s.set_front_incident_solar_irradiance(state, 0.0);
+                    s.set_front_incident_solar_irradiance(state, 0.0)?;
                 }
             }
         }
@@ -244,14 +244,15 @@ impl SolarModel {
                     // Average of the period
                     let v = solar_irradiance.get(i, 0).unwrap();
                     let old_v = s.back_incident_solar_irradiance(state).unwrap();
-                    s.set_back_incident_solar_irradiance(state, (v + old_v) / 2.);
+                    s.set_back_incident_solar_irradiance(state, (v + old_v) / 2.)?;
                 }
             } else {
                 for s in model.fenestrations.iter() {
-                    s.set_front_incident_solar_irradiance(state, 0.0);
+                    s.set_front_incident_solar_irradiance(state, 0.0)?;
                 }
             }
         }
+        Ok(())
     }
 }
 
@@ -357,7 +358,7 @@ impl SimulationModel for SolarModel {
         let weather_data = weather.get_weather_data(date);
 
         self.update_ir_radiation(&weather_data, model, state)?;
-        self.update_solar_radiation(date, weather_data, model, state);
+        self.update_solar_radiation(date, weather_data, model, state)?;
 
         // return
         Ok(())

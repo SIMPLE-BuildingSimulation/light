@@ -69,20 +69,22 @@ pub struct OpticalInfo {
 }
 
 impl OpticalInfo {
-    /// Calculates the new OpticalInformation
+    /// Calculates the new OpticalInformation.
+    ///
+    /// This will trigger ray-tracing processes, so it might be slow.
     pub fn new(
         options: &SolarOptions,
         model: &SimpleModel,
         state: &mut SimulationStateHeader,
     ) -> Result<Self, String> {
         // Collect calculation options
-        let mf = *options.solar_sky_discretization().unwrap();
-        let n_solar_rays = *options.n_solar_irradiance_points().unwrap();
+        let mf = options.solar_sky_discretization_or(crate::model::MODULE_NAME, 1);
+        let n_solar_rays = options.n_solar_irradiance_points_or(crate::model::MODULE_NAME, 10);
 
         // Create Surfaces and Fenestrations
-        let surfaces = SolarSurface::make_surfaces(&model.surfaces, state, n_solar_rays);
+        let surfaces = SolarSurface::make_surfaces(&model.surfaces, state, n_solar_rays)?;
         let fenestrations =
-            SolarSurface::make_fenestrations(&model.fenestrations, state, n_solar_rays);
+            SolarSurface::make_fenestrations(&model.fenestrations, state, n_solar_rays)?;
 
         // build scene
         let mut solar_scene = Scene::from_simple_model(model, Wavelengths::Solar)?;
@@ -91,48 +93,48 @@ impl OpticalInfo {
         // calculator
         let solar_dc_factory = DCFactory {
             max_depth: 0,
-            n_ambient_samples: *options.solar_ambient_divitions().unwrap(),
+            n_ambient_samples: options.solar_ambient_divitions_or(crate::model::MODULE_NAME, 300),
             reinhart: ReinhartSky::new(mf),
             ..DCFactory::default()
         };
 
         // calculate
         let front_surfaces_dc =
-            SolarSurface::calc_solar_dc_matrix(&surfaces, &solar_scene, &solar_dc_factory, true);
+            SolarSurface::calc_solar_dc_matrix(&surfaces, &solar_scene, &solar_dc_factory, true)?;
 
         let back_surfaces_dc =
-            SolarSurface::calc_solar_dc_matrix(&surfaces, &solar_scene, &solar_dc_factory, false);
+            SolarSurface::calc_solar_dc_matrix(&surfaces, &solar_scene, &solar_dc_factory, false)?;
 
         let front_fenestrations_dc = SolarSurface::calc_solar_dc_matrix(
             &fenestrations,
             &solar_scene,
             &solar_dc_factory,
             true,
-        );
+        )?;
 
         let back_fenestrations_dc = SolarSurface::calc_solar_dc_matrix(
             &fenestrations,
             &solar_scene,
             &solar_dc_factory,
             false,
-        );
+        )?;
 
-        let front_surfaces_view_factors: Vec<IRViewFactorSet> = surfaces
-            .iter()
-            .map(|s| s.calc_view_factors(&solar_scene, true))
-            .collect();
-        let back_surfaces_view_factors: Vec<IRViewFactorSet> = surfaces
-            .iter()
-            .map(|s| s.calc_view_factors(&solar_scene, false))
-            .collect();
-        let front_fenestrations_view_factors: Vec<IRViewFactorSet> = fenestrations
-            .iter()
-            .map(|s| s.calc_view_factors(&solar_scene, true))
-            .collect();
-        let back_fenestrations_view_factors: Vec<IRViewFactorSet> = fenestrations
-            .iter()
-            .map(|s| s.calc_view_factors(&solar_scene, false))
-            .collect();
+        let mut front_surfaces_view_factors = Vec::with_capacity(surfaces.len());
+        for s in surfaces.iter() {
+            front_surfaces_view_factors.push(s.calc_view_factors(&solar_scene, true)?)
+        }
+        let mut back_surfaces_view_factors = Vec::with_capacity(surfaces.len());
+        for s in surfaces {
+            back_surfaces_view_factors.push(s.calc_view_factors(&solar_scene, false)?)
+        }
+        let mut front_fenestrations_view_factors = Vec::with_capacity(fenestrations.len());
+        for s in fenestrations.iter() {
+            front_fenestrations_view_factors.push(s.calc_view_factors(&solar_scene, true)?);
+        }
+        let mut back_fenestrations_view_factors = Vec::with_capacity(fenestrations.len());
+        for s in fenestrations.iter() {
+            back_fenestrations_view_factors.push(s.calc_view_factors(&solar_scene, false)?)
+        }
 
         Ok(Self {
             front_surfaces_view_factors,
@@ -144,5 +146,201 @@ impl OpticalInfo {
             front_fenestrations_dc,
             back_fenestrations_dc,
         })
+    }
+}
+
+#[cfg(test)]
+mod testing {
+
+    use json5;
+    use simple_model::{
+        substance::Normal, Boundary, Construction, Fenestration, Material, SimpleModel,
+        SimulationStateHeader, SolarOptions, Surface,
+    };
+
+    use crate::OpticalInfo;
+
+    #[test]
+    fn test_new() {
+        // check that surfaces that do not receive sun are ignored
+        let mut model = SimpleModel::default();
+        let mut state = SimulationStateHeader::new();
+        let mut options = SolarOptions::new();
+        options.set_n_solar_irradiance_points(1);
+        options.set_solar_ambient_divitions(1);
+        options.set_solar_sky_discretization(1);
+
+        let substance = Normal::new("the substance");
+        model.add_substance(substance.wrap());
+
+        let material = Material::new("the material", "the substance", 0.1);
+        model.add_material(material);
+
+        let mut construction = Construction::new("the construction");
+        construction.materials.push("the material".into());
+        model.add_construction(construction);
+
+        let s: Surface = json5::from_str(
+            "{
+            name: 'the surface',
+            construction:'the construction',
+            vertices: [
+                0, 0, 0, // X, Y and Z of Vertex 0
+                1, 0, 0, // X, Y and Z of Vertex 1
+                1, 1, 0, // X, Y and Z of Vertex 2
+                0, 1, 0  // ...
+            ]
+         }",
+        )
+        .unwrap();
+        model.add_surface(s);
+
+        let s: Surface = json5::from_str(
+            "{
+            name: 'the surface 2',
+            construction:'the construction',
+            vertices: [
+                0, 0, 0, // X, Y and Z of Vertex 0
+                1, 0, 0, // X, Y and Z of Vertex 1
+                1, 1, 0, // X, Y and Z of Vertex 2
+                0, 1, 0  // ...
+            ]
+         }",
+        )
+        .unwrap();
+        model.add_surface(s);
+
+        let fen: Fenestration = json5::from_str(
+            "{
+            name: 'Window 1',
+            construction: 'the construction',
+            vertices: [
+                0.548000,0,2.5000,  // X,Y,Z ==> Vertex 1 {m}
+                0.548000,0,0.5000,  // X,Y,Z ==> Vertex 2 {m}
+                5.548000,0,0.5000,  // X,Y,Z ==> Vertex 3 {m}
+                5.548000,0,2.5000,   // X,Y,Z ==> Vertex 4 {m}
+            ]
+        }",
+        )
+        .unwrap();
+        model.add_fenestration(fen).unwrap();
+
+        let fen: Fenestration = json5::from_str(
+            "{
+            name: 'Window 2',
+            construction: 'the construction',
+            vertices: [
+                0.548000,0,2.5000,  // X,Y,Z ==> Vertex 1 {m}
+                0.548000,0,0.5000,  // X,Y,Z ==> Vertex 2 {m}
+                5.548000,0,0.5000,  // X,Y,Z ==> Vertex 3 {m}
+                5.548000,0,2.5000,   // X,Y,Z ==> Vertex 4 {m}
+            ]
+        }",
+        )
+        .unwrap();
+        model.add_fenestration(fen).unwrap();
+
+        let info = OpticalInfo::new(&options, &model, &mut state).unwrap();
+        assert_eq!(info.back_fenestrations_dc.size(), (2, 146)); // 2 fenestrations, 146 patches
+        assert_eq!(info.front_fenestrations_dc.size(), (2, 146)); // 2 fenestrations, 146 patches
+        assert_eq!(info.back_surfaces_dc.size(), (2, 146)); // 2 fenestrations, 146 patches
+        assert_eq!(info.front_surfaces_dc.size(), (2, 146)); // 2 fenestrations, 146 patches
+        assert_eq!(info.front_surfaces_view_factors.len(), 2);
+        assert_eq!(info.back_surfaces_view_factors.len(), 2);
+        assert_eq!(info.front_fenestrations_view_factors.len(), 2);
+        assert_eq!(info.back_fenestrations_view_factors.len(), 2);
+    }
+
+    #[test]
+    fn test_ignore_no_sun() {
+        // check that surfaces that do not receive sun are ignored
+        let mut model = SimpleModel::default();
+        let mut state = SimulationStateHeader::new();
+        let mut options = SolarOptions::new();
+        options.set_n_solar_irradiance_points(1);
+        options.set_solar_ambient_divitions(1);
+        options.set_solar_sky_discretization(1);
+
+        let substance = Normal::new("the substance");
+        model.add_substance(substance.wrap());
+
+        let material = Material::new("the material", "the substance", 0.1);
+        model.add_material(material);
+
+        let mut construction = Construction::new("the construction");
+        construction.materials.push("the material".into());
+        model.add_construction(construction);
+
+        let mut s: Surface = json5::from_str(
+            "{
+            name: 'the surface',
+            construction:'the construction',
+            vertices: [
+                0, 0, 0, // X, Y and Z of Vertex 0
+                1, 0, 0, // X, Y and Z of Vertex 1
+                1, 1, 0, // X, Y and Z of Vertex 2
+                0, 1, 0  // ...
+            ]
+         }",
+        )
+        .unwrap();
+        s.set_front_boundary(Boundary::AmbientTemperature { temperature: 2. });
+        model.add_surface(s);
+
+        let s: Surface = json5::from_str(
+            "{
+            name: 'the surface 2',
+            construction:'the construction',
+            vertices: [
+                0, 0, 0, // X, Y and Z of Vertex 0
+                1, 0, 0, // X, Y and Z of Vertex 1
+                1, 1, 0, // X, Y and Z of Vertex 2
+                0, 1, 0  // ...
+            ]
+         }",
+        )
+        .unwrap();
+        model.add_surface(s);
+
+        let fen: Fenestration = json5::from_str(
+            "{
+            name: 'Window 1',
+            construction: 'the construction',
+            vertices: [
+                0.548000,0,2.5000,  // X,Y,Z ==> Vertex 1 {m}
+                0.548000,0,0.5000,  // X,Y,Z ==> Vertex 2 {m}
+                5.548000,0,0.5000,  // X,Y,Z ==> Vertex 3 {m}
+                5.548000,0,2.5000,   // X,Y,Z ==> Vertex 4 {m}
+            ]
+        }",
+        )
+        .unwrap();
+        model.add_fenestration(fen).unwrap();
+
+        let mut fen: Fenestration = json5::from_str(
+            "{
+            name: 'Window 2',
+            construction: 'the construction',
+            vertices: [
+                0.548000,0,2.5000,  // X,Y,Z ==> Vertex 1 {m}
+                0.548000,0,0.5000,  // X,Y,Z ==> Vertex 2 {m}
+                5.548000,0,0.5000,  // X,Y,Z ==> Vertex 3 {m}
+                5.548000,0,2.5000,   // X,Y,Z ==> Vertex 4 {m}
+            ]
+        }",
+        )
+        .unwrap();
+        fen.set_back_boundary(Boundary::AmbientTemperature { temperature: 2. });
+        model.add_fenestration(fen).unwrap();
+
+        let info = OpticalInfo::new(&options, &model, &mut state).unwrap();
+        assert_eq!(info.back_fenestrations_dc.size(), (1, 146)); // 1 fenestration has no solar radiation at the back
+        assert_eq!(info.front_fenestrations_dc.size(), (2, 146)); // 2 fenestrations, 146 patches
+        assert_eq!(info.back_surfaces_dc.size(), (2, 146)); // 2 fenestrations, 146 patches
+        assert_eq!(info.front_surfaces_dc.size(), (1, 146)); // // 1 surface has no solar radiation at the front
+        assert_eq!(info.front_surfaces_view_factors.len(), 2);
+        assert_eq!(info.back_surfaces_view_factors.len(), 2);
+        assert_eq!(info.front_fenestrations_view_factors.len(), 2);
+        assert_eq!(info.back_fenestrations_view_factors.len(), 2);
     }
 }

@@ -36,7 +36,6 @@ fn main() {
     let args = Inputs::parse();
 
     let input_file = args.input;
-    // let _weather_file = "asd"; //matches.value_of("weather").unwrap();
 
     let mut scene = if input_file.ends_with(".rad") {
         Scene::from_radiance(input_file)

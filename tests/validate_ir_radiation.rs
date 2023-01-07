@@ -122,7 +122,7 @@ fn get_simple_results(city: &str, orientation_str: &str) -> (Vec<f64>, Vec<f64>)
 
         // March
         solar_model
-            .march(date, &weather, &simple_model, &mut state)
+            .march(date, &weather, &simple_model, &mut state,&mut ())
             .unwrap();
 
         let front_radiation = surface.front_ir_irradiance(&state).unwrap();

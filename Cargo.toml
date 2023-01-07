@@ -10,7 +10,8 @@ edition = "2021"
 calendar = { git = "https://github.com/SIMPLE-BuildingSimulation/calendar.git" }
 weather = { git = "https://github.com/SIMPLE-BuildingSimulation/weather.git" }
 simple_model = { git = "https://github.com/SIMPLE-BuildingSimulation/simple_model.git" }
-communication_protocols = { git = "https://github.com/SIMPLE-BuildingSimulation/communication_protocols.git" }
+# communication_protocols = { git = "https://github.com/SIMPLE-BuildingSimulation/communication_protocols.git" }
+communication_protocols = {path="../communication_protocols"}
 solar = { git = "https://github.com/SIMPLE-BuildingSimulation/solar.git" }
 rendering = { git = "https://github.com/SIMPLE-BuildingSimulation/rendering.git" }
 matrix = { git = "https://github.com/SIMPLE-BuildingSimulation/matrix.git" }
@@ -47,7 +48,7 @@ default = []
 parallel = [
     "rayon",
     "rendering/parallel",
-    "matrix/parallel",
+    # "matrix/parallel",
     "geometry3d/parallel",
 ]
 float = [

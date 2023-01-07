@@ -97,7 +97,7 @@ fn get_simple_results(
 
         // March
         solar_model
-            .march(date, &weather, &simple_model, &mut state)
+            .march(date, &weather, &simple_model, &mut state, &mut ())
             .unwrap();
 
         let front_radiation = surface.front_incident_solar_irradiance(&state).unwrap();

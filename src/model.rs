@@ -34,6 +34,9 @@ use crate::optical_info::OpticalInfo;
 /// The name of the module
 pub(crate)const MODULE_NAME : &'static str = "Solar Model";
 
+/// The memory used by this module during simulation
+pub type SolarModelMemory = ();
+
 /// The main model
 pub struct SolarModel {
     // /// The scene that makes up this model from a lighting point of view.
@@ -95,7 +98,7 @@ impl SolarModel {
                         // It depends on the ambient tempearture
                         surface.set_front_ir_irradiance(state, ir(*temperature, 1.0))?;
                     }
-                    _ => {
+                    Boundary::Ground => {
                         // ignore ground
                     }
                 }
@@ -118,7 +121,7 @@ impl SolarModel {
                     Boundary::AmbientTemperature { temperature } => {                        
                         surface.set_back_ir_irradiance(state, ir(*temperature, 1.0))?;
                     }
-                    _ => {
+                    Boundary::Ground => {
                         // ignore ground
                     }
                 }
@@ -144,7 +147,7 @@ impl SolarModel {
                     Boundary::AmbientTemperature { temperature } => {
                         surface.set_front_ir_irradiance(state, ir(*temperature, 1.0))?;
                     }
-                    _ => {}
+                    Boundary::Ground => {}
                 }
             } else {
                 // outdoor
@@ -165,7 +168,7 @@ impl SolarModel {
                     Boundary::AmbientTemperature { temperature } => {
                         surface.set_back_ir_irradiance(state, ir(*temperature, 1.0))?;
                     }
-                    _ => {}
+                    Boundary::Ground => {}
 
                 }
             } else {
@@ -315,15 +318,21 @@ impl ErrorHandling for SolarModel {
 }
 
 impl SimulationModel for SolarModel {
-    type Type = Self;
+    type OutputType = Self;
     type OptionType = SolarOptions;
+    type AllocType = SolarModelMemory;
+
+    fn allocate_memory(&self)->Result<Self::AllocType, String>{
+        Ok(())
+    }
+
     fn new<M: Borrow<SimpleModel>>(
         meta_options: &MetaOptions,
         options: SolarOptions,
         model: M,
         state: &mut SimulationStateHeader,
         _n: usize,
-    ) -> Result<Self::Type, String> {
+    ) -> Result<Self::OutputType, String> {
         let model = model.borrow();
         // Make OpticalInfo, or read, as needed
         let optical_info = if let Ok(path_str) = options.optical_data_path() {
@@ -410,6 +419,7 @@ impl SimulationModel for SolarModel {
         weather: &W,
         model: M,
         state: &mut SimulationState,
+        _alloc: &mut SolarModelMemory,
     ) -> Result<(), String> {
         let model = model.borrow();
         // Handle the solar part
@@ -418,10 +428,8 @@ impl SimulationModel for SolarModel {
 
         self.update_ir_radiation(&weather_data, model, state)?;
         self.update_solar_radiation(date, weather_data, model, state)?;
-
-        // return
-        Ok(())
-        // unimplemented!()
+        
+        Ok(())        
     }
 }
 
@@ -591,6 +599,7 @@ mod testing {
             &weather,
             &model,
             &mut state,
+            &mut (),
         ).unwrap();
 
         // This surface should receive NO sun at the front but yes at the back

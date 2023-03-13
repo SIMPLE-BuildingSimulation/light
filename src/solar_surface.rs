@@ -25,7 +25,9 @@ use crate::Float;
 use matrix::Matrix;
 use rendering::{colour_matrix::*, DCFactory, Ray, Scene};
 
-use simple_model::{Fenestration, SimulationStateElement, SimulationStateHeader, Surface, Boundary};
+use simple_model::{
+    Boundary, Fenestration, SimulationStateElement, SimulationStateHeader, Surface,
+};
 
 use geometry3d::{Point3D, Polygon3D, Ray3D, Triangulation3D, Vector3D};
 use rendering::primitive_samplers::sample_triangle_surface;
@@ -58,7 +60,7 @@ pub struct SolarSurface {
     points: Vec<Point3D>,
     pub normal: Vector3D,
     pub receives_sun_front: bool,
-    pub receives_sun_back: bool,    
+    pub receives_sun_back: bool,
 }
 
 impl SolarSurface {
@@ -66,13 +68,17 @@ impl SolarSurface {
     const DELTA: Float = 0.001;
 
     /// Creates a new Solar Surface
-    pub fn new(nrays: usize, polygon: &Polygon3D, receives_sun_front: bool, receives_sun_back: bool) -> Result<Self, String> {
+    pub fn new(
+        nrays: usize,
+        polygon: &Polygon3D,
+        receives_sun_front: bool,
+        receives_sun_back: bool,
+    ) -> Result<Self, String> {
         // Get polygon
         let normal = polygon.normal();
 
         // Triangulate the polygon
-        let triangles = Triangulation3D::from_polygon(polygon)?            
-            .get_trilist();
+        let triangles = Triangulation3D::from_polygon(polygon)?.get_trilist();
         let triangles_areas: Vec<Float> = triangles.iter().map(|t| t.area()).collect();
 
         // Build a triangle sampler
@@ -98,13 +104,9 @@ impl SolarSurface {
         })
     }
 
-    pub(crate)fn boundary_receives_sun(boundary: Result<&Boundary, String>)->bool{
-        match boundary {
-            Ok(b)=>{
-                !matches!(b, Boundary::AmbientTemperature{..} | Boundary::Ground)
-            },
-            Err(_)=>true,// outdoor
-        }
+    /// Receives sun if the boundary is either Space or Outdoor    
+    pub(crate) fn boundary_receives_sun(boundary: &Boundary) -> bool {
+        matches!(boundary, Boundary::Space { .. } | Boundary::Outdoor)
     }
 
     /// Receives a list of `SolarSurface` objects as well as the `Scene` containing them and
@@ -120,16 +122,16 @@ impl SolarSurface {
         if list.is_empty() {
             return Ok(Matrix::empty());
         }
-        
+
         let mut dcs: Vec<Matrix> = Vec::with_capacity(list.len());
-        
-        for s in list.iter(){
+
+        for s in list.iter() {
             // Skip front ones that do not receive front sun
-            if front_side && !s.receives_sun_front{
+            if front_side && !s.receives_sun_front {
                 continue;
             }
             // Skip back ones that do not receive back side.
-            if !front_side && !s.receives_sun_back{
+            if !front_side && !s.receives_sun_back {
                 continue;
             }
             let rays = if front_side {
@@ -139,9 +141,9 @@ impl SolarSurface {
             };
             dcs.push(s.solar_irradiance(&rays, scene, dc_factory))
         }
-        if dcs.is_empty(){
+        if dcs.is_empty() {
             Ok(Matrix::empty())
-        }else{
+        } else {
             let mut ret = dcs[0].clone();
             for dc in dcs.iter().skip(1) {
                 ret.concat_rows(dc)?;
@@ -158,43 +160,47 @@ impl SolarSurface {
         state: &mut SimulationStateHeader,
         n_rays: usize,
     ) -> Result<Vec<SolarSurface>, String> {
-        let mut ret : Vec<SolarSurface> = Vec::with_capacity(list.len());
-        for (i, s) in list.iter().enumerate(){
-                if s.front_incident_solar_irradiance_index().is_none() {
-                    let i = state.push(
-                        SimulationStateElement::FenestrationFrontSolarIrradiance(i),
-                        0.0,
-                    )?;
-                    s.set_front_incident_solar_irradiance_index(i)?;
-                }
-
-                if s.back_incident_solar_irradiance_index().is_none() {
-                    let i = state.push(
-                        SimulationStateElement::FenestrationBackSolarIrradiance(i),
-                        0.0,
-                    )?;
-                    s.set_back_incident_solar_irradiance_index(i)?;
-                }
-
-                if s.front_ir_irradiance_index().is_none() {
-                    let i = state.push(
-                        SimulationStateElement::FenestrationFrontIRIrradiance(i),
-                        0.0,
-                    )?;
-                    s.set_front_ir_irradiance_index(i)?;
-                }
-
-                if s.back_ir_irradiance_index().is_none() {
-                    let i =
-                        state.push(SimulationStateElement::FenestrationBackIRIrradiance(i), 0.0)?;
-                    s.set_back_ir_irradiance_index(i)?;
-                }
-                
-                let receives_sun_front = Self::boundary_receives_sun(s.front_boundary());
-                let receives_sun_back = Self::boundary_receives_sun(s.back_boundary());
-
-                ret.push(SolarSurface::new(n_rays, &s.vertices, receives_sun_front, receives_sun_back)?)
+        let mut ret: Vec<SolarSurface> = Vec::with_capacity(list.len());
+        for (i, s) in list.iter().enumerate() {
+            if s.front_incident_solar_irradiance_index().is_none() {
+                let i = state.push(
+                    SimulationStateElement::FenestrationFrontSolarIrradiance(i),
+                    0.0,
+                )?;
+                s.set_front_incident_solar_irradiance_index(i)?;
             }
+
+            if s.back_incident_solar_irradiance_index().is_none() {
+                let i = state.push(
+                    SimulationStateElement::FenestrationBackSolarIrradiance(i),
+                    0.0,
+                )?;
+                s.set_back_incident_solar_irradiance_index(i)?;
+            }
+
+            if s.front_ir_irradiance_index().is_none() {
+                let i = state.push(
+                    SimulationStateElement::FenestrationFrontIRIrradiance(i),
+                    0.0,
+                )?;
+                s.set_front_ir_irradiance_index(i)?;
+            }
+
+            if s.back_ir_irradiance_index().is_none() {
+                let i = state.push(SimulationStateElement::FenestrationBackIRIrradiance(i), 0.0)?;
+                s.set_back_ir_irradiance_index(i)?;
+            }
+
+            let receives_sun_front = Self::boundary_receives_sun(&s.front_boundary);
+            let receives_sun_back = Self::boundary_receives_sun(&s.back_boundary);
+
+            ret.push(SolarSurface::new(
+                n_rays,
+                &s.vertices,
+                receives_sun_front,
+                receives_sun_back,
+            )?)
+        }
 
         Ok(ret)
     }
@@ -207,7 +213,7 @@ impl SolarSurface {
         state: &mut SimulationStateHeader,
         n_rays: usize,
     ) -> Result<Vec<SolarSurface>, String> {
-        let mut ret : Vec<SolarSurface> = Vec::with_capacity(list.len());
+        let mut ret: Vec<SolarSurface> = Vec::with_capacity(list.len());
 
         for (i, s) in list.iter().enumerate() {
             if s.front_incident_solar_irradiance_index().is_none() {
@@ -230,11 +236,16 @@ impl SolarSurface {
                 s.set_back_ir_irradiance_index(i)?;
             }
 
-            let receives_sun_front = Self::boundary_receives_sun(s.front_boundary());
-            let receives_sun_back = Self::boundary_receives_sun(s.back_boundary());
+            let receives_sun_front = Self::boundary_receives_sun(&s.front_boundary);
+            let receives_sun_back = Self::boundary_receives_sun(&s.back_boundary);
 
             // create
-            ret.push(SolarSurface::new(n_rays, &s.vertices, receives_sun_front, receives_sun_back)?)
+            ret.push(SolarSurface::new(
+                n_rays,
+                &s.vertices,
+                receives_sun_front,
+                receives_sun_back,
+            )?)
         }
 
         Ok(ret)
@@ -271,7 +282,11 @@ impl SolarSurface {
     }
 
     /// Calculates an [`IRViewFactorSet`] for this surface
-    pub fn calc_view_factors(&self, scene: &Scene, front_side: bool) -> Result<IRViewFactorSet,String> {
+    pub fn calc_view_factors(
+        &self,
+        scene: &Scene,
+        front_side: bool,
+    ) -> Result<IRViewFactorSet, String> {
         let mut rng = rendering::rand::get_rng();
 
         let rays = if front_side {
@@ -386,9 +401,9 @@ mod testing {
     }
 
     #[test]
-    fn test_new_boundary_fenestrations(){
+    fn test_new_boundary_fenestrations() {
         // Check that the receives_sun is properly assigned
-        
+
         // create geometry... they will all have this same one.
         let mut outer = Loop3D::new();
         outer.push(Point3D::new(0., 0., 0.)).unwrap();
@@ -399,45 +414,77 @@ mod testing {
 
         // state header
         let mut state = SimulationStateHeader::new();
-        
+
         // container
         let mut list = Vec::with_capacity(6);
 
         // Fen 0: outdoor on front and back
-        let fen = Fenestration::new("some fen", poly.clone(), "some construction");
+        let fen = Fenestration::new(
+            "some fen",
+            poly.clone(),
+            "some construction",
+            Boundary::Outdoor,
+            Boundary::Outdoor,
+        );
         list.push(Rc::new(fen));
 
         // Fen 1: outdoor on front, space at the back
-        let mut fen = Fenestration::new("some fen", poly.clone(), "some construction");
-        fen.set_back_boundary(Boundary::Space { space: "some space".into() });
+        let fen = Fenestration::new(
+            "some fen",
+            poly.clone(),
+            "some construction",
+            Boundary::Outdoor,
+            Boundary::Space {
+                space: "some space".into(),
+            },
+        );
         list.push(Rc::new(fen));
 
         // Fen 2: outdoor on back, space at the front
-        let mut fen = Fenestration::new("some fen", poly.clone(), "some construction");
-        fen.set_front_boundary(Boundary::Space { space: "some space".into() });
+        let fen = Fenestration::new(
+            "some fen",
+            poly.clone(),
+            "some construction",
+            Boundary::Space {
+                space: "some space".into(),
+            },
+            Boundary::Outdoor,
+        );
         list.push(Rc::new(fen));
 
         // Fen 3: Ambient Temp at the back, space at the front
-        let mut fen = Fenestration::new("some fen", poly.clone(), "some construction");
-        fen.set_front_boundary(Boundary::Space { space: "some space".into() });
-        fen.set_back_boundary(Boundary::AmbientTemperature { temperature: 1. });
+        let fen = Fenestration::new(
+            "some fen",
+            poly.clone(),
+            "some construction",
+            Boundary::Space {
+                space: "some space".into(),
+            },
+            Boundary::AmbientTemperature { temperature: 1. },
+        );
         list.push(Rc::new(fen));
 
-
         // Fen 4: Ambient Temp at the back and front
-        let mut fen = Fenestration::new("some fen", poly.clone(), "some construction");
-        fen.set_front_boundary(Boundary::AmbientTemperature { temperature: 1. });
-        fen.set_back_boundary(Boundary::AmbientTemperature { temperature: 1. });
+        let fen = Fenestration::new(
+            "some fen",
+            poly.clone(),
+            "some construction",
+            Boundary::AmbientTemperature { temperature: 1. },
+            Boundary::AmbientTemperature { temperature: 1. },
+        );
         list.push(Rc::new(fen));
 
         // Fen 5: Ground at the back and front
-        let mut fen = Fenestration::new("some fen", poly.clone(), "some construction");
-        fen.set_front_boundary(Boundary::Ground);
-        fen.set_back_boundary(Boundary::Ground);
+        let fen = Fenestration::new(
+            "some fen",
+            poly.clone(),
+            "some construction",
+            Boundary::Ground,
+            Boundary::Ground,
+        );
+
         list.push(Rc::new(fen));
 
-
-        
         // Calc
         let fens = SolarSurface::make_fenestrations(&list, &mut state, 1).unwrap();
 
@@ -453,23 +500,18 @@ mod testing {
 
         assert!(!fens[3].receives_sun_back);
         assert!(fens[3].receives_sun_front);
-        
+
         assert!(!fens[4].receives_sun_back);
         assert!(!fens[4].receives_sun_front);
 
         assert!(!fens[5].receives_sun_back);
         assert!(!fens[5].receives_sun_front);
-
-
-        
-        
     }
 
-
     #[test]
-    fn test_new_boundary_surfaces(){
+    fn test_new_boundary_surfaces() {
         // Check that the receives_sun is properly assigned
-        
+
         // create geometry... they will all have this same one.
         let mut outer = Loop3D::new();
         outer.push(Point3D::new(0., 0., 0.)).unwrap();
@@ -480,45 +522,79 @@ mod testing {
 
         // state header
         let mut state = SimulationStateHeader::new();
-        
+
         // container
         let mut list = Vec::with_capacity(6);
 
         // Fen 0: outdoor on front and back
-        let fen = Surface::new("some fen", poly.clone(), "some construction");
+        let fen = Surface::new(
+            "some fen",
+            poly.clone(),
+            "some construction",
+            Boundary::Outdoor,
+            Boundary::Outdoor,
+        );
         list.push(Rc::new(fen));
 
         // Fen 1: outdoor on front, space at the back
-        let mut fen = Surface::new("some fen", poly.clone(), "some construction");
-        fen.set_back_boundary(Boundary::Space { space: "some space".into() });
+        let fen = Surface::new(
+            "some fen",
+            poly.clone(),
+            "some construction",
+            Boundary::Outdoor,
+            Boundary::Space {
+                space: "some space".into(),
+            },
+        );
         list.push(Rc::new(fen));
 
         // Fen 2: outdoor on back, space at the front
-        let mut fen = Surface::new("some fen", poly.clone(), "some construction");
-        fen.set_front_boundary(Boundary::Space { space: "some space".into() });
+        let fen = Surface::new(
+            "some fen",
+            poly.clone(),
+            "some construction",
+            Boundary::Space {
+                space: "some space".into(),
+            },
+            Boundary::Outdoor,
+        );
+
         list.push(Rc::new(fen));
 
         // Fen 3: Ambient Temp at the back, space at the front
-        let mut fen = Surface::new("some fen", poly.clone(), "some construction");
-        fen.set_front_boundary(Boundary::Space { space: "some space".into() });
-        fen.set_back_boundary(Boundary::AmbientTemperature { temperature: 1. });
+        let fen = Surface::new(
+            "some fen",
+            poly.clone(),
+            "some construction",
+            Boundary::Space {
+                space: "some space".into(),
+            },
+            Boundary::AmbientTemperature { temperature: 1. },
+        );
+
         list.push(Rc::new(fen));
 
-
         // Fen 4: Ambient Temp at the back and front
-        let mut fen = Surface::new("some fen", poly.clone(), "some construction");
-        fen.set_front_boundary(Boundary::AmbientTemperature { temperature: 1. });
-        fen.set_back_boundary(Boundary::AmbientTemperature { temperature: 1. });
+        let fen = Surface::new(
+            "some fen",
+            poly.clone(),
+            "some construction",
+            Boundary::AmbientTemperature { temperature: 1. },
+            Boundary::AmbientTemperature { temperature: 1. },
+        );
         list.push(Rc::new(fen));
 
         // Fen 5: Ground at the back and front
-        let mut fen = Surface::new("some fen", poly.clone(), "some construction");
-        fen.set_front_boundary(Boundary::Ground);
-        fen.set_back_boundary(Boundary::Ground);
+        let fen = Surface::new(
+            "some fen",
+            poly.clone(),
+            "some construction",
+            Boundary::Ground,
+            Boundary::Ground,
+        );
+
         list.push(Rc::new(fen));
 
-
-        
         // Calc
         let fens = SolarSurface::make_surfaces(&list, &mut state, 1).unwrap();
 
@@ -534,17 +610,25 @@ mod testing {
 
         assert!(!fens[3].receives_sun_back);
         assert!(fens[3].receives_sun_front);
-        
+
         assert!(!fens[4].receives_sun_back);
         assert!(!fens[4].receives_sun_front);
 
         assert!(!fens[5].receives_sun_back);
         assert!(!fens[5].receives_sun_front);
-
-
-        
-        
     }
 
-    
+    #[test]
+    fn test_boundary_receives_sun() {
+        // This should not receive
+        assert!(!SolarSurface::boundary_receives_sun(&Boundary::Ground));
+        assert!(!SolarSurface::boundary_receives_sun(&Boundary::AmbientTemperature {
+            temperature: 12.
+        }));
+        // These do receive
+        assert!(SolarSurface::boundary_receives_sun(&Boundary::Outdoor));
+        assert!(SolarSurface::boundary_receives_sun(&Boundary::Space {
+            space: "the space".to_string()
+        }));
+    }
 }

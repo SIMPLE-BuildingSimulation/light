@@ -154,7 +154,7 @@ mod testing {
 
     use json5;
     use simple_model::{
-        substance::Normal, Boundary, Construction, Fenestration, Material, SimpleModel,
+        substance::Normal,  Construction, Fenestration, Material, SimpleModel,
         SimulationStateHeader, SolarOptions, Surface,
     };
 
@@ -271,7 +271,7 @@ mod testing {
         construction.materials.push("the material".into());
         model.add_construction(construction);
 
-        let mut s: Surface = json5::from_str(
+        let s: Surface = json5::from_str(
             "{
             name: 'the surface',
             construction:'the construction',
@@ -280,11 +280,14 @@ mod testing {
                 1, 0, 0, // X, Y and Z of Vertex 1
                 1, 1, 0, // X, Y and Z of Vertex 2
                 0, 1, 0  // ...
-            ]
+            ],
+            front_boundary: {
+                type: 'AmbientTemperature',
+                temperature: 2.0,
+            }
          }",
         )
-        .unwrap();
-        s.set_front_boundary(Boundary::AmbientTemperature { temperature: 2. });
+        .unwrap();        
         model.add_surface(s);
 
         let s: Surface = json5::from_str(
@@ -317,7 +320,7 @@ mod testing {
         .unwrap();
         model.add_fenestration(fen).unwrap();
 
-        let mut fen: Fenestration = json5::from_str(
+        let fen: Fenestration = json5::from_str(
             "{
             name: 'Window 2',
             construction: 'the construction',
@@ -326,11 +329,14 @@ mod testing {
                 0.548000,0,0.5000,  // X,Y,Z ==> Vertex 2 {m}
                 5.548000,0,0.5000,  // X,Y,Z ==> Vertex 3 {m}
                 5.548000,0,2.5000,   // X,Y,Z ==> Vertex 4 {m}
-            ]
+            ],
+            back_boundary: {
+                type: 'AmbientTemperature',
+                temperature: 2.0
+            }
         }",
         )
-        .unwrap();
-        fen.set_back_boundary(Boundary::AmbientTemperature { temperature: 2. });
+        .unwrap();        
         model.add_fenestration(fen).unwrap();
 
         let info = OpticalInfo::new(&options, &model, &mut state).unwrap();

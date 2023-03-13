@@ -87,39 +87,30 @@ impl SolarModel {
 
         for (index, surface) in iter {
             // Deal with front
-            if let Ok(b) = surface.front_boundary() {
-                match b {
-                    Boundary::Space { .. } => {
-                        // Zero net IR exchange
-                        let temp = surface.first_node_temperature(state).unwrap_or(22.);
-                        surface.set_front_ir_irradiance(state, ir(temp, 1.0))?;
-                    }
-                    Boundary::AmbientTemperature { temperature } => {
-                        // It depends on the ambient tempearture
-                        surface.set_front_ir_irradiance(state, ir(*temperature, 1.0))?;
-                    }
-                    Boundary::Ground => {
-                        // ignore ground
-                    }
-                    Boundary::Outdoor => {
-                        // outdoor
-                        let view_factors = &self.optical_info.front_surfaces_view_factors[index];
-                        let ground_other = (view_factors.ground + view_factors.air) * ir(db, 1.0);
-                        let sky = view_factors.sky * horizontal_ir;
-                        surface.set_front_ir_irradiance(state, ground_other + sky)?;
-                    }
+            match &surface.front_boundary {
+                Boundary::Space { .. } => {
+                    // Zero net IR exchange
+                    let temp = surface.first_node_temperature(state).unwrap_or(22.);
+                    surface.set_front_ir_irradiance(state, ir(temp, 1.0))?;
                 }
-            } else {
-                // outdoor
-                let view_factors = &self.optical_info.front_surfaces_view_factors[index];
-                let ground_other = (view_factors.ground + view_factors.air) * ir(db, 1.0);
-                let sky = view_factors.sky * horizontal_ir;
-                surface.set_front_ir_irradiance(state, ground_other + sky)?;
+                Boundary::AmbientTemperature { temperature } => {
+                    // It depends on the ambient tempearture
+                    surface.set_front_ir_irradiance(state, ir(*temperature, 1.0))?;
+                }
+                Boundary::Ground => {
+                    // ignore ground
+                }
+                Boundary::Outdoor => {
+                    // outdoor
+                    let view_factors = &self.optical_info.front_surfaces_view_factors[index];
+                    let ground_other = (view_factors.ground + view_factors.air) * ir(db, 1.0);
+                    let sky = view_factors.sky * horizontal_ir;
+                    surface.set_front_ir_irradiance(state, ground_other + sky)?;
+                }
             }
 
             // Deal with Back
-            if let Ok(b) = surface.back_boundary() {
-                match b {
+            match &surface.back_boundary {
                     Boundary::Space { .. } => {
                         // Zero net IR exchange
                         let temp = surface.last_node_temperature(state).unwrap_or(22.);
@@ -139,72 +130,49 @@ impl SolarModel {
                         surface.set_back_ir_irradiance(state, ground_other + sky)?;
                     }
                 }
-            } else {
-                // outdoor
-                let view_factors = &self.optical_info.back_surfaces_view_factors[index];
-                let ground_other = (view_factors.ground + view_factors.air) * ir(db, 1.0);
-                let sky = view_factors.sky * horizontal_ir;
-                surface.set_back_ir_irradiance(state, ground_other + sky)?;
-            }
         }
 
         let iter = model.fenestrations.iter().enumerate();
         for (index, surface) in iter {
             // Deal with front
-            if let Ok(b) = surface.front_boundary() {
-                match b {
-                    Boundary::Space { .. } => {
-                        // Zero net IR exchange
-                        let temp = surface.first_node_temperature(state).unwrap_or(22.);
-                        surface.set_front_ir_irradiance(state, ir(temp, 1.0))?;
-                    }
-                    Boundary::AmbientTemperature { temperature } => {
-                        surface.set_front_ir_irradiance(state, ir(*temperature, 1.0))?;
-                    }
-                    Boundary::Ground => {}
-                    Boundary::Outdoor => {
-                        let view_factors =
-                            &self.optical_info.front_fenestrations_view_factors[index];
-                        let ground_other = (view_factors.ground + view_factors.air) * ir(db, 1.0);
-                        let sky = view_factors.sky * horizontal_ir;
-                        surface.set_front_ir_irradiance(state, ground_other + sky)?;
-                    }
+            match &surface.front_boundary {
+                Boundary::Space { .. } => {
+                    // Zero net IR exchange
+                    let temp = surface.first_node_temperature(state).unwrap_or(22.);
+                    surface.set_front_ir_irradiance(state, ir(temp, 1.0))?;
                 }
-            } else {
-                // outdoor
-                let view_factors = &self.optical_info.front_fenestrations_view_factors[index];
-                let ground_other = (view_factors.ground + view_factors.air) * ir(db, 1.0);
-                let sky = view_factors.sky * horizontal_ir;
-                surface.set_front_ir_irradiance(state, ground_other + sky)?;
+                Boundary::AmbientTemperature { temperature } => {
+                    surface.set_front_ir_irradiance(state, ir(*temperature, 1.0))?;
+                }
+                Boundary::Ground => {}
+                Boundary::Outdoor => {
+                    let view_factors =
+                        &self.optical_info.front_fenestrations_view_factors[index];
+                    let ground_other = (view_factors.ground + view_factors.air) * ir(db, 1.0);
+                    let sky = view_factors.sky * horizontal_ir;
+                    surface.set_front_ir_irradiance(state, ground_other + sky)?;
+                }
             }
 
             // Deal with Back
-            if let Ok(b) = surface.back_boundary() {
-                match b {
-                    Boundary::Space { .. } => {
-                        // Zero net IR exchange
-                        let temp = surface.last_node_temperature(state).unwrap_or(22.);
-                        surface.set_back_ir_irradiance(state, ir(temp, 1.0))?;
-                    }
-                    Boundary::AmbientTemperature { temperature } => {
-                        surface.set_back_ir_irradiance(state, ir(*temperature, 1.0))?;
-                    }
-                    Boundary::Ground => {}
-                    Boundary::Outdoor => {
-                        // outdoor
-                        let view_factors =
-                            &self.optical_info.back_fenestrations_view_factors[index];
-                        let ground_other = (view_factors.ground + view_factors.air) * ir(db, 1.0);
-                        let sky = view_factors.sky * horizontal_ir;
-                        surface.set_back_ir_irradiance(state, ground_other + sky)?;
-                    }
+            match &surface.back_boundary {
+                Boundary::Space { .. } => {
+                    // Zero net IR exchange
+                    let temp = surface.last_node_temperature(state).unwrap_or(22.);
+                    surface.set_back_ir_irradiance(state, ir(temp, 1.0))?;
                 }
-            } else {
-                // outdoor
-                let view_factors = &self.optical_info.back_fenestrations_view_factors[index];
-                let ground_other = (view_factors.ground + view_factors.air) * ir(db, 1.0);
-                let sky = view_factors.sky * horizontal_ir;
-                surface.set_back_ir_irradiance(state, ground_other + sky)?;
+                Boundary::AmbientTemperature { temperature } => {
+                    surface.set_back_ir_irradiance(state, ir(*temperature, 1.0))?;
+                }
+                Boundary::Ground => {}
+                Boundary::Outdoor => {
+                    // outdoor
+                    let view_factors =
+                        &self.optical_info.back_fenestrations_view_factors[index];
+                    let ground_other = (view_factors.ground + view_factors.air) * ir(db, 1.0);
+                    let sky = view_factors.sky * horizontal_ir;
+                    surface.set_back_ir_irradiance(state, ground_other + sky)?;
+                }
             }
         }
 
@@ -252,7 +220,7 @@ impl SolarModel {
                 let solar_irradiance = &self.optical_info.front_surfaces_dc * &vec;
                 let mut i = 0;
                 for s in model.surfaces.iter() {
-                    if !SolarSurface::boundary_receives_sun(s.front_boundary()) {
+                    if !SolarSurface::boundary_receives_sun(&s.front_boundary) {
                         continue;
                     }
                     // Average of the period
@@ -277,7 +245,7 @@ impl SolarModel {
                 let solar_irradiance = &self.optical_info.back_surfaces_dc * &vec;
                 let mut i = 0;
                 for s in model.surfaces.iter() {
-                    if !SolarSurface::boundary_receives_sun(s.back_boundary()) {
+                    if !SolarSurface::boundary_receives_sun(&s.back_boundary) {
                         continue;
                     }
                     // Average of the period
@@ -304,7 +272,7 @@ impl SolarModel {
                 let solar_irradiance = &self.optical_info.front_fenestrations_dc * &vec;
                 let mut i = 0;
                 for s in model.fenestrations.iter() {
-                    if !SolarSurface::boundary_receives_sun(s.front_boundary()) {
+                    if !SolarSurface::boundary_receives_sun(&s.front_boundary) {
                         continue;
                     }
                     // Average of the period
@@ -326,7 +294,7 @@ impl SolarModel {
                 let solar_irradiance = &self.optical_info.back_fenestrations_dc * &vec;
                 let mut i = 0;
                 for s in model.fenestrations.iter() {
-                    if !SolarSurface::boundary_receives_sun(s.back_boundary()) {
+                    if !SolarSurface::boundary_receives_sun(&s.back_boundary) {
                         continue;
                     }
                     // Average of the period
@@ -541,7 +509,7 @@ mod testing {
         construction.materials.push("the material".into());
         model.add_construction(construction);
 
-        let mut s: Surface = json5::from_str(
+        let s: Surface = json5::from_str(
             "{
             name: 'the surface',
             construction:'the construction',
@@ -550,11 +518,14 @@ mod testing {
                 1, 0, 0, // X, Y and Z of Vertex 1
                 1, 1, 0, // X, Y and Z of Vertex 2
                 0, 1, 0  // ...
-            ]
+            ],
+            front_boundary: {
+                type : 'AmbientTemperature',
+                temperature: 2.0
+            }
          }",
         )
-        .unwrap();
-        s.set_front_boundary(Boundary::AmbientTemperature { temperature: 2. });
+        .unwrap();        
         model.add_surface(s);
 
         let s: Surface = json5::from_str(
@@ -587,7 +558,7 @@ mod testing {
         .unwrap();
         model.add_fenestration(fen).unwrap();
 
-        let mut fen: Fenestration = json5::from_str(
+        let fen: Fenestration = json5::from_str(
             "{
             name: 'Window 2',
             construction: 'the construction',
@@ -596,11 +567,15 @@ mod testing {
                 0.548000,10,0.5000,  // X,Y,Z ==> Vertex 2 {m}
                 5.548000,10,0.5000,  // X,Y,Z ==> Vertex 3 {m}
                 5.548000,10,2.5000,   // X,Y,Z ==> Vertex 4 {m}
-            ]
+            ],
+            back_boundary: {
+                type:'AmbientTemperature',
+                temperature: 2.0
+            }
         }",
         )
         .unwrap();
-        fen.set_back_boundary(Boundary::AmbientTemperature { temperature: 2. });
+        
         model.add_fenestration(fen).unwrap();
 
         let meta_options = MetaOptions {

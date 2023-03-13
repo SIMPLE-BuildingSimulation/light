@@ -66,13 +66,12 @@ impl SolarSurface {
     const DELTA: Float = 0.001;
 
     /// Creates a new Solar Surface
-    pub fn new(nrays: usize, polygon: &Polygon3D, receives_sun_front: bool, receives_sun_back: bool) -> Self {
+    pub fn new(nrays: usize, polygon: &Polygon3D, receives_sun_front: bool, receives_sun_back: bool) -> Result<Self, String> {
         // Get polygon
         let normal = polygon.normal();
 
         // Triangulate the polygon
-        let triangles = Triangulation3D::from_polygon(polygon)
-            .unwrap()
+        let triangles = Triangulation3D::from_polygon(polygon)?            
             .get_trilist();
         let triangles_areas: Vec<Float> = triangles.iter().map(|t| t.area()).collect();
 
@@ -91,12 +90,12 @@ impl SolarSurface {
             .collect();
 
         // return
-        Self {
+        Ok(Self {
             normal,
             points,
             receives_sun_front,
             receives_sun_back,
-        }
+        })
     }
 
     pub(crate)fn boundary_receives_sun(boundary: Result<&Boundary, String>)->bool{
@@ -159,7 +158,7 @@ impl SolarSurface {
         state: &mut SimulationStateHeader,
         n_rays: usize,
     ) -> Result<Vec<SolarSurface>, String> {
-        let mut ret = Vec::with_capacity(list.len());
+        let mut ret : Vec<SolarSurface> = Vec::with_capacity(list.len());
         for (i, s) in list.iter().enumerate(){
                 if s.front_incident_solar_irradiance_index().is_none() {
                     let i = state.push(
@@ -194,7 +193,7 @@ impl SolarSurface {
                 let receives_sun_front = Self::boundary_receives_sun(s.front_boundary());
                 let receives_sun_back = Self::boundary_receives_sun(s.back_boundary());
 
-                ret.push(SolarSurface::new(n_rays, &s.vertices, receives_sun_front, receives_sun_back))
+                ret.push(SolarSurface::new(n_rays, &s.vertices, receives_sun_front, receives_sun_back)?)
             }
 
         Ok(ret)
@@ -208,7 +207,7 @@ impl SolarSurface {
         state: &mut SimulationStateHeader,
         n_rays: usize,
     ) -> Result<Vec<SolarSurface>, String> {
-        let mut ret = Vec::with_capacity(list.len());
+        let mut ret : Vec<SolarSurface> = Vec::with_capacity(list.len());
 
         for (i, s) in list.iter().enumerate() {
             if s.front_incident_solar_irradiance_index().is_none() {
@@ -235,7 +234,7 @@ impl SolarSurface {
             let receives_sun_back = Self::boundary_receives_sun(s.back_boundary());
 
             // create
-            ret.push(SolarSurface::new(n_rays, &s.vertices, receives_sun_front, receives_sun_back))
+            ret.push(SolarSurface::new(n_rays, &s.vertices, receives_sun_front, receives_sun_back)?)
         }
 
         Ok(ret)
@@ -338,7 +337,7 @@ mod testing {
         let mut scene = Scene::new();
         scene.build_accelerator();
         let p = Polygon3D::new(the_loop).unwrap();
-        let s = SolarSurface::new(10, &p, true, true);
+        let s = SolarSurface::new(10, &p, true, true).unwrap();
 
         let beta = (0.5 as Float).sqrt();
 
@@ -369,7 +368,7 @@ mod testing {
         let mut scene = Scene::new();
         scene.build_accelerator();
         let p = Polygon3D::new(the_loop).unwrap();
-        let s = SolarSurface::new(10, &p, true, true);
+        let s = SolarSurface::new(10, &p, true, true).unwrap();
 
         // Front side
         let views = s.calc_view_factors(&scene, true).unwrap();

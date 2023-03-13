@@ -17,7 +17,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-use crate::{Float, solar_surface::SolarSurface};
+use crate::{solar_surface::SolarSurface, Float};
 use calendar::Date;
 use communication_protocols::{ErrorHandling, MetaOptions, SimulationModel};
 use matrix::Matrix;
@@ -32,7 +32,10 @@ use weather::{CurrentWeather, Weather};
 use crate::optical_info::OpticalInfo;
 
 /// The name of the module
-pub(crate)const MODULE_NAME : &'static str = "Solar Model";
+pub(crate) const MODULE_NAME: &'static str = "Solar Model";
+
+/// The memory used by this module during simulation
+pub type SolarModelMemory = ();
 
 /// The main model
 pub struct SolarModel {
@@ -86,17 +89,24 @@ impl SolarModel {
             // Deal with front
             if let Ok(b) = surface.front_boundary() {
                 match b {
-                    Boundary::Space{..} => {     
-                        // Zero net IR exchange                   
-                        let temp = surface.first_node_temperature(state).unwrap_or(22.);                    
+                    Boundary::Space { .. } => {
+                        // Zero net IR exchange
+                        let temp = surface.first_node_temperature(state).unwrap_or(22.);
                         surface.set_front_ir_irradiance(state, ir(temp, 1.0))?;
-                    },
-                    Boundary::AmbientTemperature { temperature } => {                        
+                    }
+                    Boundary::AmbientTemperature { temperature } => {
                         // It depends on the ambient tempearture
                         surface.set_front_ir_irradiance(state, ir(*temperature, 1.0))?;
                     }
-                    _ => {
+                    Boundary::Ground => {
                         // ignore ground
+                    }
+                    Boundary::Outdoor => {
+                        // outdoor
+                        let view_factors = &self.optical_info.front_surfaces_view_factors[index];
+                        let ground_other = (view_factors.ground + view_factors.air) * ir(db, 1.0);
+                        let sky = view_factors.sky * horizontal_ir;
+                        surface.set_front_ir_irradiance(state, ground_other + sky)?;
                     }
                 }
             } else {
@@ -109,17 +119,24 @@ impl SolarModel {
 
             // Deal with Back
             if let Ok(b) = surface.back_boundary() {
-                match b  {
-                    Boundary::Space {..} => {
-                        // Zero net IR exchange                   
-                        let temp = surface.last_node_temperature(state).unwrap_or(22.);                    
+                match b {
+                    Boundary::Space { .. } => {
+                        // Zero net IR exchange
+                        let temp = surface.last_node_temperature(state).unwrap_or(22.);
                         surface.set_back_ir_irradiance(state, ir(temp, 1.0))?;
-                    },
-                    Boundary::AmbientTemperature { temperature } => {                        
+                    }
+                    Boundary::AmbientTemperature { temperature } => {
                         surface.set_back_ir_irradiance(state, ir(*temperature, 1.0))?;
                     }
-                    _ => {
+                    Boundary::Ground => {
                         // ignore ground
+                    }
+                    Boundary::Outdoor => {
+                        // outdoor
+                        let view_factors = &self.optical_info.back_surfaces_view_factors[index];
+                        let ground_other = (view_factors.ground + view_factors.air) * ir(db, 1.0);
+                        let sky = view_factors.sky * horizontal_ir;
+                        surface.set_back_ir_irradiance(state, ground_other + sky)?;
                     }
                 }
             } else {
@@ -136,15 +153,22 @@ impl SolarModel {
             // Deal with front
             if let Ok(b) = surface.front_boundary() {
                 match b {
-                    Boundary::Space{..} => {
-                        // Zero net IR exchange                   
-                        let temp = surface.first_node_temperature(state).unwrap_or( 22.);                    
+                    Boundary::Space { .. } => {
+                        // Zero net IR exchange
+                        let temp = surface.first_node_temperature(state).unwrap_or(22.);
                         surface.set_front_ir_irradiance(state, ir(temp, 1.0))?;
-                    },
+                    }
                     Boundary::AmbientTemperature { temperature } => {
                         surface.set_front_ir_irradiance(state, ir(*temperature, 1.0))?;
                     }
-                    _ => {}
+                    Boundary::Ground => {}
+                    Boundary::Outdoor => {
+                        let view_factors =
+                            &self.optical_info.front_fenestrations_view_factors[index];
+                        let ground_other = (view_factors.ground + view_factors.air) * ir(db, 1.0);
+                        let sky = view_factors.sky * horizontal_ir;
+                        surface.set_front_ir_irradiance(state, ground_other + sky)?;
+                    }
                 }
             } else {
                 // outdoor
@@ -157,16 +181,23 @@ impl SolarModel {
             // Deal with Back
             if let Ok(b) = surface.back_boundary() {
                 match b {
-                    Boundary::Space{..} => {
-                        // Zero net IR exchange                   
-                        let temp = surface.last_node_temperature(state).unwrap_or(22.);                    
+                    Boundary::Space { .. } => {
+                        // Zero net IR exchange
+                        let temp = surface.last_node_temperature(state).unwrap_or(22.);
                         surface.set_back_ir_irradiance(state, ir(temp, 1.0))?;
-                    },
+                    }
                     Boundary::AmbientTemperature { temperature } => {
                         surface.set_back_ir_irradiance(state, ir(*temperature, 1.0))?;
                     }
-                    _ => {}
-
+                    Boundary::Ground => {}
+                    Boundary::Outdoor => {
+                        // outdoor
+                        let view_factors =
+                            &self.optical_info.back_fenestrations_view_factors[index];
+                        let ground_other = (view_factors.ground + view_factors.air) * ir(db, 1.0);
+                        let sky = view_factors.sky * horizontal_ir;
+                        surface.set_back_ir_irradiance(state, ground_other + sky)?;
+                    }
                 }
             } else {
                 // outdoor
@@ -186,7 +217,7 @@ impl SolarModel {
         weather_data: CurrentWeather,
         model: &SimpleModel,
         state: &mut SimulationState,
-    ) -> Result<(),String> {
+    ) -> Result<(), String> {
         let direct_normal_irrad = weather_data
             .direct_normal_radiation
             .expect("Missing data for direct normal irradiance");
@@ -210,7 +241,7 @@ impl SolarModel {
                 albedo,
                 add_sky,
                 add_sun,
-            )?           
+            )?
         } else {
             Matrix::empty()
         };
@@ -221,17 +252,19 @@ impl SolarModel {
                 let solar_irradiance = &self.optical_info.front_surfaces_dc * &vec;
                 let mut i = 0;
                 for s in model.surfaces.iter() {
-                    if !SolarSurface::boundary_receives_sun(s.front_boundary()){
+                    if !SolarSurface::boundary_receives_sun(s.front_boundary()) {
                         continue;
-                    }                    
+                    }
                     // Average of the period
                     let mut v = solar_irradiance.get(i, 0)?;
                     if v < 0.0 {
                         v = 0.0
                     }
-                    let old_v = s.front_incident_solar_irradiance(state).ok_or("Could not get previous front incident solar irradiance (surface)")?;
+                    let old_v = s.front_incident_solar_irradiance(state).ok_or(
+                        "Could not get previous front incident solar irradiance (surface)",
+                    )?;
                     s.set_front_incident_solar_irradiance(state, (v + old_v) / 2.)?;
-                    i+=1;
+                    i += 1;
                 }
             } else {
                 for s in model.surfaces.iter() {
@@ -244,7 +277,7 @@ impl SolarModel {
                 let solar_irradiance = &self.optical_info.back_surfaces_dc * &vec;
                 let mut i = 0;
                 for s in model.surfaces.iter() {
-                    if !SolarSurface::boundary_receives_sun(s.back_boundary()){
+                    if !SolarSurface::boundary_receives_sun(s.back_boundary()) {
                         continue;
                     }
                     // Average of the period
@@ -252,9 +285,11 @@ impl SolarModel {
                     if v < 0.0 {
                         v = 0.0
                     }
-                    let old_v = s.back_incident_solar_irradiance(state).ok_or("Could not get previous back incident solar irradiance (surface)")?;
+                    let old_v = s
+                        .back_incident_solar_irradiance(state)
+                        .ok_or("Could not get previous back incident solar irradiance (surface)")?;
                     s.set_back_incident_solar_irradiance(state, (v + old_v) / 2.)?;
-                    i+=1;
+                    i += 1;
                 }
             } else {
                 for s in model.surfaces.iter() {
@@ -268,15 +303,17 @@ impl SolarModel {
             if is_day {
                 let solar_irradiance = &self.optical_info.front_fenestrations_dc * &vec;
                 let mut i = 0;
-                for s in model.fenestrations.iter(){
-                    if !SolarSurface::boundary_receives_sun(s.front_boundary()){
+                for s in model.fenestrations.iter() {
+                    if !SolarSurface::boundary_receives_sun(s.front_boundary()) {
                         continue;
                     }
                     // Average of the period
                     let v = solar_irradiance.get(i, 0)?;
-                    let old_v = s.front_incident_solar_irradiance(state).ok_or("Could not get previous front incident solar irradiance (fenestration)")?;
+                    let old_v = s.front_incident_solar_irradiance(state).ok_or(
+                        "Could not get previous front incident solar irradiance (fenestration)",
+                    )?;
                     s.set_front_incident_solar_irradiance(state, (v + old_v) / 2.)?;
-                    i+=1;
+                    i += 1;
                 }
             } else {
                 for s in model.fenestrations.iter() {
@@ -289,14 +326,16 @@ impl SolarModel {
                 let solar_irradiance = &self.optical_info.back_fenestrations_dc * &vec;
                 let mut i = 0;
                 for s in model.fenestrations.iter() {
-                    if !SolarSurface::boundary_receives_sun(s.back_boundary()){
+                    if !SolarSurface::boundary_receives_sun(s.back_boundary()) {
                         continue;
                     }
                     // Average of the period
                     let v = solar_irradiance.get(i, 0)?;
-                    let old_v = s.back_incident_solar_irradiance(state).ok_or("Could not get previous front incident solar irradiance (fenestration)")?;
+                    let old_v = s.back_incident_solar_irradiance(state).ok_or(
+                        "Could not get previous front incident solar irradiance (fenestration)",
+                    )?;
                     s.set_back_incident_solar_irradiance(state, (v + old_v) / 2.)?;
-                    i+=1;
+                    i += 1;
                 }
             } else {
                 for s in model.fenestrations.iter() {
@@ -315,25 +354,35 @@ impl ErrorHandling for SolarModel {
 }
 
 impl SimulationModel for SolarModel {
-    type Type = Self;
+    type OutputType = Self;
     type OptionType = SolarOptions;
+    type AllocType = SolarModelMemory;
+
+    fn allocate_memory(&self) -> Result<Self::AllocType, String> {
+        Ok(())
+    }
+
     fn new<M: Borrow<SimpleModel>>(
         meta_options: &MetaOptions,
         options: SolarOptions,
         model: M,
         state: &mut SimulationStateHeader,
         _n: usize,
-    ) -> Result<Self::Type, String> {
+    ) -> Result<Self::OutputType, String> {
         let model = model.borrow();
         // Make OpticalInfo, or read, as needed
         let optical_info = if let Ok(path_str) = options.optical_data_path() {
             let path = Path::new(path_str);
             if path.exists() {
                 // read from file
-                if !path.is_file(){
-                    return Err(format!("Path '{}' is not a file",path.to_str().expect("When !path.is_file... could not convert path into string")))
+                if !path.is_file() {
+                    return Err(format!(
+                        "Path '{}' is not a file",
+                        path.to_str()
+                            .expect("When !path.is_file... could not convert path into string")
+                    ));
                 }
-                    
+
                 let data = match std::fs::read_to_string(path) {
                     Ok(v) => v,
                     Err(_) => {
@@ -354,16 +403,16 @@ impl SimulationModel for SolarModel {
             } else {
                 // write into file
                 let info = OpticalInfo::new(&options, model, state)?;
-                let s = match serde_json::to_value(&info){
-                    Ok(v)=>v,
-                    Err(e)=>return Err(format!("{}", e))
+                let s = match serde_json::to_value(&info) {
+                    Ok(v) => v,
+                    Err(e) => return Err(format!("{}", e)),
                 };
-                let mut file = match File::create(path){
-                    Ok(v)=>v,
-                    Err(e)=>return Err(format!("{}", e))
+                let mut file = match File::create(path) {
+                    Ok(v) => v,
+                    Err(e) => return Err(format!("{}", e)),
                 };
-                if let Err(e) = writeln!(&mut file, "{}", s){
-                    return Err(format!("{}", e))
+                if let Err(e) = writeln!(&mut file, "{}", s) {
+                    return Err(format!("{}", e));
                 }
                 info
             }
@@ -382,7 +431,8 @@ impl SimulationModel for SolarModel {
         let (.., ncols) = optical_info.back_surfaces_dc.size();
         if ncols == 0 {
             return Err(
-                "optical data is corrupt: daylight coefficient matrix has zero columns.".to_string()
+                "optical data is corrupt: daylight coefficient matrix has zero columns."
+                    .to_string(),
             );
         }
         let mut mf = 1;
@@ -410,6 +460,7 @@ impl SimulationModel for SolarModel {
         weather: &W,
         model: M,
         state: &mut SimulationState,
+        _alloc: &mut SolarModelMemory,
     ) -> Result<(), String> {
         let model = model.borrow();
         // Handle the solar part
@@ -419,9 +470,7 @@ impl SimulationModel for SolarModel {
         self.update_ir_radiation(&weather_data, model, state)?;
         self.update_solar_radiation(date, weather_data, model, state)?;
 
-        // return
         Ok(())
-        // unimplemented!()
     }
 }
 
@@ -429,13 +478,7 @@ impl SimulationModel for SolarModel {
 mod testing {
     use super::*;
     use schedule::ScheduleConstant;
-    use simple_model::{
-        substance::Normal,
-        Material,
-        Construction,
-        Surface,
-        Fenestration,
-    };
+    use simple_model::{substance::Normal, Construction, Fenestration, Material, Surface};
     use weather::SyntheticWeather;
 
     #[test]
@@ -483,13 +526,10 @@ mod testing {
         }
     }
 
-    
     #[test]
-    fn test_skip_ambient_boundary(){
-        
+    fn test_skip_ambient_boundary() {
         // check that surfaces that do not receive sun are ignored
         let mut model = SimpleModel::default();
-        
 
         let substance = Normal::new("the substance");
         model.add_substance(substance.wrap());
@@ -511,10 +551,11 @@ mod testing {
                 1, 1, 0, // X, Y and Z of Vertex 2
                 0, 1, 0  // ...
             ]
-         }").unwrap();
-        s.set_front_boundary(Boundary::AmbientTemperature{temperature: 2.});
+         }",
+        )
+        .unwrap();
+        s.set_front_boundary(Boundary::AmbientTemperature { temperature: 2. });
         model.add_surface(s);
-        
 
         let s: Surface = json5::from_str(
             "{
@@ -526,10 +567,13 @@ mod testing {
                 1, 1, 10, // X, Y and Z of Vertex 2
                 0, 1, 10  // ...
             ]
-         }").unwrap();
+         }",
+        )
+        .unwrap();
         model.add_surface(s);
 
-        let fen  : Fenestration = json5::from_str("{
+        let fen: Fenestration = json5::from_str(
+            "{
             name: 'Window 1',
             construction: 'the construction',
             vertices: [
@@ -538,11 +582,13 @@ mod testing {
                 5.548000,0,0.5000,  // X,Y,Z ==> Vertex 3 {m}
                 5.548000,0,2.5000,   // X,Y,Z ==> Vertex 4 {m}
             ]
-        }").unwrap();
+        }",
+        )
+        .unwrap();
         model.add_fenestration(fen).unwrap();
 
-
-        let mut fen  : Fenestration = json5::from_str("{
+        let mut fen: Fenestration = json5::from_str(
+            "{
             name: 'Window 2',
             construction: 'the construction',
             vertices: [
@@ -551,8 +597,10 @@ mod testing {
                 5.548000,10,0.5000,  // X,Y,Z ==> Vertex 3 {m}
                 5.548000,10,2.5000,   // X,Y,Z ==> Vertex 4 {m}
             ]
-        }").unwrap();
-        fen.set_back_boundary(Boundary::AmbientTemperature{temperature: 2.});
+        }",
+        )
+        .unwrap();
+        fen.set_back_boundary(Boundary::AmbientTemperature { temperature: 2. });
         model.add_fenestration(fen).unwrap();
 
         let meta_options = MetaOptions {
@@ -570,13 +618,8 @@ mod testing {
 
         let n: usize = 1;
 
-        let solar_model = SolarModel::new(
-            &meta_options,
-            options, 
-            &model,
-            &mut state_header, 
-            n
-        ).unwrap();
+        let solar_model =
+            SolarModel::new(&meta_options, options, &model, &mut state_header, n).unwrap();
 
         let mut weather = SyntheticWeather::default();
         weather.dew_point_temperature = Box::new(ScheduleConstant::new(11.));
@@ -584,32 +627,79 @@ mod testing {
         weather.opaque_sky_cover = Box::new(ScheduleConstant::new(0.));
         weather.direct_normal_radiation = Box::new(ScheduleConstant::new(400.));
         weather.diffuse_horizontal_radiation = Box::new(ScheduleConstant::new(200.));
-        
+
         let mut state = state_header.take_values().unwrap();
-        solar_model.march(
-            Date{month: 1, day:1, hour: 12.},
-            &weather,
-            &model,
-            &mut state,
-        ).unwrap();
+        solar_model
+            .march(
+                Date {
+                    month: 1,
+                    day: 1,
+                    hour: 12.,
+                },
+                &weather,
+                &model,
+                &mut state,
+                &mut (),
+            )
+            .unwrap();
 
         // This surface should receive NO sun at the front but yes at the back
-        assert!(model.surfaces[0].front_incident_solar_irradiance(&state).unwrap().abs() < 1e-9);        
-        assert!(model.surfaces[0].back_incident_solar_irradiance(&state).unwrap() > 50.);
+        assert!(
+            model.surfaces[0]
+                .front_incident_solar_irradiance(&state)
+                .unwrap()
+                .abs()
+                < 1e-9
+        );
+        assert!(
+            model.surfaces[0]
+                .back_incident_solar_irradiance(&state)
+                .unwrap()
+                > 50.
+        );
 
         // This surface should receive sun on both sides
-        assert!(model.surfaces[1].front_incident_solar_irradiance(&state).unwrap().abs() > 50.);        
-        assert!(model.surfaces[1].back_incident_solar_irradiance(&state).unwrap() > 50.);
-
+        assert!(
+            model.surfaces[1]
+                .front_incident_solar_irradiance(&state)
+                .unwrap()
+                .abs()
+                > 50.
+        );
+        assert!(
+            model.surfaces[1]
+                .back_incident_solar_irradiance(&state)
+                .unwrap()
+                > 50.
+        );
 
         // This surface should receive sun on both sides
-        assert!(model.fenestrations[0].front_incident_solar_irradiance(&state).unwrap() > 50.);        
-        assert!(model.fenestrations[0].back_incident_solar_irradiance(&state).unwrap() > 50.);
-        
+        assert!(
+            model.fenestrations[0]
+                .front_incident_solar_irradiance(&state)
+                .unwrap()
+                > 50.
+        );
+        assert!(
+            model.fenestrations[0]
+                .back_incident_solar_irradiance(&state)
+                .unwrap()
+                > 50.
+        );
+
         // This surface should receive NO sun at the back but yes at the front
-        assert!(model.fenestrations[1].front_incident_solar_irradiance(&state).unwrap() > 50.);        
-        assert!(model.fenestrations[1].back_incident_solar_irradiance(&state).unwrap().abs() < 1e-9);
-
-
+        assert!(
+            model.fenestrations[1]
+                .front_incident_solar_irradiance(&state)
+                .unwrap()
+                > 50.
+        );
+        assert!(
+            model.fenestrations[1]
+                .back_incident_solar_irradiance(&state)
+                .unwrap()
+                .abs()
+                < 1e-9
+        );
     }
 }

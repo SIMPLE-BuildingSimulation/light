@@ -378,6 +378,12 @@
 <a href="#344" id="344">344</a>
 <a href="#345" id="345">345</a>
 <a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -534,7 +540,7 @@ SOFTWARE.
 
     <span class="kw">use </span>json5;
     <span class="kw">use </span>simple_model::{
-        substance::Normal, Boundary, Construction, Fenestration, Material, SimpleModel,
+        substance::Normal,  Construction, Fenestration, Material, SimpleModel,
         SimulationStateHeader, SolarOptions, Surface,
     };
 
@@ -651,7 +657,7 @@ SOFTWARE.
         construction.materials.push(<span class="string">&quot;the material&quot;</span>.into());
         model.add_construction(construction);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>s: Surface = json5::from_str(
+        <span class="kw">let </span>s: Surface = json5::from_str(
             <span class="string">&quot;{
             name: &#39;the surface&#39;,
             construction:&#39;the construction&#39;,
@@ -660,11 +666,14 @@ SOFTWARE.
                 1, 0, 0, // X, Y and Z of Vertex 1
                 1, 1, 0, // X, Y and Z of Vertex 2
                 0, 1, 0  // ...
-            ]
+            ],
+            front_boundary: {
+                type: &#39;AmbientTemperature&#39;,
+                temperature: 2.0,
+            }
          }&quot;</span>,
         )
-        .unwrap();
-        s.set_front_boundary(Boundary::AmbientTemperature { temperature: <span class="number">2. </span>});
+        .unwrap();        
         model.add_surface(s);
 
         <span class="kw">let </span>s: Surface = json5::from_str(
@@ -697,7 +706,7 @@ SOFTWARE.
         .unwrap();
         model.add_fenestration(fen).unwrap();
 
-        <span class="kw">let </span><span class="kw-2">mut </span>fen: Fenestration = json5::from_str(
+        <span class="kw">let </span>fen: Fenestration = json5::from_str(
             <span class="string">&quot;{
             name: &#39;Window 2&#39;,
             construction: &#39;the construction&#39;,
@@ -706,11 +715,14 @@ SOFTWARE.
                 0.548000,0,0.5000,  // X,Y,Z ==&gt; Vertex 2 {m}
                 5.548000,0,0.5000,  // X,Y,Z ==&gt; Vertex 3 {m}
                 5.548000,0,2.5000,   // X,Y,Z ==&gt; Vertex 4 {m}
-            ]
+            ],
+            back_boundary: {
+                type: &#39;AmbientTemperature&#39;,
+                temperature: 2.0
+            }
         }&quot;</span>,
         )
-        .unwrap();
-        fen.set_back_boundary(Boundary::AmbientTemperature { temperature: <span class="number">2. </span>});
+        .unwrap();        
         model.add_fenestration(fen).unwrap();
 
         <span class="kw">let </span>info = OpticalInfo::new(<span class="kw-2">&amp;</span>options, <span class="kw-2">&amp;</span>model, <span class="kw-2">&amp;mut </span>state).unwrap();

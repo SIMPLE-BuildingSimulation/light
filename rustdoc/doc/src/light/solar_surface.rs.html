@@ -582,6 +582,90 @@
 <a href="#548" id="548">548</a>
 <a href="#549" id="549">549</a>
 <a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -609,7 +693,9 @@ SOFTWARE.
 <span class="kw">use </span>matrix::Matrix;
 <span class="kw">use </span>rendering::{colour_matrix::<span class="kw-2">*</span>, DCFactory, Ray, Scene};
 
-<span class="kw">use </span>simple_model::{Fenestration, SimulationStateElement, SimulationStateHeader, Surface, Boundary};
+<span class="kw">use </span>simple_model::{
+    Boundary, Fenestration, SimulationStateElement, SimulationStateHeader, Surface,
+};
 
 <span class="kw">use </span>geometry3d::{Point3D, Polygon3D, Ray3D, Triangulation3D, Vector3D};
 <span class="kw">use </span>rendering::primitive_samplers::sample_triangle_surface;
@@ -642,7 +728,7 @@ SOFTWARE.
     points: Vec&lt;Point3D&gt;,
     <span class="kw">pub </span>normal: Vector3D,
     <span class="kw">pub </span>receives_sun_front: bool,
-    <span class="kw">pub </span>receives_sun_back: bool,    
+    <span class="kw">pub </span>receives_sun_back: bool,
 }
 
 <span class="kw">impl </span>SolarSurface {
@@ -650,13 +736,17 @@ SOFTWARE.
     </span><span class="kw">const </span>DELTA: Float = <span class="number">0.001</span>;
 
     <span class="doccomment">/// Creates a new Solar Surface
-    </span><span class="kw">pub fn </span>new(nrays: usize, polygon: <span class="kw-2">&amp;</span>Polygon3D, receives_sun_front: bool, receives_sun_back: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, String&gt; {
+    </span><span class="kw">pub fn </span>new(
+        nrays: usize,
+        polygon: <span class="kw-2">&amp;</span>Polygon3D,
+        receives_sun_front: bool,
+        receives_sun_back: bool,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, String&gt; {
         <span class="comment">// Get polygon
         </span><span class="kw">let </span>normal = polygon.normal();
 
         <span class="comment">// Triangulate the polygon
-        </span><span class="kw">let </span>triangles = Triangulation3D::from_polygon(polygon)<span class="question-mark">?            
-            </span>.get_trilist();
+        </span><span class="kw">let </span>triangles = Triangulation3D::from_polygon(polygon)<span class="question-mark">?</span>.get_trilist();
         <span class="kw">let </span>triangles_areas: Vec&lt;Float&gt; = triangles.iter().map(|t| t.area()).collect();
 
         <span class="comment">// Build a triangle sampler
@@ -682,13 +772,9 @@ SOFTWARE.
         })
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>)<span class="kw">fn </span>boundary_receives_sun(boundary: <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>Boundary, String&gt;)-&gt;bool{
-        <span class="kw">match </span>boundary {
-            <span class="prelude-val">Ok</span>(b)=&gt;{
-                !<span class="macro">matches!</span>(b, Boundary::AmbientTemperature{..} | Boundary::Ground)
-            },
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>)=&gt;<span class="bool-val">true</span>,<span class="comment">// outdoor
-        </span>}
+    <span class="doccomment">/// Receives sun if the boundary is either Space or Outdoor    
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>boundary_receives_sun(boundary: <span class="kw-2">&amp;</span>Boundary) -&gt; bool {
+        <span class="macro">matches!</span>(boundary, Boundary::Space { .. } | Boundary::Outdoor)
     }
 
     <span class="doccomment">/// Receives a list of `SolarSurface` objects as well as the `Scene` containing them and
@@ -704,16 +790,16 @@ SOFTWARE.
         <span class="kw">if </span>list.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(Matrix::empty());
         }
-        
+
         <span class="kw">let </span><span class="kw-2">mut </span>dcs: Vec&lt;Matrix&gt; = Vec::with_capacity(list.len());
-        
-        <span class="kw">for </span>s <span class="kw">in </span>list.iter(){
+
+        <span class="kw">for </span>s <span class="kw">in </span>list.iter() {
             <span class="comment">// Skip front ones that do not receive front sun
-            </span><span class="kw">if </span>front_side &amp;&amp; !s.receives_sun_front{
+            </span><span class="kw">if </span>front_side &amp;&amp; !s.receives_sun_front {
                 <span class="kw">continue</span>;
             }
             <span class="comment">// Skip back ones that do not receive back side.
-            </span><span class="kw">if </span>!front_side &amp;&amp; !s.receives_sun_back{
+            </span><span class="kw">if </span>!front_side &amp;&amp; !s.receives_sun_back {
                 <span class="kw">continue</span>;
             }
             <span class="kw">let </span>rays = <span class="kw">if </span>front_side {
@@ -723,9 +809,9 @@ SOFTWARE.
             };
             dcs.push(s.solar_irradiance(<span class="kw-2">&amp;</span>rays, scene, dc_factory))
         }
-        <span class="kw">if </span>dcs.is_empty(){
+        <span class="kw">if </span>dcs.is_empty() {
             <span class="prelude-val">Ok</span>(Matrix::empty())
-        }<span class="kw">else</span>{
+        } <span class="kw">else </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>ret = dcs[<span class="number">0</span>].clone();
             <span class="kw">for </span>dc <span class="kw">in </span>dcs.iter().skip(<span class="number">1</span>) {
                 ret.concat_rows(dc)<span class="question-mark">?</span>;
@@ -742,43 +828,47 @@ SOFTWARE.
         state: <span class="kw-2">&amp;mut </span>SimulationStateHeader,
         n_rays: usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;SolarSurface&gt;, String&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>ret : Vec&lt;SolarSurface&gt; = Vec::with_capacity(list.len());
-        <span class="kw">for </span>(i, s) <span class="kw">in </span>list.iter().enumerate(){
-                <span class="kw">if </span>s.front_incident_solar_irradiance_index().is_none() {
-                    <span class="kw">let </span>i = state.push(
-                        SimulationStateElement::FenestrationFrontSolarIrradiance(i),
-                        <span class="number">0.0</span>,
-                    )<span class="question-mark">?</span>;
-                    s.set_front_incident_solar_irradiance_index(i)<span class="question-mark">?</span>;
-                }
-
-                <span class="kw">if </span>s.back_incident_solar_irradiance_index().is_none() {
-                    <span class="kw">let </span>i = state.push(
-                        SimulationStateElement::FenestrationBackSolarIrradiance(i),
-                        <span class="number">0.0</span>,
-                    )<span class="question-mark">?</span>;
-                    s.set_back_incident_solar_irradiance_index(i)<span class="question-mark">?</span>;
-                }
-
-                <span class="kw">if </span>s.front_ir_irradiance_index().is_none() {
-                    <span class="kw">let </span>i = state.push(
-                        SimulationStateElement::FenestrationFrontIRIrradiance(i),
-                        <span class="number">0.0</span>,
-                    )<span class="question-mark">?</span>;
-                    s.set_front_ir_irradiance_index(i)<span class="question-mark">?</span>;
-                }
-
-                <span class="kw">if </span>s.back_ir_irradiance_index().is_none() {
-                    <span class="kw">let </span>i =
-                        state.push(SimulationStateElement::FenestrationBackIRIrradiance(i), <span class="number">0.0</span>)<span class="question-mark">?</span>;
-                    s.set_back_ir_irradiance_index(i)<span class="question-mark">?</span>;
-                }
-                
-                <span class="kw">let </span>receives_sun_front = <span class="self">Self</span>::boundary_receives_sun(s.front_boundary());
-                <span class="kw">let </span>receives_sun_back = <span class="self">Self</span>::boundary_receives_sun(s.back_boundary());
-
-                ret.push(SolarSurface::new(n_rays, <span class="kw-2">&amp;</span>s.vertices, receives_sun_front, receives_sun_back)<span class="question-mark">?</span>)
+        <span class="kw">let </span><span class="kw-2">mut </span>ret: Vec&lt;SolarSurface&gt; = Vec::with_capacity(list.len());
+        <span class="kw">for </span>(i, s) <span class="kw">in </span>list.iter().enumerate() {
+            <span class="kw">if </span>s.front_incident_solar_irradiance_index().is_none() {
+                <span class="kw">let </span>i = state.push(
+                    SimulationStateElement::FenestrationFrontSolarIrradiance(i),
+                    <span class="number">0.0</span>,
+                )<span class="question-mark">?</span>;
+                s.set_front_incident_solar_irradiance_index(i)<span class="question-mark">?</span>;
             }
+
+            <span class="kw">if </span>s.back_incident_solar_irradiance_index().is_none() {
+                <span class="kw">let </span>i = state.push(
+                    SimulationStateElement::FenestrationBackSolarIrradiance(i),
+                    <span class="number">0.0</span>,
+                )<span class="question-mark">?</span>;
+                s.set_back_incident_solar_irradiance_index(i)<span class="question-mark">?</span>;
+            }
+
+            <span class="kw">if </span>s.front_ir_irradiance_index().is_none() {
+                <span class="kw">let </span>i = state.push(
+                    SimulationStateElement::FenestrationFrontIRIrradiance(i),
+                    <span class="number">0.0</span>,
+                )<span class="question-mark">?</span>;
+                s.set_front_ir_irradiance_index(i)<span class="question-mark">?</span>;
+            }
+
+            <span class="kw">if </span>s.back_ir_irradiance_index().is_none() {
+                <span class="kw">let </span>i = state.push(SimulationStateElement::FenestrationBackIRIrradiance(i), <span class="number">0.0</span>)<span class="question-mark">?</span>;
+                s.set_back_ir_irradiance_index(i)<span class="question-mark">?</span>;
+            }
+
+            <span class="kw">let </span>receives_sun_front = <span class="self">Self</span>::boundary_receives_sun(<span class="kw-2">&amp;</span>s.front_boundary);
+            <span class="kw">let </span>receives_sun_back = <span class="self">Self</span>::boundary_receives_sun(<span class="kw-2">&amp;</span>s.back_boundary);
+
+            ret.push(SolarSurface::new(
+                n_rays,
+                <span class="kw-2">&amp;</span>s.vertices,
+                receives_sun_front,
+                receives_sun_back,
+            )<span class="question-mark">?</span>)
+        }
 
         <span class="prelude-val">Ok</span>(ret)
     }
@@ -791,7 +881,7 @@ SOFTWARE.
         state: <span class="kw-2">&amp;mut </span>SimulationStateHeader,
         n_rays: usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;SolarSurface&gt;, String&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>ret : Vec&lt;SolarSurface&gt; = Vec::with_capacity(list.len());
+        <span class="kw">let </span><span class="kw-2">mut </span>ret: Vec&lt;SolarSurface&gt; = Vec::with_capacity(list.len());
 
         <span class="kw">for </span>(i, s) <span class="kw">in </span>list.iter().enumerate() {
             <span class="kw">if </span>s.front_incident_solar_irradiance_index().is_none() {
@@ -814,11 +904,16 @@ SOFTWARE.
                 s.set_back_ir_irradiance_index(i)<span class="question-mark">?</span>;
             }
 
-            <span class="kw">let </span>receives_sun_front = <span class="self">Self</span>::boundary_receives_sun(s.front_boundary());
-            <span class="kw">let </span>receives_sun_back = <span class="self">Self</span>::boundary_receives_sun(s.back_boundary());
+            <span class="kw">let </span>receives_sun_front = <span class="self">Self</span>::boundary_receives_sun(<span class="kw-2">&amp;</span>s.front_boundary);
+            <span class="kw">let </span>receives_sun_back = <span class="self">Self</span>::boundary_receives_sun(<span class="kw-2">&amp;</span>s.back_boundary);
 
             <span class="comment">// create
-            </span>ret.push(SolarSurface::new(n_rays, <span class="kw-2">&amp;</span>s.vertices, receives_sun_front, receives_sun_back)<span class="question-mark">?</span>)
+            </span>ret.push(SolarSurface::new(
+                n_rays,
+                <span class="kw-2">&amp;</span>s.vertices,
+                receives_sun_front,
+                receives_sun_back,
+            )<span class="question-mark">?</span>)
         }
 
         <span class="prelude-val">Ok</span>(ret)
@@ -855,7 +950,11 @@ SOFTWARE.
     }
 
     <span class="doccomment">/// Calculates an [`IRViewFactorSet`] for this surface
-    </span><span class="kw">pub fn </span>calc_view_factors(<span class="kw-2">&amp;</span><span class="self">self</span>, scene: <span class="kw-2">&amp;</span>Scene, front_side: bool) -&gt; <span class="prelude-ty">Result</span>&lt;IRViewFactorSet,String&gt; {
+    </span><span class="kw">pub fn </span>calc_view_factors(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        scene: <span class="kw-2">&amp;</span>Scene,
+        front_side: bool,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;IRViewFactorSet, String&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>rng = rendering::rand::get_rng();
 
         <span class="kw">let </span>rays = <span class="kw">if </span>front_side {
@@ -970,9 +1069,9 @@ SOFTWARE.
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_new_boundary_fenestrations(){
+    </span><span class="kw">fn </span>test_new_boundary_fenestrations() {
         <span class="comment">// Check that the receives_sun is properly assigned
-        
+
         // create geometry... they will all have this same one.
         </span><span class="kw">let </span><span class="kw-2">mut </span>outer = Loop3D::new();
         outer.push(Point3D::new(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>)).unwrap();
@@ -983,45 +1082,77 @@ SOFTWARE.
 
         <span class="comment">// state header
         </span><span class="kw">let </span><span class="kw-2">mut </span>state = SimulationStateHeader::new();
-        
+
         <span class="comment">// container
         </span><span class="kw">let </span><span class="kw-2">mut </span>list = Vec::with_capacity(<span class="number">6</span>);
 
         <span class="comment">// Fen 0: outdoor on front and back
-        </span><span class="kw">let </span>fen = Fenestration::new(<span class="string">&quot;some fen&quot;</span>, poly.clone(), <span class="string">&quot;some construction&quot;</span>);
+        </span><span class="kw">let </span>fen = Fenestration::new(
+            <span class="string">&quot;some fen&quot;</span>,
+            poly.clone(),
+            <span class="string">&quot;some construction&quot;</span>,
+            Boundary::Outdoor,
+            Boundary::Outdoor,
+        );
         list.push(Rc::new(fen));
 
         <span class="comment">// Fen 1: outdoor on front, space at the back
-        </span><span class="kw">let </span><span class="kw-2">mut </span>fen = Fenestration::new(<span class="string">&quot;some fen&quot;</span>, poly.clone(), <span class="string">&quot;some construction&quot;</span>);
-        fen.set_back_boundary(Boundary::Space { space: <span class="string">&quot;some space&quot;</span>.into() });
+        </span><span class="kw">let </span>fen = Fenestration::new(
+            <span class="string">&quot;some fen&quot;</span>,
+            poly.clone(),
+            <span class="string">&quot;some construction&quot;</span>,
+            Boundary::Outdoor,
+            Boundary::Space {
+                space: <span class="string">&quot;some space&quot;</span>.into(),
+            },
+        );
         list.push(Rc::new(fen));
 
         <span class="comment">// Fen 2: outdoor on back, space at the front
-        </span><span class="kw">let </span><span class="kw-2">mut </span>fen = Fenestration::new(<span class="string">&quot;some fen&quot;</span>, poly.clone(), <span class="string">&quot;some construction&quot;</span>);
-        fen.set_front_boundary(Boundary::Space { space: <span class="string">&quot;some space&quot;</span>.into() });
+        </span><span class="kw">let </span>fen = Fenestration::new(
+            <span class="string">&quot;some fen&quot;</span>,
+            poly.clone(),
+            <span class="string">&quot;some construction&quot;</span>,
+            Boundary::Space {
+                space: <span class="string">&quot;some space&quot;</span>.into(),
+            },
+            Boundary::Outdoor,
+        );
         list.push(Rc::new(fen));
 
         <span class="comment">// Fen 3: Ambient Temp at the back, space at the front
-        </span><span class="kw">let </span><span class="kw-2">mut </span>fen = Fenestration::new(<span class="string">&quot;some fen&quot;</span>, poly.clone(), <span class="string">&quot;some construction&quot;</span>);
-        fen.set_front_boundary(Boundary::Space { space: <span class="string">&quot;some space&quot;</span>.into() });
-        fen.set_back_boundary(Boundary::AmbientTemperature { temperature: <span class="number">1. </span>});
+        </span><span class="kw">let </span>fen = Fenestration::new(
+            <span class="string">&quot;some fen&quot;</span>,
+            poly.clone(),
+            <span class="string">&quot;some construction&quot;</span>,
+            Boundary::Space {
+                space: <span class="string">&quot;some space&quot;</span>.into(),
+            },
+            Boundary::AmbientTemperature { temperature: <span class="number">1. </span>},
+        );
         list.push(Rc::new(fen));
 
-
         <span class="comment">// Fen 4: Ambient Temp at the back and front
-        </span><span class="kw">let </span><span class="kw-2">mut </span>fen = Fenestration::new(<span class="string">&quot;some fen&quot;</span>, poly.clone(), <span class="string">&quot;some construction&quot;</span>);
-        fen.set_front_boundary(Boundary::AmbientTemperature { temperature: <span class="number">1. </span>});
-        fen.set_back_boundary(Boundary::AmbientTemperature { temperature: <span class="number">1. </span>});
+        </span><span class="kw">let </span>fen = Fenestration::new(
+            <span class="string">&quot;some fen&quot;</span>,
+            poly.clone(),
+            <span class="string">&quot;some construction&quot;</span>,
+            Boundary::AmbientTemperature { temperature: <span class="number">1. </span>},
+            Boundary::AmbientTemperature { temperature: <span class="number">1. </span>},
+        );
         list.push(Rc::new(fen));
 
         <span class="comment">// Fen 5: Ground at the back and front
-        </span><span class="kw">let </span><span class="kw-2">mut </span>fen = Fenestration::new(<span class="string">&quot;some fen&quot;</span>, poly.clone(), <span class="string">&quot;some construction&quot;</span>);
-        fen.set_front_boundary(Boundary::Ground);
-        fen.set_back_boundary(Boundary::Ground);
+        </span><span class="kw">let </span>fen = Fenestration::new(
+            <span class="string">&quot;some fen&quot;</span>,
+            poly.clone(),
+            <span class="string">&quot;some construction&quot;</span>,
+            Boundary::Ground,
+            Boundary::Ground,
+        );
+
         list.push(Rc::new(fen));
 
-
-        
         <span class="comment">// Calc
         </span><span class="kw">let </span>fens = SolarSurface::make_fenestrations(<span class="kw-2">&amp;</span>list, <span class="kw-2">&amp;mut </span>state, <span class="number">1</span>).unwrap();
 
@@ -1037,23 +1168,18 @@ SOFTWARE.
 
         <span class="macro">assert!</span>(!fens[<span class="number">3</span>].receives_sun_back);
         <span class="macro">assert!</span>(fens[<span class="number">3</span>].receives_sun_front);
-        
+
         <span class="macro">assert!</span>(!fens[<span class="number">4</span>].receives_sun_back);
         <span class="macro">assert!</span>(!fens[<span class="number">4</span>].receives_sun_front);
 
         <span class="macro">assert!</span>(!fens[<span class="number">5</span>].receives_sun_back);
         <span class="macro">assert!</span>(!fens[<span class="number">5</span>].receives_sun_front);
-
-
-        
-        
     }
 
-
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_new_boundary_surfaces(){
+    </span><span class="kw">fn </span>test_new_boundary_surfaces() {
         <span class="comment">// Check that the receives_sun is properly assigned
-        
+
         // create geometry... they will all have this same one.
         </span><span class="kw">let </span><span class="kw-2">mut </span>outer = Loop3D::new();
         outer.push(Point3D::new(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>)).unwrap();
@@ -1064,45 +1190,79 @@ SOFTWARE.
 
         <span class="comment">// state header
         </span><span class="kw">let </span><span class="kw-2">mut </span>state = SimulationStateHeader::new();
-        
+
         <span class="comment">// container
         </span><span class="kw">let </span><span class="kw-2">mut </span>list = Vec::with_capacity(<span class="number">6</span>);
 
         <span class="comment">// Fen 0: outdoor on front and back
-        </span><span class="kw">let </span>fen = Surface::new(<span class="string">&quot;some fen&quot;</span>, poly.clone(), <span class="string">&quot;some construction&quot;</span>);
+        </span><span class="kw">let </span>fen = Surface::new(
+            <span class="string">&quot;some fen&quot;</span>,
+            poly.clone(),
+            <span class="string">&quot;some construction&quot;</span>,
+            Boundary::Outdoor,
+            Boundary::Outdoor,
+        );
         list.push(Rc::new(fen));
 
         <span class="comment">// Fen 1: outdoor on front, space at the back
-        </span><span class="kw">let </span><span class="kw-2">mut </span>fen = Surface::new(<span class="string">&quot;some fen&quot;</span>, poly.clone(), <span class="string">&quot;some construction&quot;</span>);
-        fen.set_back_boundary(Boundary::Space { space: <span class="string">&quot;some space&quot;</span>.into() });
+        </span><span class="kw">let </span>fen = Surface::new(
+            <span class="string">&quot;some fen&quot;</span>,
+            poly.clone(),
+            <span class="string">&quot;some construction&quot;</span>,
+            Boundary::Outdoor,
+            Boundary::Space {
+                space: <span class="string">&quot;some space&quot;</span>.into(),
+            },
+        );
         list.push(Rc::new(fen));
 
         <span class="comment">// Fen 2: outdoor on back, space at the front
-        </span><span class="kw">let </span><span class="kw-2">mut </span>fen = Surface::new(<span class="string">&quot;some fen&quot;</span>, poly.clone(), <span class="string">&quot;some construction&quot;</span>);
-        fen.set_front_boundary(Boundary::Space { space: <span class="string">&quot;some space&quot;</span>.into() });
+        </span><span class="kw">let </span>fen = Surface::new(
+            <span class="string">&quot;some fen&quot;</span>,
+            poly.clone(),
+            <span class="string">&quot;some construction&quot;</span>,
+            Boundary::Space {
+                space: <span class="string">&quot;some space&quot;</span>.into(),
+            },
+            Boundary::Outdoor,
+        );
+
         list.push(Rc::new(fen));
 
         <span class="comment">// Fen 3: Ambient Temp at the back, space at the front
-        </span><span class="kw">let </span><span class="kw-2">mut </span>fen = Surface::new(<span class="string">&quot;some fen&quot;</span>, poly.clone(), <span class="string">&quot;some construction&quot;</span>);
-        fen.set_front_boundary(Boundary::Space { space: <span class="string">&quot;some space&quot;</span>.into() });
-        fen.set_back_boundary(Boundary::AmbientTemperature { temperature: <span class="number">1. </span>});
+        </span><span class="kw">let </span>fen = Surface::new(
+            <span class="string">&quot;some fen&quot;</span>,
+            poly.clone(),
+            <span class="string">&quot;some construction&quot;</span>,
+            Boundary::Space {
+                space: <span class="string">&quot;some space&quot;</span>.into(),
+            },
+            Boundary::AmbientTemperature { temperature: <span class="number">1. </span>},
+        );
+
         list.push(Rc::new(fen));
 
-
         <span class="comment">// Fen 4: Ambient Temp at the back and front
-        </span><span class="kw">let </span><span class="kw-2">mut </span>fen = Surface::new(<span class="string">&quot;some fen&quot;</span>, poly.clone(), <span class="string">&quot;some construction&quot;</span>);
-        fen.set_front_boundary(Boundary::AmbientTemperature { temperature: <span class="number">1. </span>});
-        fen.set_back_boundary(Boundary::AmbientTemperature { temperature: <span class="number">1. </span>});
+        </span><span class="kw">let </span>fen = Surface::new(
+            <span class="string">&quot;some fen&quot;</span>,
+            poly.clone(),
+            <span class="string">&quot;some construction&quot;</span>,
+            Boundary::AmbientTemperature { temperature: <span class="number">1. </span>},
+            Boundary::AmbientTemperature { temperature: <span class="number">1. </span>},
+        );
         list.push(Rc::new(fen));
 
         <span class="comment">// Fen 5: Ground at the back and front
-        </span><span class="kw">let </span><span class="kw-2">mut </span>fen = Surface::new(<span class="string">&quot;some fen&quot;</span>, poly.clone(), <span class="string">&quot;some construction&quot;</span>);
-        fen.set_front_boundary(Boundary::Ground);
-        fen.set_back_boundary(Boundary::Ground);
+        </span><span class="kw">let </span>fen = Surface::new(
+            <span class="string">&quot;some fen&quot;</span>,
+            poly.clone(),
+            <span class="string">&quot;some construction&quot;</span>,
+            Boundary::Ground,
+            Boundary::Ground,
+        );
+
         list.push(Rc::new(fen));
 
-
-        
         <span class="comment">// Calc
         </span><span class="kw">let </span>fens = SolarSurface::make_surfaces(<span class="kw-2">&amp;</span>list, <span class="kw-2">&amp;mut </span>state, <span class="number">1</span>).unwrap();
 
@@ -1118,19 +1278,27 @@ SOFTWARE.
 
         <span class="macro">assert!</span>(!fens[<span class="number">3</span>].receives_sun_back);
         <span class="macro">assert!</span>(fens[<span class="number">3</span>].receives_sun_front);
-        
+
         <span class="macro">assert!</span>(!fens[<span class="number">4</span>].receives_sun_back);
         <span class="macro">assert!</span>(!fens[<span class="number">4</span>].receives_sun_front);
 
         <span class="macro">assert!</span>(!fens[<span class="number">5</span>].receives_sun_back);
         <span class="macro">assert!</span>(!fens[<span class="number">5</span>].receives_sun_front);
-
-
-        
-        
     }
 
-    
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_boundary_receives_sun() {
+        <span class="comment">// This should not receive
+        </span><span class="macro">assert!</span>(!SolarSurface::boundary_receives_sun(<span class="kw-2">&amp;</span>Boundary::Ground));
+        <span class="macro">assert!</span>(!SolarSurface::boundary_receives_sun(<span class="kw-2">&amp;</span>Boundary::AmbientTemperature {
+            temperature: <span class="number">12.
+        </span>}));
+        <span class="comment">// These do receive
+        </span><span class="macro">assert!</span>(SolarSurface::boundary_receives_sun(<span class="kw-2">&amp;</span>Boundary::Outdoor));
+        <span class="macro">assert!</span>(SolarSurface::boundary_receives_sun(<span class="kw-2">&amp;</span>Boundary::Space {
+            space: <span class="string">&quot;the space&quot;</span>.to_string()
+        }));
+    }
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="light" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0 (2c8cc3432 2023-03-06)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

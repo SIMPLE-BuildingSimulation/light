@@ -712,31 +712,6 @@
 <a href="#678" id="678">678</a>
 <a href="#679" id="679">679</a>
 <a href="#680" id="680">680</a>
-<a href="#681" id="681">681</a>
-<a href="#682" id="682">682</a>
-<a href="#683" id="683">683</a>
-<a href="#684" id="684">684</a>
-<a href="#685" id="685">685</a>
-<a href="#686" id="686">686</a>
-<a href="#687" id="687">687</a>
-<a href="#688" id="688">688</a>
-<a href="#689" id="689">689</a>
-<a href="#690" id="690">690</a>
-<a href="#691" id="691">691</a>
-<a href="#692" id="692">692</a>
-<a href="#693" id="693">693</a>
-<a href="#694" id="694">694</a>
-<a href="#695" id="695">695</a>
-<a href="#696" id="696">696</a>
-<a href="#697" id="697">697</a>
-<a href="#698" id="698">698</a>
-<a href="#699" id="699">699</a>
-<a href="#700" id="700">700</a>
-<a href="#701" id="701">701</a>
-<a href="#702" id="702">702</a>
-<a href="#703" id="703">703</a>
-<a href="#704" id="704">704</a>
-<a href="#705" id="705">705</a>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -826,39 +801,30 @@ SOFTWARE.
 
         <span class="kw">for </span>(index, surface) <span class="kw">in </span>iter {
             <span class="comment">// Deal with front
-            </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(b) = surface.front_boundary() {
-                <span class="kw">match </span>b {
-                    Boundary::Space { .. } =&gt; {
-                        <span class="comment">// Zero net IR exchange
-                        </span><span class="kw">let </span>temp = surface.first_node_temperature(state).unwrap_or(<span class="number">22.</span>);
-                        surface.set_front_ir_irradiance(state, ir(temp, <span class="number">1.0</span>))<span class="question-mark">?</span>;
-                    }
-                    Boundary::AmbientTemperature { temperature } =&gt; {
-                        <span class="comment">// It depends on the ambient tempearture
-                        </span>surface.set_front_ir_irradiance(state, ir(<span class="kw-2">*</span>temperature, <span class="number">1.0</span>))<span class="question-mark">?</span>;
-                    }
-                    Boundary::Ground =&gt; {
-                        <span class="comment">// ignore ground
-                    </span>}
-                    Boundary::Outdoor =&gt; {
-                        <span class="comment">// outdoor
-                        </span><span class="kw">let </span>view_factors = <span class="kw-2">&amp;</span><span class="self">self</span>.optical_info.front_surfaces_view_factors[index];
-                        <span class="kw">let </span>ground_other = (view_factors.ground + view_factors.air) * ir(db, <span class="number">1.0</span>);
-                        <span class="kw">let </span>sky = view_factors.sky * horizontal_ir;
-                        surface.set_front_ir_irradiance(state, ground_other + sky)<span class="question-mark">?</span>;
-                    }
+            </span><span class="kw">match </span><span class="kw-2">&amp;</span>surface.front_boundary {
+                Boundary::Space { .. } =&gt; {
+                    <span class="comment">// Zero net IR exchange
+                    </span><span class="kw">let </span>temp = surface.first_node_temperature(state).unwrap_or(<span class="number">22.</span>);
+                    surface.set_front_ir_irradiance(state, ir(temp, <span class="number">1.0</span>))<span class="question-mark">?</span>;
                 }
-            } <span class="kw">else </span>{
-                <span class="comment">// outdoor
-                </span><span class="kw">let </span>view_factors = <span class="kw-2">&amp;</span><span class="self">self</span>.optical_info.front_surfaces_view_factors[index];
-                <span class="kw">let </span>ground_other = (view_factors.ground + view_factors.air) * ir(db, <span class="number">1.0</span>);
-                <span class="kw">let </span>sky = view_factors.sky * horizontal_ir;
-                surface.set_front_ir_irradiance(state, ground_other + sky)<span class="question-mark">?</span>;
+                Boundary::AmbientTemperature { temperature } =&gt; {
+                    <span class="comment">// It depends on the ambient tempearture
+                    </span>surface.set_front_ir_irradiance(state, ir(<span class="kw-2">*</span>temperature, <span class="number">1.0</span>))<span class="question-mark">?</span>;
+                }
+                Boundary::Ground =&gt; {
+                    <span class="comment">// ignore ground
+                </span>}
+                Boundary::Outdoor =&gt; {
+                    <span class="comment">// outdoor
+                    </span><span class="kw">let </span>view_factors = <span class="kw-2">&amp;</span><span class="self">self</span>.optical_info.front_surfaces_view_factors[index];
+                    <span class="kw">let </span>ground_other = (view_factors.ground + view_factors.air) * ir(db, <span class="number">1.0</span>);
+                    <span class="kw">let </span>sky = view_factors.sky * horizontal_ir;
+                    surface.set_front_ir_irradiance(state, ground_other + sky)<span class="question-mark">?</span>;
+                }
             }
 
             <span class="comment">// Deal with Back
-            </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(b) = surface.back_boundary() {
-                <span class="kw">match </span>b {
+            </span><span class="kw">match </span><span class="kw-2">&amp;</span>surface.back_boundary {
                     Boundary::Space { .. } =&gt; {
                         <span class="comment">// Zero net IR exchange
                         </span><span class="kw">let </span>temp = surface.last_node_temperature(state).unwrap_or(<span class="number">22.</span>);
@@ -878,72 +844,49 @@ SOFTWARE.
                         surface.set_back_ir_irradiance(state, ground_other + sky)<span class="question-mark">?</span>;
                     }
                 }
-            } <span class="kw">else </span>{
-                <span class="comment">// outdoor
-                </span><span class="kw">let </span>view_factors = <span class="kw-2">&amp;</span><span class="self">self</span>.optical_info.back_surfaces_view_factors[index];
-                <span class="kw">let </span>ground_other = (view_factors.ground + view_factors.air) * ir(db, <span class="number">1.0</span>);
-                <span class="kw">let </span>sky = view_factors.sky * horizontal_ir;
-                surface.set_back_ir_irradiance(state, ground_other + sky)<span class="question-mark">?</span>;
-            }
         }
 
         <span class="kw">let </span>iter = model.fenestrations.iter().enumerate();
         <span class="kw">for </span>(index, surface) <span class="kw">in </span>iter {
             <span class="comment">// Deal with front
-            </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(b) = surface.front_boundary() {
-                <span class="kw">match </span>b {
-                    Boundary::Space { .. } =&gt; {
-                        <span class="comment">// Zero net IR exchange
-                        </span><span class="kw">let </span>temp = surface.first_node_temperature(state).unwrap_or(<span class="number">22.</span>);
-                        surface.set_front_ir_irradiance(state, ir(temp, <span class="number">1.0</span>))<span class="question-mark">?</span>;
-                    }
-                    Boundary::AmbientTemperature { temperature } =&gt; {
-                        surface.set_front_ir_irradiance(state, ir(<span class="kw-2">*</span>temperature, <span class="number">1.0</span>))<span class="question-mark">?</span>;
-                    }
-                    Boundary::Ground =&gt; {}
-                    Boundary::Outdoor =&gt; {
-                        <span class="kw">let </span>view_factors =
-                            <span class="kw-2">&amp;</span><span class="self">self</span>.optical_info.front_fenestrations_view_factors[index];
-                        <span class="kw">let </span>ground_other = (view_factors.ground + view_factors.air) * ir(db, <span class="number">1.0</span>);
-                        <span class="kw">let </span>sky = view_factors.sky * horizontal_ir;
-                        surface.set_front_ir_irradiance(state, ground_other + sky)<span class="question-mark">?</span>;
-                    }
+            </span><span class="kw">match </span><span class="kw-2">&amp;</span>surface.front_boundary {
+                Boundary::Space { .. } =&gt; {
+                    <span class="comment">// Zero net IR exchange
+                    </span><span class="kw">let </span>temp = surface.first_node_temperature(state).unwrap_or(<span class="number">22.</span>);
+                    surface.set_front_ir_irradiance(state, ir(temp, <span class="number">1.0</span>))<span class="question-mark">?</span>;
                 }
-            } <span class="kw">else </span>{
-                <span class="comment">// outdoor
-                </span><span class="kw">let </span>view_factors = <span class="kw-2">&amp;</span><span class="self">self</span>.optical_info.front_fenestrations_view_factors[index];
-                <span class="kw">let </span>ground_other = (view_factors.ground + view_factors.air) * ir(db, <span class="number">1.0</span>);
-                <span class="kw">let </span>sky = view_factors.sky * horizontal_ir;
-                surface.set_front_ir_irradiance(state, ground_other + sky)<span class="question-mark">?</span>;
+                Boundary::AmbientTemperature { temperature } =&gt; {
+                    surface.set_front_ir_irradiance(state, ir(<span class="kw-2">*</span>temperature, <span class="number">1.0</span>))<span class="question-mark">?</span>;
+                }
+                Boundary::Ground =&gt; {}
+                Boundary::Outdoor =&gt; {
+                    <span class="kw">let </span>view_factors =
+                        <span class="kw-2">&amp;</span><span class="self">self</span>.optical_info.front_fenestrations_view_factors[index];
+                    <span class="kw">let </span>ground_other = (view_factors.ground + view_factors.air) * ir(db, <span class="number">1.0</span>);
+                    <span class="kw">let </span>sky = view_factors.sky * horizontal_ir;
+                    surface.set_front_ir_irradiance(state, ground_other + sky)<span class="question-mark">?</span>;
+                }
             }
 
             <span class="comment">// Deal with Back
-            </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(b) = surface.back_boundary() {
-                <span class="kw">match </span>b {
-                    Boundary::Space { .. } =&gt; {
-                        <span class="comment">// Zero net IR exchange
-                        </span><span class="kw">let </span>temp = surface.last_node_temperature(state).unwrap_or(<span class="number">22.</span>);
-                        surface.set_back_ir_irradiance(state, ir(temp, <span class="number">1.0</span>))<span class="question-mark">?</span>;
-                    }
-                    Boundary::AmbientTemperature { temperature } =&gt; {
-                        surface.set_back_ir_irradiance(state, ir(<span class="kw-2">*</span>temperature, <span class="number">1.0</span>))<span class="question-mark">?</span>;
-                    }
-                    Boundary::Ground =&gt; {}
-                    Boundary::Outdoor =&gt; {
-                        <span class="comment">// outdoor
-                        </span><span class="kw">let </span>view_factors =
-                            <span class="kw-2">&amp;</span><span class="self">self</span>.optical_info.back_fenestrations_view_factors[index];
-                        <span class="kw">let </span>ground_other = (view_factors.ground + view_factors.air) * ir(db, <span class="number">1.0</span>);
-                        <span class="kw">let </span>sky = view_factors.sky * horizontal_ir;
-                        surface.set_back_ir_irradiance(state, ground_other + sky)<span class="question-mark">?</span>;
-                    }
+            </span><span class="kw">match </span><span class="kw-2">&amp;</span>surface.back_boundary {
+                Boundary::Space { .. } =&gt; {
+                    <span class="comment">// Zero net IR exchange
+                    </span><span class="kw">let </span>temp = surface.last_node_temperature(state).unwrap_or(<span class="number">22.</span>);
+                    surface.set_back_ir_irradiance(state, ir(temp, <span class="number">1.0</span>))<span class="question-mark">?</span>;
                 }
-            } <span class="kw">else </span>{
-                <span class="comment">// outdoor
-                </span><span class="kw">let </span>view_factors = <span class="kw-2">&amp;</span><span class="self">self</span>.optical_info.back_fenestrations_view_factors[index];
-                <span class="kw">let </span>ground_other = (view_factors.ground + view_factors.air) * ir(db, <span class="number">1.0</span>);
-                <span class="kw">let </span>sky = view_factors.sky * horizontal_ir;
-                surface.set_back_ir_irradiance(state, ground_other + sky)<span class="question-mark">?</span>;
+                Boundary::AmbientTemperature { temperature } =&gt; {
+                    surface.set_back_ir_irradiance(state, ir(<span class="kw-2">*</span>temperature, <span class="number">1.0</span>))<span class="question-mark">?</span>;
+                }
+                Boundary::Ground =&gt; {}
+                Boundary::Outdoor =&gt; {
+                    <span class="comment">// outdoor
+                    </span><span class="kw">let </span>view_factors =
+                        <span class="kw-2">&amp;</span><span class="self">self</span>.optical_info.back_fenestrations_view_factors[index];
+                    <span class="kw">let </span>ground_other = (view_factors.ground + view_factors.air) * ir(db, <span class="number">1.0</span>);
+                    <span class="kw">let </span>sky = view_factors.sky * horizontal_ir;
+                    surface.set_back_ir_irradiance(state, ground_other + sky)<span class="question-mark">?</span>;
+                }
             }
         }
 
@@ -991,7 +934,7 @@ SOFTWARE.
                 <span class="kw">let </span>solar_irradiance = <span class="kw-2">&amp;</span><span class="self">self</span>.optical_info.front_surfaces_dc * <span class="kw-2">&amp;</span>vec;
                 <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
                 <span class="kw">for </span>s <span class="kw">in </span>model.surfaces.iter() {
-                    <span class="kw">if </span>!SolarSurface::boundary_receives_sun(s.front_boundary()) {
+                    <span class="kw">if </span>!SolarSurface::boundary_receives_sun(<span class="kw-2">&amp;</span>s.front_boundary) {
                         <span class="kw">continue</span>;
                     }
                     <span class="comment">// Average of the period
@@ -1016,7 +959,7 @@ SOFTWARE.
                 <span class="kw">let </span>solar_irradiance = <span class="kw-2">&amp;</span><span class="self">self</span>.optical_info.back_surfaces_dc * <span class="kw-2">&amp;</span>vec;
                 <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
                 <span class="kw">for </span>s <span class="kw">in </span>model.surfaces.iter() {
-                    <span class="kw">if </span>!SolarSurface::boundary_receives_sun(s.back_boundary()) {
+                    <span class="kw">if </span>!SolarSurface::boundary_receives_sun(<span class="kw-2">&amp;</span>s.back_boundary) {
                         <span class="kw">continue</span>;
                     }
                     <span class="comment">// Average of the period
@@ -1043,7 +986,7 @@ SOFTWARE.
                 <span class="kw">let </span>solar_irradiance = <span class="kw-2">&amp;</span><span class="self">self</span>.optical_info.front_fenestrations_dc * <span class="kw-2">&amp;</span>vec;
                 <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
                 <span class="kw">for </span>s <span class="kw">in </span>model.fenestrations.iter() {
-                    <span class="kw">if </span>!SolarSurface::boundary_receives_sun(s.front_boundary()) {
+                    <span class="kw">if </span>!SolarSurface::boundary_receives_sun(<span class="kw-2">&amp;</span>s.front_boundary) {
                         <span class="kw">continue</span>;
                     }
                     <span class="comment">// Average of the period
@@ -1065,7 +1008,7 @@ SOFTWARE.
                 <span class="kw">let </span>solar_irradiance = <span class="kw-2">&amp;</span><span class="self">self</span>.optical_info.back_fenestrations_dc * <span class="kw-2">&amp;</span>vec;
                 <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
                 <span class="kw">for </span>s <span class="kw">in </span>model.fenestrations.iter() {
-                    <span class="kw">if </span>!SolarSurface::boundary_receives_sun(s.back_boundary()) {
+                    <span class="kw">if </span>!SolarSurface::boundary_receives_sun(<span class="kw-2">&amp;</span>s.back_boundary) {
                         <span class="kw">continue</span>;
                     }
                     <span class="comment">// Average of the period
@@ -1280,7 +1223,7 @@ SOFTWARE.
         construction.materials.push(<span class="string">&quot;the material&quot;</span>.into());
         model.add_construction(construction);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>s: Surface = json5::from_str(
+        <span class="kw">let </span>s: Surface = json5::from_str(
             <span class="string">&quot;{
             name: &#39;the surface&#39;,
             construction:&#39;the construction&#39;,
@@ -1289,11 +1232,14 @@ SOFTWARE.
                 1, 0, 0, // X, Y and Z of Vertex 1
                 1, 1, 0, // X, Y and Z of Vertex 2
                 0, 1, 0  // ...
-            ]
+            ],
+            front_boundary: {
+                type : &#39;AmbientTemperature&#39;,
+                temperature: 2.0
+            }
          }&quot;</span>,
         )
-        .unwrap();
-        s.set_front_boundary(Boundary::AmbientTemperature { temperature: <span class="number">2. </span>});
+        .unwrap();        
         model.add_surface(s);
 
         <span class="kw">let </span>s: Surface = json5::from_str(
@@ -1326,7 +1272,7 @@ SOFTWARE.
         .unwrap();
         model.add_fenestration(fen).unwrap();
 
-        <span class="kw">let </span><span class="kw-2">mut </span>fen: Fenestration = json5::from_str(
+        <span class="kw">let </span>fen: Fenestration = json5::from_str(
             <span class="string">&quot;{
             name: &#39;Window 2&#39;,
             construction: &#39;the construction&#39;,
@@ -1335,11 +1281,15 @@ SOFTWARE.
                 0.548000,10,0.5000,  // X,Y,Z ==&gt; Vertex 2 {m}
                 5.548000,10,0.5000,  // X,Y,Z ==&gt; Vertex 3 {m}
                 5.548000,10,2.5000,   // X,Y,Z ==&gt; Vertex 4 {m}
-            ]
+            ],
+            back_boundary: {
+                type:&#39;AmbientTemperature&#39;,
+                temperature: 2.0
+            }
         }&quot;</span>,
         )
         .unwrap();
-        fen.set_back_boundary(Boundary::AmbientTemperature { temperature: <span class="number">2. </span>});
+        
         model.add_fenestration(fen).unwrap();
 
         <span class="kw">let </span>meta_options = MetaOptions {

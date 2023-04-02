@@ -41,7 +41,7 @@ pub struct IRViewFactorSet {
 
 /// Information about the solar radiation and other optical elements
 /// of the whole model.
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Default, Debug, Serialize, Deserialize)]
 pub struct OpticalInfo {
     /// The [`IRViewFactorSet`] for the front side of each surface
     pub front_surfaces_view_factors: Vec<IRViewFactorSet>,

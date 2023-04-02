@@ -1,0 +1,7 @@
+/home/runner/work/light/light/./docs/rustdoc/debug/deps/calendar-c40a09414d90112a.rmeta: /home/runner/.cargo/git/checkouts/calendar-c397501fc6a8b60a/1cd5ada/src/lib.rs /home/runner/.cargo/git/checkouts/calendar-c397501fc6a8b60a/1cd5ada/src/date.rs /home/runner/.cargo/git/checkouts/calendar-c397501fc6a8b60a/1cd5ada/src/date_factory.rs
+
+/home/runner/work/light/light/./docs/rustdoc/debug/deps/calendar-c40a09414d90112a.d: /home/runner/.cargo/git/checkouts/calendar-c397501fc6a8b60a/1cd5ada/src/lib.rs /home/runner/.cargo/git/checkouts/calendar-c397501fc6a8b60a/1cd5ada/src/date.rs /home/runner/.cargo/git/checkouts/calendar-c397501fc6a8b60a/1cd5ada/src/date_factory.rs
+
+/home/runner/.cargo/git/checkouts/calendar-c397501fc6a8b60a/1cd5ada/src/lib.rs:
+/home/runner/.cargo/git/checkouts/calendar-c397501fc6a8b60a/1cd5ada/src/date.rs:
+/home/runner/.cargo/git/checkouts/calendar-c397501fc6a8b60a/1cd5ada/src/date_factory.rs:

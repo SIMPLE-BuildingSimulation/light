@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/SIMPLE-BuildingSimulation/light/compare/v0.1.0...v0.1.1) (2023-03-13)
+
+
+### Bug Fixes
+
+* better parallel behaviour ([c7f2224](https://github.com/SIMPLE-BuildingSimulation/light/commit/c7f222483e7dba82b3750438b2a65dc6e0318673))
+
 ## 0.1.0 (2022-11-11)
 
 

@@ -686,7 +686,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-</span><span class="kw">use </span>std::rc::Rc;
+</span><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span><span class="kw">crate</span>::Float;
 
@@ -824,7 +824,7 @@ SOFTWARE.
     ///
     /// Adds the necessary elements to the `SimulationStateHeader`
     </span><span class="kw">pub fn </span>make_fenestrations(
-        list: <span class="kw-2">&amp;</span>[Rc&lt;Fenestration&gt;],
+        list: <span class="kw-2">&amp;</span>[Arc&lt;Fenestration&gt;],
         state: <span class="kw-2">&amp;mut </span>SimulationStateHeader,
         n_rays: usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;SolarSurface&gt;, String&gt; {
@@ -877,7 +877,7 @@ SOFTWARE.
     ///
     /// Adds the necessary elements to the `SimulationStateHeader
     </span><span class="kw">pub fn </span>make_surfaces(
-        list: <span class="kw-2">&amp;</span>[Rc&lt;Surface&gt;],
+        list: <span class="kw-2">&amp;</span>[Arc&lt;Surface&gt;],
         state: <span class="kw-2">&amp;mut </span>SimulationStateHeader,
         n_rays: usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;SolarSurface&gt;, String&gt; {
@@ -1094,7 +1094,7 @@ SOFTWARE.
             Boundary::Outdoor,
             Boundary::Outdoor,
         );
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         <span class="comment">// Fen 1: outdoor on front, space at the back
         </span><span class="kw">let </span>fen = Fenestration::new(
@@ -1106,7 +1106,7 @@ SOFTWARE.
                 space: <span class="string">&quot;some space&quot;</span>.into(),
             },
         );
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         <span class="comment">// Fen 2: outdoor on back, space at the front
         </span><span class="kw">let </span>fen = Fenestration::new(
@@ -1118,7 +1118,7 @@ SOFTWARE.
             },
             Boundary::Outdoor,
         );
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         <span class="comment">// Fen 3: Ambient Temp at the back, space at the front
         </span><span class="kw">let </span>fen = Fenestration::new(
@@ -1130,7 +1130,7 @@ SOFTWARE.
             },
             Boundary::AmbientTemperature { temperature: <span class="number">1. </span>},
         );
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         <span class="comment">// Fen 4: Ambient Temp at the back and front
         </span><span class="kw">let </span>fen = Fenestration::new(
@@ -1140,7 +1140,7 @@ SOFTWARE.
             Boundary::AmbientTemperature { temperature: <span class="number">1. </span>},
             Boundary::AmbientTemperature { temperature: <span class="number">1. </span>},
         );
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         <span class="comment">// Fen 5: Ground at the back and front
         </span><span class="kw">let </span>fen = Fenestration::new(
@@ -1151,7 +1151,7 @@ SOFTWARE.
             Boundary::Ground,
         );
 
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         <span class="comment">// Calc
         </span><span class="kw">let </span>fens = SolarSurface::make_fenestrations(<span class="kw-2">&amp;</span>list, <span class="kw-2">&amp;mut </span>state, <span class="number">1</span>).unwrap();
@@ -1202,7 +1202,7 @@ SOFTWARE.
             Boundary::Outdoor,
             Boundary::Outdoor,
         );
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         <span class="comment">// Fen 1: outdoor on front, space at the back
         </span><span class="kw">let </span>fen = Surface::new(
@@ -1214,7 +1214,7 @@ SOFTWARE.
                 space: <span class="string">&quot;some space&quot;</span>.into(),
             },
         );
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         <span class="comment">// Fen 2: outdoor on back, space at the front
         </span><span class="kw">let </span>fen = Surface::new(
@@ -1227,7 +1227,7 @@ SOFTWARE.
             Boundary::Outdoor,
         );
 
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         <span class="comment">// Fen 3: Ambient Temp at the back, space at the front
         </span><span class="kw">let </span>fen = Surface::new(
@@ -1240,7 +1240,7 @@ SOFTWARE.
             Boundary::AmbientTemperature { temperature: <span class="number">1. </span>},
         );
 
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         <span class="comment">// Fen 4: Ambient Temp at the back and front
         </span><span class="kw">let </span>fen = Surface::new(
@@ -1250,7 +1250,7 @@ SOFTWARE.
             Boundary::AmbientTemperature { temperature: <span class="number">1. </span>},
             Boundary::AmbientTemperature { temperature: <span class="number">1. </span>},
         );
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         <span class="comment">// Fen 5: Ground at the back and front
         </span><span class="kw">let </span>fen = Surface::new(
@@ -1261,7 +1261,7 @@ SOFTWARE.
             Boundary::Ground,
         );
 
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         <span class="comment">// Calc
         </span><span class="kw">let </span>fens = SolarSurface::make_surfaces(<span class="kw-2">&amp;</span>list, <span class="kw-2">&amp;mut </span>state, <span class="number">1</span>).unwrap();

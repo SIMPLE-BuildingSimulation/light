@@ -18,7 +18,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::Float;
 
@@ -156,7 +156,7 @@ impl SolarSurface {
     ///
     /// Adds the necessary elements to the `SimulationStateHeader`
     pub fn make_fenestrations(
-        list: &[Rc<Fenestration>],
+        list: &[Arc<Fenestration>],
         state: &mut SimulationStateHeader,
         n_rays: usize,
     ) -> Result<Vec<SolarSurface>, String> {
@@ -209,7 +209,7 @@ impl SolarSurface {
     ///
     /// Adds the necessary elements to the `SimulationStateHeader
     pub fn make_surfaces(
-        list: &[Rc<Surface>],
+        list: &[Arc<Surface>],
         state: &mut SimulationStateHeader,
         n_rays: usize,
     ) -> Result<Vec<SolarSurface>, String> {
@@ -426,7 +426,7 @@ mod testing {
             Boundary::Outdoor,
             Boundary::Outdoor,
         );
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         // Fen 1: outdoor on front, space at the back
         let fen = Fenestration::new(
@@ -438,7 +438,7 @@ mod testing {
                 space: "some space".into(),
             },
         );
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         // Fen 2: outdoor on back, space at the front
         let fen = Fenestration::new(
@@ -450,7 +450,7 @@ mod testing {
             },
             Boundary::Outdoor,
         );
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         // Fen 3: Ambient Temp at the back, space at the front
         let fen = Fenestration::new(
@@ -462,7 +462,7 @@ mod testing {
             },
             Boundary::AmbientTemperature { temperature: 1. },
         );
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         // Fen 4: Ambient Temp at the back and front
         let fen = Fenestration::new(
@@ -472,7 +472,7 @@ mod testing {
             Boundary::AmbientTemperature { temperature: 1. },
             Boundary::AmbientTemperature { temperature: 1. },
         );
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         // Fen 5: Ground at the back and front
         let fen = Fenestration::new(
@@ -483,7 +483,7 @@ mod testing {
             Boundary::Ground,
         );
 
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         // Calc
         let fens = SolarSurface::make_fenestrations(&list, &mut state, 1).unwrap();
@@ -534,7 +534,7 @@ mod testing {
             Boundary::Outdoor,
             Boundary::Outdoor,
         );
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         // Fen 1: outdoor on front, space at the back
         let fen = Surface::new(
@@ -546,7 +546,7 @@ mod testing {
                 space: "some space".into(),
             },
         );
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         // Fen 2: outdoor on back, space at the front
         let fen = Surface::new(
@@ -559,7 +559,7 @@ mod testing {
             Boundary::Outdoor,
         );
 
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         // Fen 3: Ambient Temp at the back, space at the front
         let fen = Surface::new(
@@ -572,7 +572,7 @@ mod testing {
             Boundary::AmbientTemperature { temperature: 1. },
         );
 
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         // Fen 4: Ambient Temp at the back and front
         let fen = Surface::new(
@@ -582,7 +582,7 @@ mod testing {
             Boundary::AmbientTemperature { temperature: 1. },
             Boundary::AmbientTemperature { temperature: 1. },
         );
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         // Fen 5: Ground at the back and front
         let fen = Surface::new(
@@ -593,7 +593,7 @@ mod testing {
             Boundary::Ground,
         );
 
-        list.push(Rc::new(fen));
+        list.push(Arc::new(fen));
 
         // Calc
         let fens = SolarSurface::make_surfaces(&list, &mut state, 1).unwrap();
